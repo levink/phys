@@ -310,7 +310,7 @@ public:
 		equa[3] = 0; 
 	}
 	
-	Plane(double Ctmp[3][3])
+	Plane(double Ctmp[3][3] )
 	{
 		equa[0] = Ctmp[1][0]*(Ctmp[2][1] - Ctmp[2][2]) + Ctmp[1][1]*(Ctmp[2][2] - Ctmp[2][0]) + Ctmp[1][2]*(Ctmp[2][0] - Ctmp[2][1]);
 		equa[1] = Ctmp[2][0]*(Ctmp[0][1] - Ctmp[0][2]) + Ctmp[2][1]*(Ctmp[0][2] - Ctmp[0][0]) + Ctmp[2][2]*(Ctmp[0][0] - Ctmp[0][1]);
@@ -352,7 +352,7 @@ public:
 
 		double redoun[3][3] = 
 		{	{1,0,0},
-			{0,-1,0},
+			{0,-0.1,0},
 			{0,0,1}, };
 		Matrix rebound = Matrix(redoun);
 
@@ -460,7 +460,7 @@ public:
 		{
 			if(TestEqua(obj,Plan[i]))
 			{
-				obj->velo = Plan[i].GetMat() * obj->velo * resil;
+				obj->velo = Plan[i].GetMat() * obj->velo; //* resil;
 				obj->velo.SetZ(0);
 				obj->velo.SetX(- obj->velo.GetX());
 			}
