@@ -5,6 +5,7 @@
 #include "../glut/glut.h"
 #include "../headers/cfizika.h"
 #include "../headers/func.h"
+//asdasdas
 
 double angle = 0, step = 0;
 const double PI = 3.1415916;
