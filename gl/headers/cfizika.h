@@ -4,6 +4,9 @@
 #ifndef __FIZIKA_H
 #define __FIZIKA_H
 
+#define A 20
+#define T 5
+
 // ‘изика
 //’е-’е
 class Vector
@@ -457,21 +460,28 @@ private:
 	Plane * Plan;
 	int k;
 public: 
-	World()
+	World(DWORD t)
 	{
+		double _pi = 3.1415926;
 		k = 2;
 		Plan = new Plane [k];
-		double eq1[4]  ={-10,10,1,0};
+		//double eq1[4]  ={-10,10,1,0};
+		double eq1 [4];
+		eq1[0] = A * cos ( t * (2 * _pi) / T);
+		if(eq1[0]  < 0)
+			eq1[0] = -eq1[0];
+
+		eq1[1] = A * sin ( t * (2 * _pi) / T);
+		if(eq1[1]  < 0)
+			eq1[1] = -eq1[1];
+
+		eq1[2]  = 1;
+		eq1[3]  = 0;
 		/*double eq1 [3][3] = 
 		{	{0,-14,0},
 			{1,-14,0.5},
 			{1,14,0}};
-		double eq2 [3][3] = 
-		{	{0,-14,0},
-			{-1,-14,0.5},
-			{-1,-14,0}};*/
-		//double eq1 [4] = {0.5,0.5,0,14};
-		//double eq2 [4] = {-0.5,0.5,0,14};
+		*/
 
 		Plan[0] = Plane(eq1);
 		//Plan[1] = Plane(eq2);

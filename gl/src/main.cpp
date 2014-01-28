@@ -175,6 +175,14 @@ void display(void)
 		glutSolidSphere(1,10,10);
 		glPopMatrix();
 	}
+	DWORD e = time(NULL);
+
+	/*glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,colorX);
+	glBegin(GL_TRIANGLE_STRIP);
+		glVertex3d(30 * cos ( e * (2 * PI) / 5),30 * cos ( e * (2 * PI) / 5),-2);
+		glVertex3d(5,0,-2);
+		glVertex3d(-5,0,-2);
+	glEnd();*/
 
 	t1 += dt;
 

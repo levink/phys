@@ -1,3 +1,4 @@
+#include<iostream>
 #include<ctime>
 #include <cmath>
 #include "../headers/cfizika.h"
@@ -6,6 +7,7 @@
 const double PI = 3.1415916;
 #define n 0.5
 #define p 1.2041
+DWORD t100 = 0;
 
 Fizika::Fizika()
 {
@@ -40,10 +42,16 @@ void Fizika::MoveObject(Camera* obj, double t_sec)
 	obj->velo = v;
 	obj->Position = x;
 
-	World wor = World();
+	DWORD t = time(NULL);
+	World wor = World(t);
 
 	wor.Test(obj,0.8);
 
+	if(t != t100)
+	{
+		t100 = t;
+		std::cout << "Время" << t100 << std::endl;
+	}
 	//F0.SetX(obj ->F.GetX());
 	//F0.SetZ(obj ->F.GetZ());
 	//F0.SetY(obj ->F.GetY());
