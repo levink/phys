@@ -159,6 +159,8 @@ class Matrix
 			double a2 = mat[0][1] * ( mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]);
 			double a3 = mat[0][2] * ( mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]);
 			double determinant = a1 - a2 + a3;
+			if(determinant == 0)
+				determinant = 1;
 			return determinant;
 		}
 		
@@ -247,49 +249,6 @@ class Matrix
 		}
 };
 
-class BaseObject
-{
-public:
-	Vector Position;
-	DWORD bornTime;
-	double m;
-	Vector velo;
-	Vector accel;
-	Vector F;
-	BaseObject()
-	{
-		Position = Vector(0,0,0);
-		velo = Vector(0,0,0);
-		accel = Vector(0,0,0);
-		F = Vector(0,0,0);
-		m =0;
-		bornTime = 0;
-	}
-};
-
-class Camera: public BaseObject
-{
-private:
-	double angle;
-public:
-	Camera();
-	double GetAngleXOZ();
-	void SetAngleXOZ(int ang);
-	//void Turn(double ang);
-	
-};
-
-class Fizika
-{
-private:
-	double _g;
-
-public:
-	Fizika();
-	//void Kick (double plane[4],Camera * obj,double k);
-	void MoveObject(Camera* obj, double t);
-};
-
 class Plane
 {
 private:
@@ -310,7 +269,7 @@ public:
 		equa[3] = 0; 
 	}
 	
-	Plane(double Ctmp[3][3] )
+	Plane(double Ctmp[3][3])
 	{
 		equa[0] = Ctmp[1][0]*(Ctmp[2][1] - Ctmp[2][2]) + Ctmp[1][1]*(Ctmp[2][2] - Ctmp[2][0]) + Ctmp[1][2]*(Ctmp[2][0] - Ctmp[2][1]);
 		equa[1] = Ctmp[2][0]*(Ctmp[0][1] - Ctmp[0][2]) + Ctmp[2][1]*(Ctmp[0][2] - Ctmp[0][0]) + Ctmp[2][2]*(Ctmp[0][0] - Ctmp[0][1]);
@@ -352,7 +311,7 @@ public:
 
 		double redoun[3][3] = 
 		{	{1,0,0},
-			{0,-0.1,0},
+			{0,-1,0},
 			{0,0,1}, };
 		Matrix rebound = Matrix(redoun);
 
@@ -362,13 +321,19 @@ public:
 	Plane(double eq [4])
 	{
 		for(int i=0;i<4;i++)
+		{
 			equa[i] = eq[i];
+			if(equa[i] == 0)
+				equa[i] = 1;
+		}
 
 		double longg  =sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
 		equa[0] = equa[0] / longg;
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
-		equa[3] = - equa[0] - equa[1] - equa[2];
+		//equa[3] = - equa[0] - equa[1] - equa[2];
+		if(equa[0] == 0)
+			equa[0] =1;
 
 		double a[3];
 		a[0] = equa[0];
@@ -421,6 +386,71 @@ public:
 	}
 };
 
+class BaseObject
+{
+public:
+	Vector Position;
+	DWORD bornTime;
+	double m;
+	Vector velo;
+	Vector accel;
+	Vector F;
+	BaseObject()
+	{
+		Position = Vector(0,0,0);
+		velo = Vector(0,0,0);
+		accel = Vector(0,0,0);
+		F = Vector(0,0,0);
+		m =0;
+		bornTime = 0;
+	}
+};
+
+class GeneralObject
+{
+private:
+	BaseObject * BasObj;
+	Plane * pla;
+	int _pl;
+	Vector ** tmp;
+	int _tm;
+public:
+	GeneralObject()
+	{
+		*BasObj = BaseObject();
+		*pla = Plane();
+		**tmp = Vector();
+		_pl = 0;
+		_tm = 0;
+	}
+	void Obj_test ()
+	{
+	}
+};
+
+class Camera: public BaseObject
+{
+private:
+	double angle;
+public:
+	Camera();
+	double GetAngleXOZ();
+	void SetAngleXOZ(int ang);
+	//void Turn(double ang);
+	
+};
+
+class Fizika
+{
+private:
+	double _g;
+
+public:
+	Fizika();
+	//void Kick (double plane[4],Camera * obj,double k);
+	void MoveObject(Camera* obj, double t);
+};
+
 class World
 {
 private:
@@ -431,28 +461,25 @@ public:
 	{
 		k = 2;
 		Plan = new Plane [k];
-		double eq1 [3][3] = 
+		double eq1[4]  ={-10,10,1,0};
+		/*double eq1 [3][3] = 
 		{	{0,-14,0},
 			{1,-14,0.5},
 			{1,14,0}};
 		double eq2 [3][3] = 
 		{	{0,-14,0},
 			{-1,-14,0.5},
-			{-1,-14,0}};
+			{-1,-14,0}};*/
 		//double eq1 [4] = {0.5,0.5,0,14};
 		//double eq2 [4] = {-0.5,0.5,0,14};
 
 		Plan[0] = Plane(eq1);
 		//Plan[1] = Plane(eq2);
 	}
-	
-	/*int  GetK()
-	{
-		return k;
-	}*/
+
 	bool TestEqua(Camera * obj,Plane  Plan)
 	{
-		return ( obj->Position.GetX()*Plan.GetA() + obj->Position.GetY()*Plan.GetB() + obj->Position.GetZ()* Plan.GetC() + Plan.GetD() ) > 0; // изменить знак неравенства на <
+		return ( obj->Position.GetX()*Plan.GetA() + obj->Position.GetY()*Plan.GetB() + obj->Position.GetZ()* Plan.GetC() + Plan.GetD() ) < 0; // изменить знак неравенства на <
 	}
 	void Test(Camera * obj,double resil)
 	{
@@ -460,9 +487,7 @@ public:
 		{
 			if(TestEqua(obj,Plan[i]))
 			{
-				obj->velo = Plan[i].GetMat() * obj->velo; //* resil;
-				obj->velo.SetZ(0);
-				obj->velo.SetX(- obj->velo.GetX());
+				obj->velo = Plan[i].GetMat() * obj->velo * resil;
 			}
 		}
 	}

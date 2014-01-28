@@ -42,7 +42,7 @@ void Fizika::MoveObject(Camera* obj, double t_sec)
 
 	World wor = World();
 
-	wor.Test(obj,0.2);
+	wor.Test(obj,0.8);
 
 	//F0.SetX(obj ->F.GetX());
 	//F0.SetZ(obj ->F.GetZ());

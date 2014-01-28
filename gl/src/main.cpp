@@ -5,7 +5,6 @@
 #include "../glut/glut.h"
 #include "../headers/cfizika.h"
 #include "../headers/func.h"
-//asdasdas
 
 double angle = 0, step = 0;
 const double PI = 3.1415916;
@@ -157,10 +156,10 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,green);
 
 	glBegin(GL_POLYGON);
-		glVertex3d(14,14.5,-1);
-		glVertex3d(-10,-19.7,-1);
-		glVertex3d(-9,-20.7,-1);
-		glVertex3d(15,13.5,-1);
+		glVertex3d(18.8,16.7,-1);
+		glVertex3d(17.8,17.7,-1);
+		glVertex3d(-16.4,-18.3,-1);
+		glVertex3d(-15.4,-19.3,-1);
 	glEnd();
 
 	glTranslated(0,0,-40);
