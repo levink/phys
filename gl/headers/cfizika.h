@@ -6,7 +6,7 @@
 
 #define A 20
 #define T 5
-
+#define res 0.8
 // Физика
 //Хе-Хе
 class Vector
@@ -389,6 +389,13 @@ public:
 	}
 };
 
+struct AllObject
+{
+	int nomber1;
+	int nomber2;
+	Plane Pl;
+};
+
 class BaseObject
 {
 public:
@@ -404,31 +411,36 @@ public:
 		velo = Vector(0,0,0);
 		accel = Vector(0,0,0);
 		F = Vector(0,0,0);
-		m =0;
+		m = 10;
 		bornTime = 0;
 	}
 };
 
-class GeneralObject
+class Sphere: public BaseObject
 {
-private:
-	BaseObject * BasObj;
-	Plane * pla;
-	int _pl;
-	Vector ** tmp;
-	int _tm;
+private: 
+	double rad;
 public:
-	GeneralObject()
+	Sphere()
 	{
-		*BasObj = BaseObject();
-		*pla = Plane();
-		**tmp = Vector();
-		_pl = 0;
-		_tm = 0;
+		rad = 1;
+		BaseObject();
 	}
-	void Obj_test ()
+	void Test(Sphere * obj)
 	{
+		double x = obj->Position.GetX()- Position.GetX();
+		double y = obj->Position.GetY()- Position.GetY();
+		double z = obj->Position.GetZ()- Position.GetZ();
+		if(sqrt(pow(x,2) + pow(y,2) + pow(z,2) ) < (rad + obj->rad) * 1.1)
+		{
+			double eq[3]  = {x,y,z};
+			Plane plan  = Plane(eq);
+			velo = plan.GetMat() * ( ( ( obj->velo - velo ) * obj->m ) / m + velo ) * res;
+			obj->velo = plan.GetMat() * ( ( ( velo - obj->velo ) * m ) / obj->m + obj->velo ) * res;
+			//delete plan;
+		}
 	}
+	
 };
 
 class Camera: public BaseObject
@@ -441,17 +453,6 @@ public:
 	void SetAngleXOZ(int ang);
 	//void Turn(double ang);
 	
-};
-
-class Fizika
-{
-private:
-	double _g;
-
-public:
-	Fizika();
-	//void Kick (double plane[4],Camera * obj,double k);
-	void MoveObject(Camera* obj, double t);
 };
 
 class World
@@ -487,10 +488,25 @@ public:
 		//Plan[1] = Plane(eq2);
 	}
 
+	World()
+	{
+		k = 2;
+		Plan = new Plane [k];
+		double eq1[4]  ={-10,10,1,0};
+		/*double eq1 [3][3] = 
+		{	{0,-14,0},
+			{1,-14,0.5},
+			{1,14,0}};
+		*/
+		Plan[0] = Plane(eq1);
+		//Plan[1] = Plane(eq2);
+	}
+
 	bool TestEqua(Camera * obj,Plane  Plan)
 	{
 		return ( obj->Position.GetX()*Plan.GetA() + obj->Position.GetY()*Plan.GetB() + obj->Position.GetZ()* Plan.GetC() + Plan.GetD() ) < 0; // изменить знак неравенства на <
 	}
+
 	void Test(Camera * obj,double resil)
 	{
 		for(int i=0;i<k;i++)
@@ -501,5 +517,34 @@ public:
 			}
 		}
 	}
+
+	bool TestEqua(Sphere * obj,Plane  Plan)
+	{
+		return ( obj->Position.GetX()*Plan.GetA() + obj->Position.GetY()*Plan.GetB() + obj->Position.GetZ()* Plan.GetC() + Plan.GetD() ) < 0; // изменить знак неравенства на <
+	}
+
+	void Test(Sphere * obj,double resil)
+	{
+		for(int i=0;i<k;i++)
+		{
+			if(TestEqua(obj,Plan[i]))
+			{
+				obj->velo = Plan[i].GetMat() * obj->velo * resil;
+			}
+		}
+	}
 };
+
+class Fizika
+{
+private:
+	double _g;
+	World wor;
+public:
+	Fizika();
+	//void Kick (double plane[4],Camera * obj,double k);
+	void MoveObject(Camera * obj, double t);
+	void MoveObject(Sphere * obj, double t);
+};
+
 #endif
