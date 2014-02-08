@@ -21,7 +21,7 @@ DWORD t1 = 0;
 int num = 0;
 int max = 0;
 
-Camera * obj[100];
+Sphere * obj[100];
 Fizika * phy;
 
 void keybord(unsigned char key, int x, int y)
@@ -90,7 +90,7 @@ void mouseMotion(int button, int state, int x, int y)
 		y1 *= -0.050847;
 		Vector pos = Vector(x1,y1,-10);
 
-		Camera* tmp = new Camera();
+		Sphere * tmp = new Sphere;
 		tmp->Position = pos;
 		obj[num] = tmp;
 		num++;
@@ -166,8 +166,24 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,colorY);
 
 	DWORD dt = GetTickCount()-t1;
+
 	for(int i=0;i<num;i++)
 	{
+		for(int e = 0;e<num;e++)
+		{
+			if(i!=e)
+				obj[i]->Test(obj[e]);
+		}
+	}
+
+	for(int i=0;i<num;i++)
+	{
+		/*for(int e = 0;e<num;e++)
+		{
+			if(i!=e)
+				obj[i]->Test(obj[e]);
+		}*/
+
 		phy ->MoveObject(obj[i], dt/1000.0);
 
 		glPushMatrix();
