@@ -391,8 +391,14 @@ public:
 
 struct AllObject
 {
+<<<<<<< HEAD
 	/*bool tes [100][100];
 	Sphere * obj;*/
+=======
+	int nomber1;
+	int nomber2;
+	Plane Pl;
+>>>>>>> d46ff1ec2241bad6f31399c57800420208b9fffe
 };
 
 class BaseObject
@@ -430,6 +436,7 @@ public:
 		double x = obj->Position.GetX()- Position.GetX();
 		double y = obj->Position.GetY()- Position.GetY();
 		double z = obj->Position.GetZ()- Position.GetZ();
+<<<<<<< HEAD
 		if(sqrt(pow(x,2) + pow(y,2) + pow(z,2) ) < (rad + obj->rad) * 1.01)
 		{
 			double eq[3]  = {x,y,z};
@@ -441,6 +448,14 @@ public:
 			velo = plan.GetMat() * ve1 /*velo*/ * res;
 
 			//obj->velo = plan.GetMat() * ve2 /*obj->velo*/ * res;
+=======
+		if(sqrt(pow(x,2) + pow(y,2) + pow(z,2) ) < (rad + obj->rad) * 1.1)
+		{
+			double eq[3]  = {x,y,z};
+			Plane plan  = Plane(eq);
+			velo = plan.GetMat() * ( ( ( obj->velo - velo ) * obj->m ) / m + velo ) * res;
+			obj->velo = plan.GetMat() * ( ( ( velo - obj->velo ) * m ) / obj->m + obj->velo ) * res;
+>>>>>>> d46ff1ec2241bad6f31399c57800420208b9fffe
 			//delete plan;
 		}
 	}
@@ -537,6 +552,7 @@ public:
 			}
 		}
 	}
+<<<<<<< HEAD
 };
 
 class Fizika
@@ -551,4 +567,20 @@ public:
 	void MoveObject(Sphere * obj, double t);
 };
 
+=======
+};
+
+class Fizika
+{
+private:
+	double _g;
+	World wor;
+public:
+	Fizika();
+	//void Kick (double plane[4],Camera * obj,double k);
+	void MoveObject(Camera * obj, double t);
+	void MoveObject(Sphere * obj, double t);
+};
+
+>>>>>>> d46ff1ec2241bad6f31399c57800420208b9fffe
 #endif

@@ -178,11 +178,19 @@ void display(void)
 
 	for(int i=0;i<num;i++)
 	{
+<<<<<<< HEAD
 		/*for(int e = 0;e<num;e++)
 		{
 			if(i!=e)
 				obj[i]->Test(obj[e]);
 		}*/
+=======
+		for(int e = 0;e<num;e++)
+		{
+			if(i!=e)
+				obj[i]->Test(obj[e]);
+		}
+>>>>>>> d46ff1ec2241bad6f31399c57800420208b9fffe
 
 		phy ->MoveObject(obj[i], dt/1000.0);
 
