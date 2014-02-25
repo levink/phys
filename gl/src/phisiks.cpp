@@ -82,6 +82,10 @@ void Fizika::MoveObject(Sphere * obj, double t_sec)
 	obj->Position = x;
 
 	wor.Test(obj,0.8);
+
+	double S = 2 * PI * obj->GetRad();
+	Vector l = obj->ve_ro * t_sec;
+	Vector Angl = l/S * 360 + Angl;
 }
 
 Sphere* Sphere:: TestMO (Sphere * obj, double t_sec)

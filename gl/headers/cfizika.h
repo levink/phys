@@ -4,7 +4,7 @@
 #ifndef __FIZIKA_H
 #define __FIZIKA_H
 
-#define A 20
+#define E 20
 #define T 5
 #define res 0.8
 // Физика
@@ -428,12 +428,15 @@ public:
 	Vector velo;
 	Vector accel;
 	Vector F;
+	Vector ve_ro;
+	Vector Angl;
 	BaseObject()
 	{
 		Position = Vector(0,0,0);
 		velo = Vector(0,0,0);
 		accel = Vector(0,0,0);
 		F = Vector(0,0,0);
+		Angl = Vector(0,0,0);
 		m = 10;
 		bornTime = 0;
 	}
@@ -477,21 +480,29 @@ public:
 
 
 			if(velo / norm > 0)
-			{
 				velo = plan->GetMat() * ve1 /*velo*/ * res;
-			}
 			else
-			{
 				velo = ve1;
-			}
 			if(obj->velo / norm < 0)
-			{
 				obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
-			}
 			else
-			{
 				obj->velo = ve2;
-			}
+
+			double A = ve1.GetY() * velo.GetZ() - ve1.GetZ() * velo.GetY();
+			double B = -(ve1.GetX() * velo.GetZ() - ve1.GetZ() * velo.GetY());
+			double C = ve1.GetY() * velo.GetY() - ve1.GetY() * velo.GetZ();
+			double D = -Position.GetX() * A + Position.GetY() * B - Position.GetZ() * C;
+			if(C == 0)
+				C = 1;
+			if(ve1.GetY() == 0)
+				ve1.SetY(1);
+			if(ve1.GetZ() == 0)
+				ve1.SetZ(1);
+			if(B == (C * ve1.GetY()) / ve1.GetZ() )
+				B +=1;
+			double _y = -(D / ( B - ( ( C*ve1.GetY() ) / ve1.GetZ() ) ) );
+			double _z = -( (ve1.GetY() * _y) / ve1.GetZ() );
+			Vector normal = Vector(0,_y,_z);
 			//	velo = plan->GetMat() * /*ve1*/ velo * res;
 
 			//obj->velo = plan->GetMat() * /*ve2*/ obj->velo * res;
@@ -549,11 +560,11 @@ public:
 		Plan = new Plane [k];
 		//double eq1[4]  ={-10,10,1,0};
 		double eq1 [4];
-		eq1[0] = A * cos ( t * (2 * _pi) / T);
+		eq1[0] = E * cos ( t * (2 * _pi) / T);
 		if(eq1[0]  < 0)
 			eq1[0] = -eq1[0];
 
-		eq1[1] = A * sin ( t * (2 * _pi) / T);
+		eq1[1] = E * sin ( t * (2 * _pi) / T);
 		if(eq1[1]  < 0)
 			eq1[1] = -eq1[1];
 

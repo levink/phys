@@ -26,7 +26,7 @@ int gen_test [100][100];
 //int in = 0;
 Fizika * phy;
 
-//int InvIn();
+int InvIn();
 void Start();
 
 void keybord(unsigned char key, int x, int y)
@@ -95,7 +95,7 @@ void mouseMotion(int button, int state, int x, int y)
 		y1 *= -0.050847;
 		Vector pos = Vector(x1,y1,-10);
 
-		Sphere * tmp = new Sphere;
+		Sphere * tmp = new Sphere();
 		tmp->Position = pos;
 		obj[num] = tmp;
 		num++;
@@ -237,6 +237,8 @@ void display(void)
 			phy ->MoveObject(obj[i], tim);
 		glPushMatrix();
 		glTranslated(obj[i]->Position.GetX(),obj[i]->Position.GetY(), obj[i]->Position.GetZ());
+		glRotated(obj[i]->Angl.GetX(),0,0,1);
+		glRotated(obj[i]->Angl.GetZ(),1,0,0);
 		glutSolidSphere(1,10,10);
 		glPopMatrix();
 	}
@@ -305,6 +307,7 @@ void Start()
 {
 	for(int i=0;i<100;i++)
 	{
+		*obj[i] = Sphere();
 		for(int e=0;e<100;e++)
 		{
 			gen_test[i][e] = 0;
