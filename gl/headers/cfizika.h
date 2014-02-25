@@ -60,6 +60,13 @@ public:
 	{
 		z=newz;
 	}
+	double distanse (Vector ve1, Vector ve2)
+	{
+		double _x = ve1.GetX() - ve2.GetX();
+		double _y = ve1.GetY() - ve2.GetY();
+		double _z =	ve1.GetZ() - ve2.GetZ();
+		return sqrt( pow(_x,2) + pow(_y,2) + pow(_z,2) ); 
+	}
 	Vector operator-(Vector secondValue)
 	{
 		double _x = x - secondValue.GetX();
@@ -95,6 +102,10 @@ public:
 		double _z = x * count.y - y * count.x;
 		return Vector(_x,_y,_z);
 	}
+	double operator/(Vector count)
+	{
+		return x * count.GetX() + y * count.GetY() + z * count.GetZ(); 
+	}
 	Vector operator= (Vector inicialisingValue)
 	{
 		x = inicialisingValue.GetX();
@@ -117,6 +128,19 @@ public:
 				if(z != test.GetZ())
 					i=1;
 		return i;
+	}
+	bool operator<(double test)
+	{
+		bool tes =0;
+		if( sqrt(pow(x,2) + pow(y,2) + pow(z,2) ) < test)
+			tes = 1;
+		return tes;
+	}
+	bool operator==(Vector test)
+	{
+		if(x==test.GetX() && y == test.GetY() && z == test.GetZ())
+			return 1;
+		return 0;
 	}
 };
 
@@ -391,14 +415,8 @@ public:
 
 struct AllObject
 {
-<<<<<<< HEAD
 	/*bool tes [100][100];
 	Sphere * obj;*/
-=======
-	int nomber1;
-	int nomber2;
-	Plane Pl;
->>>>>>> d46ff1ec2241bad6f31399c57800420208b9fffe
 };
 
 class BaseObject
@@ -425,41 +443,85 @@ class Sphere: public BaseObject
 {
 private: 
 	double rad;
+	double _g;
 public:
 	Sphere()
 	{
 		rad = 1;
+		_g = 10;
 		BaseObject();
 	}
-	void Test(Sphere * obj)
+
+	Sphere * TestMO (Sphere * obj, double t);
+
+	void Test(Sphere * obj, bool motion)
 	{
-		double x = obj->Position.GetX()- Position.GetX();
-		double y = obj->Position.GetY()- Position.GetY();
-		double z = obj->Position.GetZ()- Position.GetZ();
-<<<<<<< HEAD
-		if(sqrt(pow(x,2) + pow(y,2) + pow(z,2) ) < (rad + obj->rad) * 1.01)
+		if(velo.distanse(Position,obj->Position) < (rad + obj->rad) * 1.01 || motion)
 		{
+			double x = obj->Position.GetX() - Position.GetX();
+			double y = obj->Position.GetY() - Position.GetY();
+			double z = obj->Position.GetZ() - Position.GetZ();
+
 			double eq[3]  = {x,y,z};
-			Plane plan  = Plane(eq);
-			Vector ve1 = ( ( (obj->velo - velo ) * obj->m ) / m + velo );
-			Vector ve2 = ( ( ( velo - obj->velo ) * m ) / obj->m + obj->velo );
+			Vector norm = (eq);
+			double e[3] = {0,0,0};
+			Plane * plan  = new Plane(eq);
+			Vector impulse = velo * m + obj->velo * obj->m;
+			Vector ve1 = impulse / (2 * m);
+			Vector ve2 = impulse / (2 * obj->m);
 			
+			if(velo < 0.01)
+				velo = e;
+			if(obj->velo < 0.01)
+				obj->velo = e;
 
-			velo = plan.GetMat() * ve1 /*velo*/ * res;
 
-			//obj->velo = plan.GetMat() * ve2 /*obj->velo*/ * res;
-=======
-		if(sqrt(pow(x,2) + pow(y,2) + pow(z,2) ) < (rad + obj->rad) * 1.1)
-		{
-			double eq[3]  = {x,y,z};
-			Plane plan  = Plane(eq);
-			velo = plan.GetMat() * ( ( ( obj->velo - velo ) * obj->m ) / m + velo ) * res;
-			obj->velo = plan.GetMat() * ( ( ( velo - obj->velo ) * m ) / obj->m + obj->velo ) * res;
->>>>>>> d46ff1ec2241bad6f31399c57800420208b9fffe
-			//delete plan;
+			if(velo / norm > 0)
+			{
+				velo = plan->GetMat() * ve1 /*velo*/ * res;
+			}
+			else
+			{
+				velo = ve1;
+			}
+			if(obj->velo / norm < 0)
+			{
+				obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
+			}
+			else
+			{
+				obj->velo = ve2;
+			}
+			//	velo = plan->GetMat() * /*ve1*/ velo * res;
+
+			//obj->velo = plan->GetMat() * /*ve2*/ obj->velo * res;
+			delete plan;
 		}
 	}
 	
+	double GetRad()
+	{
+		return rad;
+	}
+};
+
+class Cub : public BaseObject
+{
+private:
+	Vector Max;
+	Vector Min;
+	double Xangle;
+	double Zangle;
+public:
+	Cub()
+	{
+		Max = Vector(0.5,0.5,0.5);
+		Min = Vector(0.5,0.5,0.5);
+		Xangle = 0;
+		Zangle = 0;
+	}
+
+
 };
 
 class Camera: public BaseObject
@@ -552,7 +614,6 @@ public:
 			}
 		}
 	}
-<<<<<<< HEAD
 };
 
 class Fizika
@@ -565,22 +626,7 @@ public:
 	//void Kick (double plane[4],Camera * obj,double k);
 	void MoveObject(Camera * obj, double t);
 	void MoveObject(Sphere * obj, double t);
+	Sphere* TestMO (Sphere * obj, double t); 
 };
 
-=======
-};
-
-class Fizika
-{
-private:
-	double _g;
-	World wor;
-public:
-	Fizika();
-	//void Kick (double plane[4],Camera * obj,double k);
-	void MoveObject(Camera * obj, double t);
-	void MoveObject(Sphere * obj, double t);
-};
-
->>>>>>> d46ff1ec2241bad6f31399c57800420208b9fffe
 #endif

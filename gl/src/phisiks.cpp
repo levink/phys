@@ -80,8 +80,24 @@ void Fizika::MoveObject(Sphere * obj, double t_sec)
 	obj->accel = a;
 	obj->velo = v;
 	obj->Position = x;
-	
+
 	wor.Test(obj,0.8);
+}
+
+Sphere* Sphere:: TestMO (Sphere * obj, double t_sec)
+{
+	Sphere * test = new Sphere();
+
+	Vector Ft = Vector(0,-obj->m * _g,0); //+ F1 + F2 + ...
+	Vector Ftr =(obj->velo * obj->velo * p / 2) *  n * 3.14;
+	Vector F = Ft + Ftr; /*obj ->F;*/	// + F1 + F2 + ...;
+	Vector a = F / obj->m;
+	Vector v = obj->velo + a*t_sec;
+	Vector x = obj->Position + obj->velo*t_sec + obj->accel*t_sec*t_sec/2; 
+
+	test->Position = x;
+	
+	return test; 
 }
 
 Camera::Camera ()

@@ -22,7 +22,12 @@ int num = 0;
 int max = 0;
 
 Sphere * obj[100];
+int gen_test [100][100];
+//int in = 0;
 Fizika * phy;
+
+//int InvIn();
+void Start();
 
 void keybord(unsigned char key, int x, int y)
 {
@@ -166,34 +171,70 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,colorY);
 
 	DWORD dt = GetTickCount()-t1;
+	Sphere * te1 = new Sphere();
+	Sphere * te2 = new Sphere();
 
+	double tim = dt/1000.0;
+	
 	for(int i=0;i<num;i++)
 	{
 		for(int e = 0;e<num;e++)
 		{
-			if(i!=e)
-				obj[i]->Test(obj[e]);
+			/*if(i==e && num == 1)
+			{
+				phy->MoveObject(obj[in][i],tim);
+				int _inv = InvIn();
+				obj[_inv][i] = obj[in][i];
+			}*/ // та самая ерунда
+			if(i!=e && gen_test[i][e]==0) // она же
+			{
+				/*if(in == 0)
+				{
+					obj[1][i] = obj[0][i];
+					obj[1][e] = obj[0][e];
+				}
+				else
+				{
+					obj[0][i] = obj[1][i];
+					obj[0][e] = obj[1][e];
+				}
+				phy ->MoveObject(obj[in][i], tim );
+				phy ->MoveObject(obj[in][e], tim );*/ //  и снова здравствуйте
+				te1 = obj[i];
+				te2 = obj[e];
+				te1->TestMO(te1,tim);
+				te2->TestMO(te2,tim);
+
+				bool tes = 0;
+				if(te1->velo.distanse(te1->Position,te2->Position) < ( obj[i]->GetRad() + obj[e]->GetRad()) * 1.1 )
+					tes = 1;
+				obj[i]->Test(obj[e],tes);
+
+				//obj[in][i]->Test(obj[in][e]);
+				gen_test[i][e] = 2;
+				gen_test[e][i] = 2;
+			}
+			else
+				if(gen_test[i][e] > 0)
+					gen_test[i][e]--;
 		}
 	}
-
+	//in = InvIn();
 	for(int i=0;i<num;i++)
 	{
-<<<<<<< HEAD
 		/*for(int e = 0;e<num;e++)
 		{
 			if(i!=e)
 				obj[i]->Test(obj[e]);
 		}*/
-=======
-		for(int e = 0;e<num;e++)
+		/*bool testing = 1;
+		for(int e=0;e<100;e++)
 		{
-			if(i!=e)
-				obj[i]->Test(obj[e]);
+			if(gen_test[i][e] != 0)
+				testing = 0;
 		}
->>>>>>> d46ff1ec2241bad6f31399c57800420208b9fffe
-
-		phy ->MoveObject(obj[i], dt/1000.0);
-
+		if(testing)*/
+			phy ->MoveObject(obj[i], tim);
 		glPushMatrix();
 		glTranslated(obj[i]->Position.GetX(),obj[i]->Position.GetY(), obj[i]->Position.GetZ());
 		glutSolidSphere(1,10,10);
@@ -209,6 +250,7 @@ void display(void)
 	glEnd();*/
 
 	t1 += dt;
+	//in = InvIn();
 
 	glNormal3d(1,15,5);
 
@@ -249,3 +291,23 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+//int InvIn()
+//{
+//	int inv;
+//	if( in == 0)
+//		inv = 1;
+//	else
+//		inv = 0;
+//	return inv;
+//}
+
+void Start()
+{
+	for(int i=0;i<100;i++)
+	{
+		for(int e=0;e<100;e++)
+		{
+			gen_test[i][e] = 0;
+		}
+	}
+}
