@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\cfizika.h" />
+    <ClInclude Include="headers\colors.h" />
     <ClInclude Include="headers\func.h" />
     <ClInclude Include="headers\scene.h" />
   </ItemGroup>

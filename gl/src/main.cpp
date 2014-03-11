@@ -5,13 +5,22 @@
 #include "../glut/glut.h"
 #include "../headers/cfizika.h"
 #include "../headers/func.h"
+#include "../headers/colors.h"
 
-const int SCENE_W = 1024;
-const int SCENE_H = 768;
+const int SCENE_W = 800;//1024;
+const int SCENE_H = 600;//768;
 
-double angle = 0, step = 0;
+double lightAngle = 0;
+double lightHeight = 8;
 const double PI = 3.1415916;
-double camLookAt[3] = {0,0,0};
+
+double camAng1 = 0;
+double camAng2 = 0;
+double camHeight = 0;
+
+double oldX = 0;
+double oldY = 0;
+bool dragFlag = false; 
 
 DWORD previousTime = 0;
 DWORD t1 = 0;
@@ -20,36 +29,59 @@ DWORD t1 = 0;
 #define Angle 2
 #define Matr 0.5
 
-//double down = 0;
 int num = 0;
 int max = 0;
 
 Sphere * obj[100];
 int gen_test [100][100];
-//int in = 0;
 Fizika * phy;
 
-int InvIn();
-void Start();
-double getY(double x, double z);
-void keybord(unsigned char key, int x, int y)
-{
-	std::cout << "Key: " << key << "\n";
-	
-	if (key == 'w' || key == 246)
-	{
-		
-	}
-	if (key == 's' || key == 251)
-	{
-		
-	}
 
-	
+void Start()
+{
+	for(int i=0;i<100;i++)
+	{
+		*obj[i] = Sphere();
+		for(int e=0;e<100;e++)
+		{
+			gen_test[i][e] = 0;
+		}
+	}
+}
+
+World* GetWorld(Fizika obj)
+{
+	return &obj.wor;
+}
+
+double GetY(double x, double z)
+{
+	double e[4]  ={-10,10,1,0};
+	if(e[1] == 0) return 0;
+	return -(e[3] + e[2]*z + e[0]*x)/e[1];
+}
+
+void keyboard(unsigned char key, int x, int y)
+{
+	switch(key)
+	{
+	case 'w':
+		camHeight+=1;
+		break;
+	case 's':
+		camHeight-=1;
+		break;
+	case 'q':
+		lightHeight+=1;
+		break;
+	case 'e':
+		if (lightHeight > -4) lightHeight-=1;
+		break;
+	}
 	glutPostRedisplay();
 }
 
-void mouseMotion(int button, int state, int x, int y)
+void mouseClick(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && num < 100)
 	{
@@ -66,79 +98,128 @@ void mouseMotion(int button, int state, int x, int y)
 		tmp->Position = pos;
 		obj[num] = tmp;
 		num++;
-		//CopyFanc(obj,tmp,num,max);
-		std::cout << "Sphere X: " << x1 << ", Y: " << y1 << std::endl;
 	}
-	//std::cout << "Mouse X: " << x << ", Y: " << y << std::endl;
+	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
+	{
+		dragFlag = true;
+		oldX = x;
+		oldY = y;
+	}
+	if(button == GLUT_RIGHT_BUTTON && state == GLUT_UP)
+	{
+		dragFlag = false;
+	}
+
+}
+
+void mouseMotion(int x, int y)
+{
+	if (dragFlag)
+	{
+		double dx = x - oldX;
+		camAng1 += dx * 0.5;
+		oldX = x;
+
+		double dy = y - oldY;
+		camAng2 += dy * 0.5;
+		oldY = y;
+	}
 }
 
 void idle(void)
 {
-	angle+=0.05;
-	if(angle>360) angle = 0;
-	
 	DWORD dt=GetTickCount();
 	if(dt - previousTime > 15)
 	{
+		lightAngle+=2;
+		if(lightAngle>360) lightAngle = 0;
+
 		previousTime = dt;
 		glutPostRedisplay();
 	}
 }
 
-void display(void)
+void reshape(int width, int height)
 {
-	GLfloat colorX[3] = {1,0,0};
-	GLfloat colorY[3] = {0,0,1};
-	GLfloat colorZ[3] = {1,0.5,0};
-	GLfloat colorA[3] = {0,1,1};
-	GLfloat green[] = {0,0.6,0};
-	
-	
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_NORMALIZE);
-	glShadeModel (GL_SMOOTH);
-
-	GLfloat amb[3] = {0.8,0.8,0.8};
-	GLfloat pos[3] = {1, 50, -1};
-	glLightfv(GL_LIGHT0, GL_AMBIENT_AND_DIFFUSE, amb);
-	glLightfv(GL_LIGHT0, GL_POSITION, pos);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//glOrtho(0,50,0,37,0,50);
 	gluPerspective(60, SCENE_W/(double)SCENE_H, 1, 100);
-	gluLookAt(0,40,40,25,0,-25, 0,1,0);
+	//gluLookAt(0,40,40,25,0,-25, 0,1,0);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,colorZ);
+}
 
-	glBegin(GL_POLYGON);
-		glNormal3d(0,1,0);
-		glVertex3d(0,0,0);
-		glVertex3d(0,0,-50);
-		glVertex3d(50,0,-50);
-		glVertex3d(50,0,0);
+void display(void)
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_NORMALIZE);
+	
+	//Camera
+	glPushMatrix();
+	glTranslated(0,-5,-30 + camHeight);
+	glRotated(camAng2, 1,0,0);
+	glRotated(camAng1, 0,1,0);
+	
+	glTranslated(-10,0,10);
+	
+
+	//Scene light
+	GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0}; 
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+	glEnable(GL_LIGHTING);
+	
+
+	//light 0
+	glPushMatrix();
+	GLfloat pos[] = {7, 5+lightHeight, 0, 1.0};
+	glPushMatrix();
+	glDisable(GL_LIGHTING);
+	glColor3f(1,1,0);
+	glTranslated(10,0,-10);
+	glRotated(lightAngle,0,1,0);
+	glTranslated(pos[0], pos[1], pos[2]);
+	glutSolidSphere(1,10,10);
+	glEnable(GL_LIGHTING);
+	glPopMatrix();	
+	glTranslated(10,0,-10);
+	glRotated(lightAngle,0,1,0);
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+	glEnable(GL_LIGHT0);
+	glPopMatrix();
+
+	//floor
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
+	glBegin(GL_QUADS);
+	glNormal3d(0,1,0);
+	int x = 20;
+	int z = -20;
+	for(int i=0;i < x; i++)
+		for(int j=0;j > z; j--)
+		{
+			glVertex3d(i,0,j);
+			glVertex3d(i,0,j-1);
+			glVertex3d(i+1,0,j-1);
+			glVertex3d(i+1,0,j);
+		}
 	glEnd();
 
-
-	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,green);
+	//plane
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
 	glBegin(GL_POLYGON);
-		glNormal3d(-10,10,1);
-		glVertex3d(10, getY(10,-0),-0);
-		glVertex3d(10, getY(10,-40),-40);
-		glVertex3d(30,getY(30,-40),-40);
-		glVertex3d(30,getY(30,-0),-0);
+	glNormal3d(-10,10,1);
+	glVertex3d(10, GetY(10,-0),-0);
+	glVertex3d(10, GetY(10,-40),-40);
+	glVertex3d(30, GetY(30,-40),-40);
+	glVertex3d(30, GetY(30,-0),-0);
 	glEnd();
 
 	glTranslated(0,0,-40);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,colorY);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	DWORD dt = GetTickCount()-t1;
 	Sphere * te1 = new Sphere();
@@ -150,26 +231,8 @@ void display(void)
 	{
 		for(int e = 0;e<num;e++)
 		{
-			/*if(i==e && num == 1)
+			if(i!=e && gen_test[i][e]==0)
 			{
-				phy->MoveObject(obj[in][i],tim);
-				int _inv = InvIn();
-				obj[_inv][i] = obj[in][i];
-			}*/ // та самая ерунда
-			if(i!=e && gen_test[i][e]==0) // она же
-			{
-				/*if(in == 0)
-				{
-					obj[1][i] = obj[0][i];
-					obj[1][e] = obj[0][e];
-				}
-				else
-				{
-					obj[0][i] = obj[1][i];
-					obj[0][e] = obj[1][e];
-				}
-				phy ->MoveObject(obj[in][i], tim );
-				phy ->MoveObject(obj[in][e], tim );*/ //  и снова здравствуйте
 				te1 = obj[i];
 				te2 = obj[e];
 				te1->TestMO(te1,tim);
@@ -180,7 +243,6 @@ void display(void)
 					tes = 1;
 				obj[i]->Test(obj[e],tes);
 
-				//obj[in][i]->Test(obj[in][e]);
 				gen_test[i][e] = 2;
 				gen_test[e][i] = 2;
 			}
@@ -202,6 +264,7 @@ void display(void)
 	}
 
 	t1 += dt;
+	glPopMatrix();
 	glFlush();
 	glutSwapBuffers();
 }
@@ -216,17 +279,16 @@ int main(int argc, char **argv)
 
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
-	glutKeyboardFunc(keybord);
-	glutMouseFunc(mouseMotion);
+	glutKeyboardFunc(keyboard);
+	glutMouseFunc(mouseClick);
+	glutMotionFunc(mouseMotion);
+	glutReshapeFunc(reshape);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
 	int d = 1;
-	//Vector Cam = Vector(0,14,-10);
-
-	//obj = new Camera * [10];
+	
 	max = 10;
 	phy = new Fizika;
-	//obj[0] ->Position = Cam;
 	t1 = GetTickCount();
 
 	glutMainLoop();
@@ -234,38 +296,4 @@ int main(int argc, char **argv)
 	delete obj;
 	delete phy;
 	return 0;
-}
-
-//int InvIn()
-//{
-//	int inv;
-//	if( in == 0)
-//		inv = 1;
-//	else
-//		inv = 0;
-//	return inv;
-//}
-
-void Start()
-{
-	for(int i=0;i<100;i++)
-	{
-		*obj[i] = Sphere();
-		for(int e=0;e<100;e++)
-		{
-			gen_test[i][e] = 0;
-		}
-	}
-}
-
-World* GetWorld(Fizika obj)
-{
-	return &obj.wor;
-}
-
-double getY(double x, double z)
-{
-	double e[4]  ={-10,10,1,0};
-	if(e[1] == 0) return 0;
-	return -(e[3] + e[2]*z + e[0]*x)/e[1];
 }
