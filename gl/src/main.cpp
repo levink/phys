@@ -239,7 +239,7 @@ void display(void)
 		glTranslated(obj[i]->Position.GetX(),obj[i]->Position.GetY(), obj[i]->Position.GetZ());
 		glRotated(obj[i]->Angl.GetX(),0,0,1);
 		glRotated(obj[i]->Angl.GetZ(),1,0,0);
-		glutSolidSphere(1,10,10);
+		glutSolidSphere(1,5,5);
 		glPopMatrix();
 	}
 	DWORD e = time(NULL);

@@ -67,6 +67,10 @@ public:
 		double _z =	ve1.GetZ() - ve2.GetZ();
 		return sqrt( pow(_x,2) + pow(_y,2) + pow(_z,2) ); 
 	}
+	double distanse()
+	{
+		return sqrt( pow(x,2) + pow(y,2) + pow(z,2) );
+	}
 	Vector operator-(Vector secondValue)
 	{
 		double _x = x - secondValue.GetX();
@@ -103,6 +107,10 @@ public:
 		return Vector(_x,_y,_z);
 	}
 	double operator/(Vector count)
+	{
+		return x * count.GetX() + y * count.GetY() + z * count.GetZ(); 
+	}
+	double operator>(Vector count)
 	{
 		return x * count.GetX() + y * count.GetY() + z * count.GetZ(); 
 	}
@@ -345,6 +353,55 @@ public:
 		Mat = invert * rebound * Mat;
 	}
 
+	Plane(Vector x1,Vector x2, Vector x3)
+	{
+		equa[0] = x2.GetX() * (x3.GetY() - x3.GetZ()) + x2.GetY() * (x3.GetZ() - x3.GetX()) + x2.GetZ() * (x3.GetX() - x3.GetY());
+		equa[1] = x3.GetX() * (x1.GetY() - x1.GetZ()) + x3.GetY() * (x1.GetZ() - x1.GetX()) + x3.GetZ() * (x1.GetX() - x1.GetY());
+		equa[2] = x1.GetX() * (x2.GetY() - x2.GetZ()) + x1.GetY() * (x2.GetZ() - x2.GetX()) + x1.GetZ() * (x2.GetX() - x2.GetY());
+
+		double longg  = sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
+		equa[0] = equa[0] / longg;
+		equa[1] = equa[1] / longg;
+		equa[2] = equa[2] / longg;
+
+		equa[3] = - equa[0] - equa[1] - equa[2];
+
+		double a[3] = {x1.GetX() - x2.GetX(), x1.GetY() - x2.GetY(),x1.GetZ() - x2.GetZ()};
+		double b[3];
+		// коллинеальные вектора, в том числе и нормаль
+
+		longg  = sqrt(a[0] * a[0] + a[0] * a[0] + a[0] * a[0]); 
+		a[0] = a[0] / longg;
+		a[1] = a[1] / longg;
+		a[2] = a[2] / longg;
+
+		b[0] = -a[0];
+		b[1] = a[1];
+		b[2] = a[2];
+		/*double e = -(equa[2] * a[0] - a[2] * equa[0]) / (a[1]*equa[0] - a[0] * equa[1]);
+
+		b[2] = - equa[3] / ((e * equa[1] + equa[2])/equa[0])  * equa[0] + e* equa[1] + equa[2];
+		b[1] = e*b[2];
+		b[0] = - (b[2] * equa[1] + b[2] * equa[2]) / equa[0];*/
+
+		for(int i=0;i<3;i++)
+		{
+			Mat.SetM(a[i],i,0);
+			Mat.SetM(equa[i],i,1);
+			Mat.SetM(b[i],i,2);
+		}
+		/*Matrix invert = Mat;
+		invert = invert.Inverted();
+
+		double redoun[3][3] = 
+		{	{1,0,0},
+			{0,-1,0},
+			{0,0,1}, };
+		Matrix rebound = Matrix(redoun);
+
+		Mat = invert * rebound * Mat;*/
+	}
+
 	Plane(double eq [4])
 	{
 		for(int i=0;i<4;i++)
@@ -394,6 +451,10 @@ public:
 	Matrix GetMat()
 	{
 		return Mat;
+	}
+	Vector GetN()
+	{
+		return Vector(equa[0],equa[1],equa[2]);
 	}
 	double GetA()
 	{
@@ -457,6 +518,38 @@ public:
 
 	Sphere * TestMO (Sphere * obj, double t);
 
+	void Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строитс€ перпендикул€р
+	{
+		double A = ve1.GetY() * velo.GetZ() - velo.GetY() * ve1.GetZ();
+		double B = -(ve1.GetX() * velo.GetZ() - ve1.GetZ() * velo.GetX());
+		double C = ve1.GetX() * velo.GetY() - ve1.GetY() * velo.GetX();
+		double D = - Position.GetX() * A + Position.GetY() * B - Position.GetZ() * C;
+		/*if(C == 0)
+			C = 1;
+		if(ve1.GetY() == 0)
+			ve1.SetY(1);
+		if(ve1.GetZ() == 0)
+			ve1.SetZ(1);
+		if(B == (C * ve1.GetY()) / ve1.GetZ() )
+			B +=1;
+		double _y = -D / ( B - ( ( C * ve1.GetY() ) / ve1.GetZ() ) );
+		double _z = - ( ve1.GetY() * _y ) / ve1.GetZ();
+
+		Vector normal = Vector(0,_y,_z);*/
+
+		if(B==0)
+			B = 1;
+		if(nor.GetY() * C + nor.GetZ() * B == 0)
+			C+=1;
+		double _z = - (nor.GetX() + nor.GetY() * (A + D)) / (nor.GetY() * C + nor.GetZ() * B);
+		double _y = (A + _z * C + D) / B; 
+		double _x = 1;
+		Vector normal = Vector(_x,_y,_z);
+
+		if(normal.distanse() != 0)
+			ve_ro = normal * ( velo > normal ) / normal.distanse();
+	}
+
 	void Test(Sphere * obj, bool motion)
 	{
 		if(velo.distanse(Position,obj->Position) < (rad + obj->rad) * 1.01 || motion)
@@ -488,21 +581,8 @@ public:
 			else
 				obj->velo = ve2;
 
-			double A = ve1.GetY() * velo.GetZ() - ve1.GetZ() * velo.GetY();
-			double B = -(ve1.GetX() * velo.GetZ() - ve1.GetZ() * velo.GetY());
-			double C = ve1.GetY() * velo.GetY() - ve1.GetY() * velo.GetZ();
-			double D = -Position.GetX() * A + Position.GetY() * B - Position.GetZ() * C;
-			if(C == 0)
-				C = 1;
-			if(ve1.GetY() == 0)
-				ve1.SetY(1);
-			if(ve1.GetZ() == 0)
-				ve1.SetZ(1);
-			if(B == (C * ve1.GetY()) / ve1.GetZ() )
-				B +=1;
-			double _y = -(D / ( B - ( ( C*ve1.GetY() ) / ve1.GetZ() ) ) );
-			double _z = -( (ve1.GetY() * _y) / ve1.GetZ() );
-			Vector normal = Vector(0,_y,_z);
+			Rotated(ve1,eq);
+			obj->Rotated(ve2,eq);
 			//	velo = plan->GetMat() * /*ve1*/ velo * res;
 
 			//obj->velo = plan->GetMat() * /*ve2*/ obj->velo * res;
@@ -516,23 +596,265 @@ public:
 	}
 };
 
-class Cub : public BaseObject
+class Line
 {
 private:
-	Vector Max;
-	Vector Min;
-	double Xangle;
-	double Zangle;
+	double k;
+	double e;
 public:
-	Cub()
+	Line()
 	{
-		Max = Vector(0.5,0.5,0.5);
-		Min = Vector(0.5,0.5,0.5);
-		Xangle = 0;
-		Zangle = 0;
+		k = 0;
+		e = 0;
 	}
+	Line(Vector a, Vector b)
+	{
+		k = (b.GetX() - a.GetX()) / (b.GetY() - a.GetY());
+		e = a.GetX() - a.GetY() * k;
+	}
+	bool Up_Down(Vector point)
+	{
+		if(point.GetX() > point.GetY() * k + e)
+			return 1;
+		else
+			return 0;
+	}
+};
 
+class Margin
+{
+private:
+	Plane plan;
+	Vector * tmp;
+	int number;
+	int * line [2];
+public:
+	Margin()
+	{
+		plan = Plane();
+		tmp = NULL;
+		number = 0;
+		line[0] = NULL;
+		line[1] = NULL;
+	}
+	Margin(Vector point1,Vector point2,Vector point3)
+	{
+		Vector * copy;
+			copy = new Vector[number];
+			for(int i=0;i<number;i++)
+			{
+				copy[i] = tmp[i];
+			}
+			delete tmp;
+			tmp = new Vector [number+3];
+			for(int i=0;i<number;i++)
+			{
+				tmp[i] = copy[i];
+			}
+				number++;
+				tmp[number] = point1;
+				number++;
+				tmp[number] = point2;
+				number++;
+				tmp[number] = point3;
+			delete copy;
+		plan = Plane(point1,point2,point3);
+	}
+	bool Test(Vector point )
+	{
+		if(plan.GetA() * point.GetX() + plan.GetB() * point.GetX() + plan.GetC() * point.GetZ() + plan.GetD() ==0)
+			return 1;
+		else 
+			return 0;
+	}
+	bool SetTmp(Vector point)
+	{
+		if(Test(point) ==1)
+		{
+			Vector * copy;
+			copy = new Vector[number];
+			for(int i=0;i<number;i++)
+			{
+				copy[i] = tmp[i];
+			}
+			delete tmp;
+			tmp = new Vector [number++];
+			for(int i=0;i<number;i++)
+			{
+				tmp[i] = copy[i];
+			}
+			number++;
+			tmp[number] = point;
+			delete copy;
+			return 1;
+		}
+		else 
+			return 0;
 
+	}
+	void MakeLine()
+	{
+		Line l;
+		bool t;
+		line[0] = new int [number];
+		line[1] = new int [number];
+		int l_t = 0;
+		Vector * c_tmp;
+		c_tmp = new Vector [number];
+		for(int i=0;i<number;i++)
+		{
+			c_tmp[i] = plan.GetMat() * tmp[i]; 
+		}
+		for(int i=0;i<number;i++)
+		{
+			for(int e=0;e<number;e++)
+			{
+				if(i != e)
+				{	
+					l = Line(tmp[i],tmp[e]);
+					for(int a =0;a<number;a++)
+					{
+						bool test;
+						bool first = 1;
+						if(a != e && a!= i)
+						{
+							if(first)
+							{
+								test = l.Up_Down(tmp[a]);\
+								first = 0;
+							}
+							if(l.Up_Down(tmp[a]) != test)
+							{
+								t = 0;
+								return;
+							}
+						}
+					}
+					if(t != 0)
+					{
+						line[0][l_t] = i;
+						line[0][l_t] = i;
+						l_t++;
+					}
+				}
+			}
+		}
+	}
+};
+
+class Polyg : public BaseObject
+{
+private:
+	Margin * mar;
+	int nu_m;
+	Vector * tmp;
+	int nu_t;
+	double _g;
+public:
+	Polyg()
+	{
+		mar = NULL;
+		nu_m = 0;
+		tmp = NULL;
+		nu_t = 0;
+		_g = 9.8;
+	}
+	void SetTmp(Vector p1)
+	{
+		Vector * copy;
+		copy = new Vector [nu_t];
+		for(int i=0;i<nu_t ;i++)
+		{
+			copy[i] = tmp[i];
+		}
+		delete tmp;
+		tmp = new Vector[nu_t++];
+		for(int i=0;i<nu_t;i++)
+		{
+			tmp[i] = copy[i];
+		}
+		nu_t ++;
+		tmp[nu_t ] = p1;
+		delete copy;
+	}
+	void SetMargin(Vector p1,Vector p2,Vector p3)
+	{
+		Margin * copy;
+		copy = new Margin [nu_m];
+		for(int i=0;i<nu_m ;i++)
+		{
+			copy[i] = mar[i];
+		}
+		delete mar;
+		mar = new Margin[nu_m++];
+		for(int i=0;i<nu_m;i++)
+		{
+			mar[i] = copy[i];
+		}
+		nu_m ++;
+		mar[nu_m ] = Margin(p1,p2,p3);
+		delete copy;
+	}
+	int GetN_t()
+	{
+		return nu_t;
+	}
+	double Get_tmpX(int i)
+	{
+		if(i<=nu_t)
+			return tmp[i].GetX();
+		else
+			return 0;
+	}
+	double Get_tmpY(int i)
+	{
+		if(i<=nu_t)
+			return tmp[i].GetY();
+		else
+			return 0;
+	}
+	double Get_tmpZ(int i)
+	{
+		if(i<=nu_t)
+			return tmp[i].GetZ();
+		else
+			return 0;
+	}
+	void Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строитс€ перпендикул€р
+	{
+		double A = ve1.GetY() * velo.GetZ() - velo.GetY() * ve1.GetZ();
+		double B = -(ve1.GetX() * velo.GetZ() - ve1.GetZ() * velo.GetX());
+		double C = ve1.GetX() * velo.GetY() - ve1.GetY() * velo.GetX();
+		double D = - Position.GetX() * A + Position.GetY() * B - Position.GetZ() * C;
+		/*if(C == 0)
+			C = 1;
+		if(ve1.GetY() == 0)
+			ve1.SetY(1);
+		if(ve1.GetZ() == 0)
+			ve1.SetZ(1);
+		if(B == (C * ve1.GetY()) / ve1.GetZ() )
+			B +=1;
+		double _y = -D / ( B - ( ( C * ve1.GetY() ) / ve1.GetZ() ) );
+		double _z = - ( ve1.GetY() * _y ) / ve1.GetZ();
+
+		Vector normal = Vector(0,_y,_z);*/
+
+		if(B==0)
+			B = 1;
+		if(nor.GetY() * C + nor.GetZ() * B == 0)
+			C+=1;
+		double _z = - (nor.GetX() + nor.GetY() * (A + D)) / (nor.GetY() * C + nor.GetZ() * B);
+		double _y = (A + _z * C + D) / B; 
+		double _x = 1;
+		Vector normal = Vector(_x,_y,_z);
+
+		if(normal.distanse() != 0)
+			ve_ro = normal * ( velo > normal ) / normal.distanse();
+	}
+	void Test(Polyg * obj, bool motion)
+	{
+
+	}
 };
 
 class Camera: public BaseObject
@@ -598,7 +920,6 @@ public:
 	{
 		return ( obj->Position.GetX()*Plan.GetA() + obj->Position.GetY()*Plan.GetB() + obj->Position.GetZ()* Plan.GetC() + Plan.GetD() ) < 0; // изменить знак неравенства на <
 	}
-
 	void Test(Camera * obj,double resil)
 	{
 		for(int i=0;i<k;i++)
@@ -614,14 +935,40 @@ public:
 	{
 		return ( obj->Position.GetX()*Plan.GetA() + obj->Position.GetY()*Plan.GetB() + obj->Position.GetZ()* Plan.GetC() + Plan.GetD() ) < 0; // изменить знак неравенства на <
 	}
-
 	void Test(Sphere * obj,double resil)
 	{
 		for(int i=0;i<k;i++)
 		{
 			if(TestEqua(obj,Plan[i]))
 			{
+				Vector velo = obj->velo;
+
 				obj->velo = Plan[i].GetMat() * obj->velo * resil;
+
+				obj->Rotated(velo,Plan[i].GetN());
+			}
+		}
+	}
+
+	bool TestEqua(Polyg * obj,Plane Plan)
+	{
+		bool test  = 0;
+		for(int i=0;i<obj->GetN_t() && !test;i++)
+		{
+			if(  obj->Get_tmpX(i)* Plan.GetA() + obj->Get_tmpY(i)*Plan.GetB() + obj->Get_tmpZ(i)* Plan.GetC() + Plan.GetD()  < 0 )
+				test = 1;
+		}
+		return test;
+	}
+	void Test(Polyg * obj,double resil)
+	{
+		for(int i=0;i<k;i++)
+		{
+			if(TestEqua(obj,Plan[i]))
+			{
+				Vector velo = obj->velo;
+				obj->velo = Plan[i].GetMat() * obj->velo * resil;
+				obj->Rotated(velo,Plan[i].GetN());
 			}
 		}
 	}
