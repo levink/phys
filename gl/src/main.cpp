@@ -6,6 +6,9 @@
 #include "../headers/cfizika.h"
 #include "../headers/func.h"
 
+const int SCENE_W = 1024;
+const int SCENE_H = 768;
+
 double angle = 0, step = 0;
 const double PI = 3.1415916;
 double camLookAt[3] = {0,0,0};
@@ -28,57 +31,21 @@ Fizika * phy;
 
 int InvIn();
 void Start();
-
+double getY(double x, double z);
 void keybord(unsigned char key, int x, int y)
 {
 	std::cout << "Key: " << key << "\n";
-	/*if (key == 'j')
+	
+	if (key == 'w' || key == 246)
 	{
-		glutFullScreen();
-	}*/
-	//if (key == 'w' || key == 246)//&& camPos[0] <= 90 && camPos[0] > 10
-	//{
-	//	obj ->F.SetX(Fors * cos(obj ->GetAngleXOZ() * PI /180));
-	//	obj ->F.SetZ(Fors * sin(obj ->GetAngleXOZ() * PI /180));
-	//}
-	//if (key == 's' || key == 251)
-	//{
-	//	obj ->F.SetX(-Fors);
-	//	obj ->F.SetZ(-Fors);
-	//}
+		
+	}
+	if (key == 's' || key == 251)
+	{
+		
+	}
 
-	//if (key == 'a' || key == 244)
-	//{
-	//	obj ->SetAngleXOZ(-Angle);
-	//}
-	//if (key == 'd' || key == 226)
-	//{
-	//	obj ->SetAngleXOZ(Angle);
-	//}
-
-	//if(key == 'e' || key == 'у')
-	//{
-	//	obj ->F.SetY(Fors);
-	//}
-
-	//obj -> F = Vector(0,0,0);
-
-	//// вынести в функцию
-	///*if (key == 'x' && camPos[1] <=30  && camPos[1] > 0)
-	//{
-	//	camPos[1]-=10;
-	//	camLookAt[1]-=10;
-	//}
-	//	if (key == 'c' && camPos[1] < 30  && camPos[1] >= 0)
-	//{
-	//	camPos[1]+=10;
-	//	camLookAt[1]+=10;
-	//}*/
-	//std :: cout << key << " --- " << (int) key << std :: endl
-	//	<<"------" << obj ->Position.GetX() << std:: endl << "-------"<<  obj ->Position.GetZ()  
-	//	<<  "ForseX -- " << obj ->F.GetX() << "ForseZ -- " << obj ->F.GetZ()  << std ::endl <<"VeloX -- " << obj ->velo.GetX() << "VeloZ -- " << obj ->velo.GetZ() 
-	//	<<"\n\n"; 
-
+	
 	glutPostRedisplay();
 }
 
@@ -120,51 +87,54 @@ void idle(void)
 
 void display(void)
 {
-	//GLfloat arr[4] = {0.0,0.0,0.0,1.0};
-	//GLfloat arr2[3] = {20.0,20.0,0.0};
-	//GLfloat colorTeapot[3] = {1,1,0};
 	GLfloat colorX[3] = {1,0,0};
 	GLfloat colorY[3] = {0,0,1};
 	GLfloat colorZ[3] = {1,0.5,0};
 	GLfloat colorA[3] = {0,1,1};
 	GLfloat green[] = {0,0.6,0};
-	GLfloat amb[4] = {0,1,0,0};
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+	
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_NORMALIZE);
 	glShadeModel (GL_SMOOTH);
 
-	//glLightfv(GL_LIGHT0, GL_SPECULAR, amb);
-	//glEnable(GL_DEPTH_TEST);//ВКЛЮЧЕНИЕ БУФФЕРА ГЛУБИНЫ
+	GLfloat amb[3] = {0.8,0.8,0.8};
+	GLfloat pos[3] = {1, 50, -1};
+	glLightfv(GL_LIGHT0, GL_AMBIENT_AND_DIFFUSE, amb);
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 
 
-	//glLightfv(GL_LIGHT0, GL_POSITION, arr);         //откуда
-	//glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, arr2); // куда светим
-
-	glOrtho(0,50,0,37,0,50);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	//glOrtho(0,50,0,37,0,50);
+	gluPerspective(60, SCENE_W/(double)SCENE_H, 1, 100);
+	gluLookAt(0,40,40,25,0,-25, 0,1,0);
+	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,colorZ);
-	glTranslated(20,20,0);
 
 	glBegin(GL_POLYGON);
-		glVertex3d(-15,15,0);
-		glVertex3d(15,15,0);
-		glVertex3d(15,-15,0);
-		glVertex3d(-15,-15,0);
+		glNormal3d(0,1,0);
+		glVertex3d(0,0,0);
+		glVertex3d(0,0,-50);
+		glVertex3d(50,0,-50);
+		glVertex3d(50,0,0);
 	glEnd();
 
-	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,green);
 
+	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,green);
 	glBegin(GL_POLYGON);
-		glVertex3d(18.8,16.7,-1);
-		glVertex3d(17.8,17.7,-1);
-		glVertex3d(-16.4,-18.3,-1);
-		glVertex3d(-15.4,-19.3,-1);
+		glNormal3d(-10,10,1);
+		glVertex3d(10, getY(10,-0),-0);
+		glVertex3d(10, getY(10,-40),-40);
+		glVertex3d(30,getY(30,-40),-40);
+		glVertex3d(30,getY(30,-0),-0);
 	glEnd();
 
 	glTranslated(0,0,-40);
@@ -219,22 +189,10 @@ void display(void)
 					gen_test[i][e]--;
 		}
 	}
-	//in = InvIn();
+	
 	for(int i=0;i<num;i++)
 	{
-		/*for(int e = 0;e<num;e++)
-		{
-			if(i!=e)
-				obj[i]->Test(obj[e]);
-		}*/
-		/*bool testing = 1;
-		for(int e=0;e<100;e++)
-		{
-			if(gen_test[i][e] != 0)
-				testing = 0;
-		}
-		if(testing)*/
-			phy ->MoveObject(obj[i], tim);
+		phy ->MoveObject(obj[i], tim);
 		glPushMatrix();
 		glTranslated(obj[i]->Position.GetX(),obj[i]->Position.GetY(), obj[i]->Position.GetZ());
 		glRotated(obj[i]->Angl.GetX(),0,0,1);
@@ -242,23 +200,8 @@ void display(void)
 		glutSolidSphere(1,5,5);
 		glPopMatrix();
 	}
-	DWORD e = time(NULL);
-
-	/*glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,colorX);
-	glBegin(GL_TRIANGLE_STRIP);
-		glVertex3d(30 * cos ( e * (2 * PI) / 5),30 * cos ( e * (2 * PI) / 5),-2);
-		glVertex3d(5,0,-2);
-		glVertex3d(-5,0,-2);
-	glEnd();*/
 
 	t1 += dt;
-	//in = InvIn();
-
-	glNormal3d(1,15,5);
-
-	/*GLfloat green[] = {0,0.6,0};
-	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,colorZ);*/
-
 	glFlush();
 	glutSwapBuffers();
 }
@@ -268,7 +211,7 @@ int main(int argc, char **argv)
 	setlocale(LC_ALL,"RUS");
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(1024, 768);
+	glutInitWindowSize(SCENE_W, SCENE_H);
 	glutCreateWindow("OpenGL тестовый мир");
 
 	glutDisplayFunc(display);
@@ -313,4 +256,16 @@ void Start()
 			gen_test[i][e] = 0;
 		}
 	}
+}
+
+World* GetWorld(Fizika obj)
+{
+	return &obj.wor;
+}
+
+double getY(double x, double z)
+{
+	double e[4]  ={-10,10,1,0};
+	if(e[1] == 0) return 0;
+	return -(e[3] + e[2]*z + e[0]*x)/e[1];
 }

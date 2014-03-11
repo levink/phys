@@ -875,33 +875,7 @@ private:
 	Plane * Plan;
 	int k;
 public: 
-	World(DWORD t)
-	{
-		double _pi = 3.1415926;
-		k = 2;
-		Plan = new Plane [k];
-		//double eq1[4]  ={-10,10,1,0};
-		double eq1 [4];
-		eq1[0] = E * cos ( t * (2 * _pi) / T);
-		if(eq1[0]  < 0)
-			eq1[0] = -eq1[0];
-
-		eq1[1] = E * sin ( t * (2 * _pi) / T);
-		if(eq1[1]  < 0)
-			eq1[1] = -eq1[1];
-
-		eq1[2]  = 1;
-		eq1[3]  = 0;
-		/*double eq1 [3][3] = 
-		{	{0,-14,0},
-			{1,-14,0.5},
-			{1,14,0}};
-		*/
-
-		Plan[0] = Plane(eq1);
-		//Plan[1] = Plane(eq2);
-	}
-
+	
 	World()
 	{
 		k = 2;
@@ -982,6 +956,7 @@ private:
 public:
 	Fizika();
 	//void Kick (double plane[4],Camera * obj,double k);
+	friend World* GetWorld(Fizika obj);
 	void MoveObject(Camera * obj, double t);
 	void MoveObject(Sphere * obj, double t);
 	Sphere* TestMO (Sphere * obj, double t); 
