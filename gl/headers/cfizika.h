@@ -92,10 +92,10 @@ public:
 		return Vector(x,y,z)*(1/u);
 	}
 	
-	double operator^(Vector count)
+	double operator^(Vector& const right)
 	{
 		//scalar multiply
-		return x * count.GetX() + y * count.GetY() + z * count.GetZ(); 
+		return x * right.GetX() + y * right.GetY() + z * right.GetZ(); 
 	}
 	Vector operator*(Vector& const right)
 	{
@@ -146,58 +146,28 @@ class Matrix
 					mat[i][e] = count[i][e];
 		}
 
-		double  GetM(int a,int b)
+		double GetM(int a,int b)
 		{
 			return mat[a][b];
 		}
-
-		void SetM(double in_mat[3][3])
+		
+		void SetM(double value,int i,int j)
 		{
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					mat[i][e] = in_mat[i][e];
-		}
-
-		void SetM(double count,int a,int b)
-		{
-			mat[a][b] = count;
-		}
-
-		double Determinant()
-		{
-			double a1 = mat[0][0] * ( mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]);
-			double a2 = mat[0][1] * ( mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]);
-			double a3 = mat[0][2] * ( mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]);
-			double determinant = a1 - a2 + a3;
-			if(determinant == 0)
-				determinant = 1;
-			return determinant;
+			mat[i][j] = value;
 		}
 		
-		Matrix  Matrix_alg_aff()
+		const double* Values()
 		{
-			double matA [3][3];
-			
-			matA[0][0] = mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2];
-			matA[0][1] = - ( mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2] );
-			matA[0][2] = mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1];
-			matA[1][0] = - ( mat[0][1] * mat[2][2] - mat[2][1] * mat[0][2] ); 
-			matA[1][1] = mat[0][0] * mat[2][2] - mat[2][0] * mat[0][2]; 
-			matA[1][2] = - ( mat[0][0] * mat[2][1] - mat[2][0] * mat[0][1] ); // сейчас 0.33 надо -0.36
-			matA[2][0] = mat[0][1] * mat[1][2] - mat[1][1] * mat[0][2];
-			matA[2][1] = - ( mat[0][0] * mat[1][2] - mat[1][0] * mat[0][2] );
-			matA[2][2] = mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1];
-			
-			return Matrix(matA);
+			return &(mat[0][0]);
 		}
 
-		Matrix Transposition()
+		Matrix Transpose()
 		{
-			double trans [3][3];
+			double tr[3][3];
 			for(int i=0;i<3;i++)
 				for(int e=0;e<3;e++)
-					trans[e][i] = mat[i][e];
-			return Matrix(trans);
+					tr[e][i] = mat[i][e];
+			return Matrix(tr);
 		}
 
 		Matrix operator* (double t)
@@ -211,23 +181,36 @@ class Matrix
 
 		Vector operator* (Vector vector)
 		{
-			double vec [3];
-			for(int i=0;i<3;i++)
-			{
-				vec [i] = mat[i][0] * vector.GetX() +  mat[i][1] * vector.GetY() + mat[i][2] * vector.GetZ();
-			}
-			return Vector(vec);
+			double vec[3];
+			double vx = vector.GetX();
+			double vy = vector.GetY();
+			double vz = vector.GetZ();
+			return Vector(
+				mat[0][0] * vx +  mat[0][1] * vy + mat[0][2] * vz,
+				mat[1][0] * vx +  mat[1][1] * vy + mat[1][2] * vz,
+				mat[2][0] * vx +  mat[2][1] * vy + mat[2][2] * vz);
 		}
 
-		Matrix operator* (Matrix Cmat)
+		Matrix operator* (Matrix& const right)
 		{
-			double _mat [3][3];
+			double _mat[3][3];
+			const double* m = right.Values();
 
-			for(int i=0;i<3;i++)
-			{
-				for(int e=0;e<3;e++)
-					_mat[i][e] = mat[i][0] * Cmat.GetM(0,e) + mat[i][1] * Cmat.GetM(1,e) + mat[i][2] * Cmat.GetM(2,e);
-			}
+			/*for(int i=0;i<3;i++)
+				for(int j=0;j<3;j++)
+					_mat[i][j] = m1[i*3+0] * m2[0*3 + j] + m1[i*3+1] * m2[1*3 + j] + m1[i*3+2] * m2[2*3 + j];*/
+			
+			// more quickly
+			_mat[0][0] = mat[0][0] * m[0*3 + 0] + mat[0][1] * m[1*3 + 0] + mat[0][2] * m[2*3 + 0];
+			_mat[0][1] = mat[0][0] * m[0*3 + 1] + mat[0][1] * m[1*3 + 1] + mat[0][2] * m[2*3 + 1];
+			_mat[0][2] = mat[0][0] * m[0*3 + 2] + mat[0][1] * m[1*3 + 2] + mat[0][2] * m[2*3 + 2];
+			_mat[1][0] = mat[1][0] * m[0*3 + 0] + mat[1][1] * m[1*3 + 0] + mat[1][2] * m[2*3 + 0];
+			_mat[1][1] = mat[1][0] * m[0*3 + 1] + mat[1][1] * m[1*3 + 1] + mat[1][2] * m[2*3 + 1];
+			_mat[1][2] = mat[1][0] * m[0*3 + 2] + mat[1][1] * m[1*3 + 2] + mat[1][2] * m[2*3 + 2];
+			_mat[2][0] = mat[2][0] * m[0*3 + 0] + mat[2][1] * m[1*3 + 0] + mat[2][2] * m[2*3 + 0];
+			_mat[2][1] = mat[2][0] * m[0*3 + 1] + mat[2][1] * m[1*3 + 1] + mat[2][2] * m[2*3 + 1];
+			_mat[2][2] = mat[2][0] * m[0*3 + 2] + mat[2][1] * m[1*3 + 2] + mat[2][2] * m[2*3 + 2];
+			
 			return Matrix(_mat);
 		}
 
@@ -240,22 +223,39 @@ class Matrix
 			return Matrix(mat);
 		}
 
-		Matrix operator= ( Matrix count)
+		Matrix operator= (Matrix& const right)
 		{
+			//TODO: test this method
+			const double *items = right.Values();
 			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					mat[i][e] = count.GetM(i,e);
-			return Matrix(mat);
+				for(int j=0;j<3;j++)
+					mat[i][j] = items[i*3 + j];
+			return *this;
 		}
 
-		Matrix Inverted()
+		Matrix Invert()
 		{
-			Matrix InvertMat;
-			double determin = Determinant();
-			Matrix matAlgAff = Matrix_alg_aff();
-			matAlgAff = matAlgAff.Transposition();
-			InvertMat = matAlgAff * (1 / determin);
-			return InvertMat;
+			//Determinant calculating
+			double d1 = mat[0][0] * ( mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]);
+			double d2 = mat[0][1] * ( mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]);
+			double d3 = mat[0][2] * ( mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]);
+			double det = d1 - d2 + d3;
+			if(det == 0) det = 1;
+			else det = 1 / det; //(!)
+			
+			//Mat_alg_aff + Transposition + " scale on (1/det)" in one step
+			double matA [3][3];
+			matA[0][0] =  (mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]) * det;
+			matA[1][0] = -(mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]) * det;
+			matA[2][0] =  (mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]) * det;
+			matA[0][1] = -(mat[0][1] * mat[2][2] - mat[2][1] * mat[0][2]) * det; 
+			matA[1][1] =  (mat[0][0] * mat[2][2] - mat[2][0] * mat[0][2]) * det; 
+			matA[2][1] = -(mat[0][0] * mat[2][1] - mat[2][0] * mat[0][1]) * det;
+			matA[0][2] =  (mat[0][1] * mat[1][2] - mat[1][1] * mat[0][2]) * det;
+			matA[1][2] = -(mat[0][0] * mat[1][2] - mat[1][0] * mat[0][2]) * det;
+			matA[2][2] =  (mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1]) * det;
+			
+			return Matrix(matA);
 		}
 };
 
@@ -317,7 +317,7 @@ public:
 			Mat.SetM(b[i],i,2);
 		}
 		Matrix invert = Mat;
-		invert = invert.Inverted();
+		invert = invert.Invert();
 
 		double redoun[3][3] = 
 		{	{1,0,0},
@@ -412,7 +412,7 @@ public:
 			Mat.SetM(b[i],i,2);
 		}
 		Matrix invert = Mat;
-		invert = invert.Inverted();
+		invert = invert.Invert();
 
 		double redoun[3][3] = 
 		{	{1,0,0},
