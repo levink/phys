@@ -1,14 +1,16 @@
 #include <Windows.h>
 #include<cmath>
 
+// Ôèçèêà
+// Õå-Õå
+
 #ifndef __FIZIKA_H
 #define __FIZIKA_H
 
 #define E 20
 #define T 5
 #define res 0.8
-// Ôèçèêà
-//Õå-Õå
+
 class Vector
 {
 private:
@@ -28,8 +30,7 @@ public:
 		y=_y;
 		z=_z;
 	}
-
-	Vector(double v [3])
+	Vector(double v[3])
 	{
 		x=v[0];
 		y=v[1];
@@ -60,95 +61,69 @@ public:
 	{
 		z=newz;
 	}
-	double distanse (Vector ve1, Vector ve2)
+	
+	double length()
 	{
-		double _x = ve1.GetX() - ve2.GetX();
-		double _y = ve1.GetY() - ve2.GetY();
-		double _z =	ve1.GetZ() - ve2.GetZ();
-		return sqrt( pow(_x,2) + pow(_y,2) + pow(_z,2) ); 
+		return sqrt( x*x + y*y + z*z);
 	}
-	double distanse()
+	double length2()
 	{
-		return sqrt( pow(x,2) + pow(y,2) + pow(z,2) );
+		return x*x + y*y + z*z;
 	}
-	Vector operator-(Vector secondValue)
+
+	Vector operator+(Vector& const right)
 	{
-		double _x = x - secondValue.GetX();
-		double _y = y - secondValue.GetY();
-		double _z = z - secondValue.GetZ();
-		return Vector(_x, _y, _z);
+		return Vector(x+right.GetX(), y+right.GetY(), z+right.GetZ());
+	}
+	Vector operator-(Vector& const right)
+	{
+		return Vector(x - right.GetX(), y - right.GetX(), z - - right.GetX());
 	}
 	Vector operator-()
 	{
-		double _x = - x;
-		double _y = - y;
-		double _z = - z;
-		return Vector(_x, _y, _z); 
+		return Vector(-x, -y, -z); 
 	}
-	Vector operator+(Vector secondValue)
+	Vector operator*(double scale)
 	{
-		double _x = x + secondValue.GetX();
-		double _y = y + secondValue.GetY();
-		double _z = z + secondValue.GetZ();
-		return Vector(_x, _y, _z);
-	}
-	Vector operator*(double u)
-	{
-		double _x = x * u;
-		double _y = y * u;
-		double _z = z * u;
-		return Vector(_x,_y,_z);
-	}
-	Vector operator*(Vector count)
-	{
-		double _x = y * count.z - z * count.y;
-		double _y = z * count.x - x * count.z;
-		double _z = x * count.y - y * count.x;
-		return Vector(_x,_y,_z);
-	}
-	double operator/(Vector count)
-	{
-		return x * count.GetX() + y * count.GetY() + z * count.GetZ(); 
-	}
-	double operator>(Vector count)
-	{
-		return x * count.GetX() + y * count.GetY() + z * count.GetZ(); 
-	}
-	Vector operator= (Vector inicialisingValue)
-	{
-		x = inicialisingValue.GetX();
-		y = inicialisingValue.GetY();
-		z = inicialisingValue.GetZ();
-		return Vector (x,y,z);
+		return Vector(x * scale, y * scale, z * scale);
 	}
 	Vector operator/(double u)
 	{
-		double _x = x * 1 / u;
-		double _y = y * 1 / u;
-		double _z = z * 1 / u;
-		return Vector(_x,_y,_z);
+		return Vector(x,y,z)*(1/u);
 	}
-	bool operator !=(Vector test)
+	
+	double operator^(Vector count)
 	{
-		bool i = 0;
-		if(x != test.GetX())
-			if(y != test.GetY())
-				if(z != test.GetZ())
-					i=1;
-		return i;
+		//scalar multiply
+		return x * count.GetX() + y * count.GetY() + z * count.GetZ(); 
 	}
-	bool operator<(double test)
+	Vector operator*(Vector& const right)
 	{
-		bool tes =0;
-		if( sqrt(pow(x,2) + pow(y,2) + pow(z,2) ) < test)
-			tes = 1;
-		return tes;
+		//vector multiply
+		return Vector(
+			y * right.z - z * right.y,
+			z * right.x - x * right.z,
+			x * right.y - y * right.x);
 	}
-	bool operator==(Vector test)
+	Vector& operator= (Vector val)
 	{
-		if(x==test.GetX() && y == test.GetY() && z == test.GetZ())
-			return 1;
-		return 0;
+		x = val.GetX();
+		y = val.GetY();
+		z = val.GetZ();
+		return *this;
+	}
+	
+	bool operator<(double value)
+	{	
+		return value < 0 || this->length2() < value*value;
+	}
+	bool operator==(Vector& const right)
+	{
+		return x == right.GetX() && y == right.GetY() && z == right.GetZ();
+	}
+	bool operator!=(Vector& const right)
+	{
+		return x != right.GetX() || y != right.GetY() || z != right.GetZ();	
 	}
 };
 
@@ -546,13 +521,13 @@ public:
 		double _x = 1;
 		Vector normal = Vector(_x,_y,_z);
 
-		if(normal.distanse() != 0)
-			ve_ro = normal * ( velo > normal ) / normal.distanse();
+		if(normal.length() != 0)
+			ve_ro = normal * ( velo ^ normal ) / normal.length();
 	}
 
 	void Test(Sphere * obj, bool motion)
 	{
-		if(velo.distanse(Position,obj->Position) < (rad + obj->rad) * 1.01 || motion)
+		if((Position - obj->Position).length() < (rad + obj->rad) * 1.01 || motion)
 		{
 			double x = obj->Position.GetX() - Position.GetX();
 			double y = obj->Position.GetY() - Position.GetY();
@@ -572,11 +547,11 @@ public:
 				obj->velo = e;
 
 
-			if(velo / norm > 0)
+			if((velo ^ norm) > 0)
 				velo = plan->GetMat() * ve1 /*velo*/ * res;
 			else
 				velo = ve1;
-			if(obj->velo / norm < 0)
+			if( (obj->velo ^ norm) < 0)
 				obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
 			else
 				obj->velo = ve2;
@@ -848,8 +823,8 @@ public:
 		double _x = 1;
 		Vector normal = Vector(_x,_y,_z);
 
-		if(normal.distanse() != 0)
-			ve_ro = normal * ( velo > normal ) / normal.distanse();
+		if(normal.length() != 0)
+			ve_ro = normal * ( velo ^ normal ) / normal.length();
 	}
 	void Test(Polyg * obj, bool motion)
 	{

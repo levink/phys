@@ -239,7 +239,7 @@ void display(void)
 				te2->TestMO(te2,tim);
 
 				bool tes = 0;
-				if(te1->velo.distanse(te1->Position,te2->Position) < ( obj[i]->GetRad() + obj[e]->GetRad()) * 1.1 )
+				if((te1->Position - te2->Position).length() < ( obj[i]->GetRad() + obj[e]->GetRad()) * 1.1 )
 					tes = 1;
 				obj[i]->Test(obj[e],tes);
 
