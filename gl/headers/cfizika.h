@@ -384,8 +384,8 @@ public:
 		for(int i=0;i<4;i++)
 		{
 			equa[i] = eq[i];
-		//	if(equa[i] == 0)
-			//	equa[i] = 1;
+			if(equa[i] == 0)
+				equa[i] = 1;
 		}
 
 		double longg  =sqrt(equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]); 
