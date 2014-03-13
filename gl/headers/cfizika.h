@@ -10,6 +10,8 @@
 #define E 20
 #define T 5
 #define res 0.8
+#define max8 100
+#define min8 -100
 
 class Vector
 {
@@ -77,7 +79,7 @@ public:
 	}
 	Vector operator-(Vector& const right)
 	{
-		return Vector(x - right.GetX(), y - right.GetX(), z - - right.GetX());
+		return Vector(x - right.GetX(), y - right.GetY(), z - right.GetZ());
 	}
 	Vector operator-()
 	{
@@ -382,11 +384,11 @@ public:
 		for(int i=0;i<4;i++)
 		{
 			equa[i] = eq[i];
-			if(equa[i] == 0)
-				equa[i] = 1;
+		//	if(equa[i] == 0)
+			//	equa[i] = 1;
 		}
 
-		double longg  =sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
+		double longg  =sqrt(equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]); 
 		equa[0] = equa[0] / longg;
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
@@ -848,47 +850,120 @@ class World
 {
 private:
 	Plane * Plan;
+	double * rese[6]; // 0 - Max_x, 1- Min_x, 2 - Max_y, 3 - Min_y, 4 - Max_z, 5 - Min_z
 	int k;
 public: 
 	
-	World()
+	/*World()
+	{
+		for(int i=0;i<6;i++)
+		{
+			rese[i] = NULL;
+		}
+		k=0;
+		Plan = NULL;
+	}*/
+	World(/*bool test*/)
 	{
 		k = 2;
 		Plan = new Plane [k];
-		double eq1[4]  ={-10,10,1,0};
+		double eq1[4]  ={-10,10,0,5};
+		double eq2[4] = {0.001,1,0.001,-3};
+		for(int i=0;i<6;i++)
+		{
+			//if(rese[i] == NULL)
+				rese[i] = new double [k];
+		}
+		rese[0][0] = 50.0;
+		rese[0][1] = -50;
+		rese[0][2] = max8;
+		rese[0][3] = 0;
+		rese[0][4] = max8;
+		rese[0][5] = min8;
+		rese[1][0] = 50;
+		rese[1][1] = -50;
+		rese[1][2] = max8;
+		rese[1][3] = min8;
+		rese[1][4] = 50;
+		rese[1][5] = -50;
 		/*double eq1 [3][3] = 
 		{	{0,-14,0},
 			{1,-14,0.5},
 			{1,14,0}};
 		*/
 		Plan[0] = Plane(eq1);
-		//Plan[1] = Plane(eq2);
+		Plan[1] = Plane(eq2);
+	}
+	World(double A,double B,double C,double D, double reserve[6])
+	{
+		Plane * copy;
+		double ** cop;
+			copy = new Plane[k];
+			for(int i=0;i<k;i++)
+			{
+				copy[i] = Plan[i];
+				cop[i] = rese[i];
+			}
+			delete Plan;
+			delete rese;
+			Plan = new Plane [k++];
+			for(int i=0;i<6;i++)
+			{
+				rese[i] = new double[k++];
+			}
+			for(int i=0;i<k;i++)
+			{
+				Plan[i] = copy[i];
+				rese[i] = cop[i];
+			}
+			delete copy;
+			delete cop;
+			k++;
+			double eq [4]  ={A,B,C,D};
+			Plan[k] = Plane(eq);
+			for(int i=0;i<6;i++)
+			{
+				rese[k][i] = reserve[i];
+			}
 	}
 
-	bool TestEqua(Camera * obj,Plane  Plan)
+	friend Plane*  GetPlane(World obj);
+
+	int GetK()
 	{
-		return ( obj->Position.GetX()*Plan.GetA() + obj->Position.GetY()*Plan.GetB() + obj->Position.GetZ()* Plan.GetC() + Plan.GetD() ) < 0; // изменить знак неравенства на <
+		return k;
+	}
+
+	bool TestEqua(Camera * obj,int i)
+	{
+		if(obj->Position.GetX() > rese[i][0] || obj->Position.GetX() < rese[i][1] || obj->Position.GetY() > rese[i][2] || obj->Position.GetY() < rese[i][3] || obj->Position.GetZ() > rese[i][4] || obj->Position.GetZ() < rese[i][5])
+			return 0;
+		else
+			return ( obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD() ) < 0; // изменить знак неравенства на <
 	}
 	void Test(Camera * obj,double resil)
 	{
 		for(int i=0;i<k;i++)
 		{
-			if(TestEqua(obj,Plan[i]))
+			if(TestEqua(obj,i))
 			{
 				obj->velo = Plan[i].GetMat() * obj->velo * resil;
 			}
 		}
 	}
 
-	bool TestEqua(Sphere * obj,Plane  Plan)
+	bool TestEqua(Sphere * obj,int i)
 	{
-		return ( obj->Position.GetX()*Plan.GetA() + obj->Position.GetY()*Plan.GetB() + obj->Position.GetZ()* Plan.GetC() + Plan.GetD() ) < 0; // изменить знак неравенства на <
+		if(obj->Position.GetX() > rese[i][0] || obj->Position.GetX() < rese[i][1] || obj->Position.GetY() > rese[i][2] || obj->Position.GetY() < rese[i][3] || obj->Position.GetZ() > rese[i][4] || obj->Position.GetZ() < rese[i][5])
+			return 0;
+		else
+			return ( obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD() ) < 0; // изменить знак неравенства на <
 	}
 	void Test(Sphere * obj,double resil)
 	{
 		for(int i=0;i<k;i++)
 		{
-			if(TestEqua(obj,Plan[i]))
+			if(TestEqua(obj,i))
 			{
 				Vector velo = obj->velo;
 
@@ -899,13 +974,14 @@ public:
 		}
 	}
 
-	bool TestEqua(Polyg * obj,Plane Plan)
+	bool TestEqua(Polyg * obj, int i)
 	{
 		bool test  = 0;
 		for(int i=0;i<obj->GetN_t() && !test;i++)
 		{
-			if(  obj->Get_tmpX(i)* Plan.GetA() + obj->Get_tmpY(i)*Plan.GetB() + obj->Get_tmpZ(i)* Plan.GetC() + Plan.GetD()  < 0 )
-				test = 1;
+			if(obj->Get_tmpX(i) > rese[i][0] || obj->Get_tmpX(i) < rese[i][1] || obj->Get_tmpY(i) > rese[i][2] || obj->Get_tmpY(i) < rese[i][3] || obj->Get_tmpZ(i) > rese[i][4] || obj->Get_tmpZ(i) < rese[i][5])
+				if(  obj->Get_tmpX(i)* Plan[i].GetA() + obj->Get_tmpY(i)*Plan[i].GetB() + obj->Get_tmpZ(i)* Plan[i].GetC() + Plan[i].GetD()  < 0 )
+					test = 1;
 		}
 		return test;
 	}
@@ -913,7 +989,7 @@ public:
 	{
 		for(int i=0;i<k;i++)
 		{
-			if(TestEqua(obj,Plan[i]))
+			if(TestEqua(obj,i))
 			{
 				Vector velo = obj->velo;
 				obj->velo = Plan[i].GetMat() * obj->velo * resil;

@@ -53,12 +53,15 @@ World* GetWorld(Fizika obj)
 {
 	return &obj.wor;
 }
-
-double GetY(double x, double z)
+Plane* GetPlane(World obj)
 {
-	double e[4]  ={-10,10,1,0};
-	if(e[1] == 0) return 0;
-	return -(e[3] + e[2]*z + e[0]*x)/e[1];
+	return obj.Plan;
+}
+
+double GetY(double x, double z,int i)
+{
+	if(GetPlane(*GetWorld(*phy))[i].GetB() == 0) return 0;
+	return -(GetPlane(*GetWorld(*phy))[i].GetD() + GetPlane(*GetWorld(*phy))[i].GetC()*z + GetPlane(*GetWorld(*phy))[i].GetA()*x)/GetPlane(*GetWorld(*phy))[i].GetB();
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -92,7 +95,7 @@ void mouseClick(int button, int state, int x, int y)
 		y1 = y - 335;
 		x1 *= 0.04878;
 		y1 *= -0.050847;
-		Vector pos = Vector(x1,y1,-10);
+		Vector pos = Vector(x1,y1,25);
 
 		Sphere * tmp = new Sphere();
 		tmp->Position = pos;
@@ -198,24 +201,31 @@ void display(void)
 	glNormal3d(0,1,0);
 	int x = 20;
 	int z = -20;
-	for(int i=0;i < x; i++)
-		for(int j=0;j > z; j--)
-		{
-			glVertex3d(i,0,j);
-			glVertex3d(i,0,j-1);
-			glVertex3d(i+1,0,j-1);
-			glVertex3d(i+1,0,j);
-		}
+	//for(int i=0;i<GetWorld(*phy)->GetK();i++)
+	//{
+		for(int i=0;i < x; i++)
+			for(int j=0;j > z; j--)
+			{
+				glVertex3d(i,GetY(i,j,1)-2,j);
+				glVertex3d(i,GetY(i,j-1,1)-2,j-1);
+				glVertex3d(i+1,GetY(i+1,j-1,1)-2,j-1);
+				glVertex3d(i+1,GetY(i+1,j,1)-2,j);
+			}
+	//}
 	glEnd();
 
 	//plane
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
 	glBegin(GL_POLYGON);
 	glNormal3d(-10,10,1);
-	glVertex3d(10, GetY(10,-0),-0);
-	glVertex3d(10, GetY(10,-40),-40);
-	glVertex3d(30, GetY(30,-40),-40);
-	glVertex3d(30, GetY(30,-0),-0);
+	/*glVertex3d(10, GetY(10,-0)-5,-0);
+	glVertex3d(10, GetY(10,-40)-5,-40);
+	glVertex3d(30, GetY(30,-40)-5,-40);
+	glVertex3d(30, GetY(30,-0)-5,-0);*/
+	glVertex3d(0, GetY(0,-0,0)-5,-0);
+	glVertex3d(0, GetY(0,-0,0)-5,-50);
+	glVertex3d(50, GetY(50,-50,0)-5,-50);
+	glVertex3d(50, GetY(30,-0,0)-5,-0);
 	glEnd();
 
 	glTranslated(0,0,-40);
@@ -288,7 +298,7 @@ int main(int argc, char **argv)
 	int d = 1;
 	
 	max = 10;
-	phy = new Fizika;
+	phy = new Fizika();
 	t1 = GetTickCount();
 
 	glutMainLoop();
