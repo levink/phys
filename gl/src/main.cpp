@@ -91,10 +91,17 @@ void mouseClick(int button, int state, int x, int y)
 		double x1;
 		double y1;
 		
-		x1 = x - 407.5; // преобразование ск окна в ск "мира"
-		y1 = y - 335;
-		x1 *= 0.04878;
-		y1 *= -0.050847;
+		//x1 = x - 407.5; // преобразование ск окна в ск "мира"
+		//y1 = y - 335;
+		//x1 *= 0.04878;
+		//y1 *= -0.050847;
+		x1 = x - 464.896;
+		x1 *= 0.135169;
+		y1 = x - 295.32;
+		y1 *= 0.150558;
+
+
+
 		Vector pos = Vector(x1,y1,25);
 
 		Sphere * tmp = new Sphere();
@@ -112,6 +119,7 @@ void mouseClick(int button, int state, int x, int y)
 	{
 		dragFlag = false;
 	}
+	std::cout << " X : " << x << std::endl << "Y : " << y << std::endl;
 
 }
 
@@ -222,10 +230,10 @@ void display(void)
 	glVertex3d(10, GetY(10,-40)-5,-40);
 	glVertex3d(30, GetY(30,-40)-5,-40);
 	glVertex3d(30, GetY(30,-0)-5,-0);*/
-	glVertex3d(0, GetY(0,-0,0)-5,-0);
-	glVertex3d(0, GetY(0,-0,0)-5,-50);
-	glVertex3d(50, GetY(50,-50,0)-5,-50);
-	glVertex3d(50, GetY(30,-0,0)-5,-0);
+	glVertex3d(10, GetY(10,-0,0)-6,-0);
+	glVertex3d(10, GetY(10,-30,0)-6,-30);
+	glVertex3d(60, GetY(60,-30,0)-6,-30);
+	glVertex3d(60, GetY(60,-0,0)-6,-0);
 	glEnd();
 
 	glTranslated(0,0,-40);

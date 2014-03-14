@@ -880,12 +880,12 @@ public:
 		rese[0][3] = 0;
 		rese[0][4] = max8;
 		rese[0][5] = min8;
-		rese[1][0] = 50;
-		rese[1][1] = -50;
+		rese[1][0] = 20;
+		rese[1][1] = 0;
 		rese[1][2] = max8;
 		rese[1][3] = min8;
-		rese[1][4] = 50;
-		rese[1][5] = -50;
+		rese[1][4] = max8;
+		rese[1][5] = min8;
 		/*double eq1 [3][3] = 
 		{	{0,-14,0},
 			{1,-14,0.5},
