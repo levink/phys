@@ -53,12 +53,15 @@ World* GetWorld(Fizika obj)
 {
 	return &obj.wor;
 }
-
-double GetY(double x, double z)
+Plane* GetPlane(World obj)
 {
-	double e[4]  ={-10,10,1,0};
-	if(e[1] == 0) return 0;
-	return -(e[3] + e[2]*z + e[0]*x)/e[1];
+	return obj.Plan;
+}
+
+double GetY(double x, double z,int i)
+{
+	if(GetPlane(*GetWorld(*phy))[i].GetB() == 0) return 0;
+	return -(GetPlane(*GetWorld(*phy))[i].GetD() + GetPlane(*GetWorld(*phy))[i].GetC()*z + GetPlane(*GetWorld(*phy))[i].GetA()*x)/GetPlane(*GetWorld(*phy))[i].GetB();
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -88,11 +91,18 @@ void mouseClick(int button, int state, int x, int y)
 		double x1;
 		double y1;
 		
-		x1 = x - 407.5; // преобразование ск окна в ск "мира"
-		y1 = y - 335;
-		x1 *= 0.04878;
-		y1 *= -0.050847;
-		Vector pos = Vector(x1,y1,-10);
+		//x1 = x - 407.5; // преобразование ск окна в ск "мира"
+		//y1 = y - 335;
+		//x1 *= 0.04878;
+		//y1 *= -0.050847;
+		x1 = x - 464.896;
+		x1 *= 0.135169;
+		y1 = x - 295.32;
+		y1 *= 0.150558;
+
+
+
+		Vector pos = Vector(x1,y1,25);
 
 		Sphere * tmp = new Sphere();
 		tmp->Position = pos;
@@ -109,6 +119,7 @@ void mouseClick(int button, int state, int x, int y)
 	{
 		dragFlag = false;
 	}
+	std::cout << " X : " << x << std::endl << "Y : " << y << std::endl;
 
 }
 
@@ -198,24 +209,31 @@ void display(void)
 	glNormal3d(0,1,0);
 	int x = 20;
 	int z = -20;
-	for(int i=0;i < x; i++)
-		for(int j=0;j > z; j--)
-		{
-			glVertex3d(i,0,j);
-			glVertex3d(i,0,j-1);
-			glVertex3d(i+1,0,j-1);
-			glVertex3d(i+1,0,j);
-		}
+	//for(int i=0;i<GetWorld(*phy)->GetK();i++)
+	//{
+		for(int i=0;i < x; i++)
+			for(int j=0;j > z; j--)
+			{
+				glVertex3d(i,GetY(i,j,1)-2,j);
+				glVertex3d(i,GetY(i,j-1,1)-2,j-1);
+				glVertex3d(i+1,GetY(i+1,j-1,1)-2,j-1);
+				glVertex3d(i+1,GetY(i+1,j,1)-2,j);
+			}
+	//}
 	glEnd();
 
 	//plane
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
 	glBegin(GL_POLYGON);
 	glNormal3d(-10,10,1);
-	glVertex3d(10, GetY(10,-0),-0);
-	glVertex3d(10, GetY(10,-40),-40);
-	glVertex3d(30, GetY(30,-40),-40);
-	glVertex3d(30, GetY(30,-0),-0);
+	/*glVertex3d(10, GetY(10,-0)-5,-0);
+	glVertex3d(10, GetY(10,-40)-5,-40);
+	glVertex3d(30, GetY(30,-40)-5,-40);
+	glVertex3d(30, GetY(30,-0)-5,-0);*/
+	glVertex3d(10, GetY(10,-0,0)-6,-0);
+	glVertex3d(10, GetY(10,-30,0)-6,-30);
+	glVertex3d(60, GetY(60,-30,0)-6,-30);
+	glVertex3d(60, GetY(60,-0,0)-6,-0);
 	glEnd();
 
 	glTranslated(0,0,-40);
@@ -239,7 +257,7 @@ void display(void)
 				te2->TestMO(te2,tim);
 
 				bool tes = 0;
-				if(te1->velo.distanse(te1->Position,te2->Position) < ( obj[i]->GetRad() + obj[e]->GetRad()) * 1.1 )
+				if((te1->Position - te2->Position).length() < ( obj[i]->GetRad() + obj[e]->GetRad()) * 1.1 )
 					tes = 1;
 				obj[i]->Test(obj[e],tes);
 
@@ -288,7 +306,7 @@ int main(int argc, char **argv)
 	int d = 1;
 	
 	max = 10;
-	phy = new Fizika;
+	phy = new Fizika();
 	t1 = GetTickCount();
 
 	glutMainLoop();
