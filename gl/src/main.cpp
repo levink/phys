@@ -91,16 +91,8 @@ void mouseClick(int button, int state, int x, int y)
 		double x1;
 		double y1;
 		
-		//x1 = x - 407.5; // преобразование ск окна в ск "мира"
-		//y1 = y - 335;
-		//x1 *= 0.04878;
-		//y1 *= -0.050847;
-		x1 = x - 464.896;
-		x1 *= 0.135169;
-		y1 = x - 295.32;
-		y1 *= 0.150558;
-
-
+		x1 = x * 0.05;
+		y1 = 30 - y * 0.05;
 
 		Vector pos = Vector(x1,y1,25);
 
