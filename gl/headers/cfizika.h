@@ -385,7 +385,7 @@ public:
 		{
 			equa[i] = eq[i];
 			if(equa[i] == 0)
-				equa[i] = 1;
+				equa[i] = 0.01;
 		}
 
 		double longg  =sqrt(equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]); 
@@ -398,12 +398,12 @@ public:
 
 		double a[3];
 		a[0] = equa[0];
-		a[1] = -equa[1];
+		a[1] =  - ( pow(equa[0],2) + pow(equa[2],2) )  / equa[1]; //-equa[1];
 		a[2] = equa[2];
 
 		double b[3];
-		// коллинеальные вектора, в том числе и нормаль
-		b[0] = -a[0];
+		// перпендикулярные вектора, в том числе и нормаль
+		b[0] =  - ( pow(a[1],2) + pow(a[2],2)) / a[0];//-a[0];
 		b[1] = a[1];
 		b[2] = a[2];
 
@@ -850,7 +850,7 @@ class World
 {
 private:
 	Plane * Plan;
-	double * rese[6]; // 0 - Max_x, 1- Min_x, 2 - Max_y, 3 - Min_y, 4 - Max_z, 5 - Min_z
+	double * rese[6]; // 0 - Max_x, 1 - Min_x, 2 - Max_y, 3 - Min_y, 4 - Max_z, 5 - Min_z
 	int k;
 public: 
 	
@@ -868,7 +868,7 @@ public:
 		k = 2;
 		Plan = new Plane [k];
 		double eq1[4]  ={-10,10,0,5};
-		double eq2[4] = {0.001,1,0.001,-3};
+		double eq2[4] = {0,1,0,-3};
 		for(int i=0;i<6;i++)
 		{
 			//if(rese[i] == NULL)
@@ -883,7 +883,7 @@ public:
 		rese[1][0] = 20;
 		rese[1][1] = 0;
 		rese[1][2] = max8;
-		rese[1][3] = min8;
+		rese[1][3] = -3;
 		rese[1][4] = max8;
 		rese[1][5] = min8;
 		/*double eq1 [3][3] = 
@@ -957,7 +957,9 @@ public:
 		if(obj->Position.GetX() > rese[i][0] || obj->Position.GetX() < rese[i][1] || obj->Position.GetY() > rese[i][2] || obj->Position.GetY() < rese[i][3] || obj->Position.GetZ() > rese[i][4] || obj->Position.GetZ() < rese[i][5])
 			return 0;
 		else
-			return ( obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD() ) < 0; // изменить знак неравенства на <
+		{
+			return ( obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD() ) < 0; 
+		}
 	}
 	void Test(Sphere * obj,double resil)
 	{
@@ -968,6 +970,10 @@ public:
 				Vector velo = obj->velo;
 
 				obj->velo = Plan[i].GetMat() * obj->velo * resil;
+				if(Plan[i].GetA() == 0.01 && Plan[i].GetB() == 1 && Plan[i].GetC() == 0.01)
+				{
+					obj->velo.SetY(0);
+				}
 
 				obj->Rotated(velo,Plan[i].GetN());
 			}
