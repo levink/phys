@@ -493,6 +493,7 @@ public:
 		BaseObject();
 	}
 
+
 	void Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строитс€ перпендикул€р
 	{
 		double A = ve1.GetY() * velo.GetZ() - velo.GetY() * ve1.GetZ();
@@ -536,7 +537,9 @@ public:
 			double eq[3]  = {x,y,z};
 			Vector norm = (eq);
 			double e[3] = {0,0,0};
-			Plane /***/ plan  = /*new*/ Plane(eq);
+
+			Plane * plan  = new Plane(eq);
+
 			Vector impulse = velo * m + obj->velo * obj->m;
 			Vector ve1 = impulse / (2 * m);
 			Vector ve2 = impulse / (2 * obj->m);
@@ -548,20 +551,18 @@ public:
 
 
 			if((velo ^ norm) > 0)
-				velo = plan/*->*/.GetMat() * ve1 /*velo*/ * res;
+				velo = plan->GetMat() * ve1 /*velo*/ * res;
 			else
 				velo = ve1;
 			if( (obj->velo ^ norm) < 0)
-				obj->velo = plan/*->*/.GetMat() * ve2 /*obj->velo*/ * res;
+				obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
 			else
 				obj->velo = ve2;
 
 			Rotated(ve1,eq);
 			obj->Rotated(ve2,eq);
-			//	velo = plan->GetMat() * /*ve1*/ velo * res;
 
-			//obj->velo = plan->GetMat() * /*ve2*/ obj->velo * res;
-			//delete plan;
+			delete plan;
 		}
 	}
 	

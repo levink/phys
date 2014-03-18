@@ -15,9 +15,13 @@ Fizika::Fizika()
 	World wor = World();
 }
 
+
+
 void Fizika::MoveObject(Camera * obj, double t_sec)
 {
 	//считаем новые координаты объекта на основе его времени жизни и наших "физических" законов
+
+
 	Vector Ft = Vector(0,-obj->m * _g,0); //+ F1 + F2 + ...
 	Vector Ftr =(obj->velo * obj->velo * p / 2) *  n * 3.14;
 	Vector F = Ft + Ftr; /*obj ->F;*/	// + F1 + F2 + ...;
@@ -28,7 +32,6 @@ void Fizika::MoveObject(Camera * obj, double t_sec)
 	obj->accel = a;
 	obj->velo = v;
 	obj->Position = x;
-	obj->F = F;
 
 	//DWORD t = time(NULL);
 
@@ -39,18 +42,8 @@ void Fizika::MoveObject(Camera * obj, double t_sec)
 	//F0.SetY(obj ->F.GetY());
 
 	obj -> F.SetY( _g * obj ->m);
-
 	obj ->F.SetX( obj ->F.GetX() - cos(pow(obj ->velo.GetX(),2) * 0.2));
 	obj ->F.SetZ( obj ->F.GetZ() - sin(pow(obj ->velo.GetZ(),2) * 0.2));
-
-	//if(F0 != obj ->F)
-	//	obj ->bornTime = GetTickCount();
-	
-	DWORD lifetime = GetTickCount() - obj->bornTime;
-	
-	obj ->accel = obj ->F * obj ->m; // ускорение
-	obj ->velo = obj ->accel * lifetime + obj ->velo;
-	/*obj ->currentPosition = obj ->velo * lifetime + obj ->accel * (lifetime * lifetime) /2;*/
 }
 
 void Fizika::MoveObject(Sphere * obj, double t_sec)

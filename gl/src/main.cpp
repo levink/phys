@@ -236,6 +236,7 @@ void display(void)
 	Sphere * te1 = NULL;
 	Sphere * te2 = NULL;
 
+
 	double tim = dt/1000.0;
 	
 	for(int i=0;i<num;i++)
@@ -246,6 +247,7 @@ void display(void)
 			{
 				te1 = obj[i];
 				te2 = obj[e];
+
 				phy->MoveObject(te1,tim);
 				phy->MoveObject(te2,tim);
 
@@ -263,8 +265,6 @@ void display(void)
 		}
 	}
 	
-	
-
 	for(int i=0;i<num;i++)
 	{
 		phy ->MoveObject(obj[i], tim);
