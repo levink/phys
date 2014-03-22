@@ -394,7 +394,7 @@ public:
 		equa[2] = equa[2] / longg;
 		//equa[3] = - equa[0] - equa[1] - equa[2];
 		if(equa[0] == 0)
-			equa[0] =1;
+			equa[0] = 1;
 
 		double a[3];
 		a[0] = equa[0];
@@ -461,7 +461,6 @@ class BaseObject
 {
 public:
 	Vector Position;
-	DWORD bornTime;
 	double m;
 	Vector velo;
 	Vector accel;
@@ -476,7 +475,6 @@ public:
 		F = Vector(0,0,0);
 		Angl = Vector(0,0,0);
 		m = 10;
-		bornTime = 0;
 	}
 };
 
