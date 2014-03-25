@@ -117,7 +117,7 @@ public:
 	
 	bool operator<(double value)
 	{	
-		return value <= 0 || this->length2() < value*value;
+		return value < 0 || this->length2() < value*value;
 	}
 	bool operator==(Vector& const right)
 	{
@@ -394,7 +394,7 @@ public:
 		equa[2] = equa[2] / longg;
 		//equa[3] = - equa[0] - equa[1] - equa[2];
 		if(equa[0] == 0)
-			equa[0] = 1;
+			equa[0] =1;
 
 		double a[3];
 		a[0] = equa[0];
@@ -451,12 +451,6 @@ public:
 	}
 };
 
-struct AllObject
-{
-	/*bool tes [100][100];
-	Sphere * obj;*/
-};
-
 class BaseObject
 {
 public:
@@ -491,6 +485,7 @@ public:
 		BaseObject();
 	}
 
+	//Sphere * TestMO (Sphere * obj, double t);
 
 	void Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строитс€ перпендикул€р
 	{
@@ -535,9 +530,7 @@ public:
 			double eq[3]  = {x,y,z};
 			Vector norm = (eq);
 			double e[3] = {0,0,0};
-
 			Plane * plan  = new Plane(eq);
-
 			Vector impulse = velo * m + obj->velo * obj->m;
 			Vector ve1 = impulse / (2 * m);
 			Vector ve2 = impulse / (2 * obj->m);
@@ -559,7 +552,9 @@ public:
 
 			Rotated(ve1,eq);
 			obj->Rotated(ve2,eq);
+			//	velo = plan->GetMat() * /*ve1*/ velo * res;
 
+			//obj->velo = plan->GetMat() * /*ve2*/ obj->velo * res;
 			delete plan;
 		}
 	}
@@ -567,6 +562,15 @@ public:
 	double GetRad()
 	{
 		return rad;
+	}
+
+	void operator=(Sphere * count)
+	{
+		Position = count->Position;
+		accel = count->accel;
+		F = count->F;
+		m = count->m;
+		velo = count->velo;
 	}
 };
 
@@ -843,6 +847,48 @@ public:
 	
 };
 
+struct AllObject
+{
+private:
+	Sphere * obj[100];
+	int gen_test [100][100];
+	int nom;
+public:
+	AllObject()
+	{
+		for(int i =0;i<100;i++)
+		{
+			*obj[i] = Sphere();
+			for(int e =0;e<100;e++)
+				gen_test [i][e] =0;
+
+		}
+		nom = 0;
+	}
+	void CreateObj(Vector Pos)
+	{
+		obj[nom]->Position = Pos;
+		nom++;
+	}
+	Sphere * GetObj(int number)
+	{
+		return obj[number];
+	}
+	int GetN()
+	{
+		return nom++;
+	}
+	int GetGen_test(int i,int e)
+	{
+		return gen_test[i][e]; 
+	}
+	void SetGen_test(int count,int i,int e)
+	{
+		gen_test[i][e] = count; 
+	}
+
+};
+
 class World
 {
 private:
@@ -1007,13 +1053,18 @@ class Fizika
 private:
 	double _g;
 	World wor;
+	AllObject * AObj;
 public:
 	Fizika();
 	//void Kick (double plane[4],Camera * obj,double k);
 	friend World* GetWorld(Fizika obj);
 	void MoveObject(Camera * obj, double t);
 	void MoveObject(Sphere * obj, double t);
-	Sphere* TestMO (Sphere * obj, double t); 
+	void MoveObj(double t);
+	AllObject* GetAObj ()
+	{
+		return AObj;
+	} 
 };
 
 #endif
