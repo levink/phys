@@ -55,7 +55,7 @@ void Fizika::MoveObject(Sphere * obj, double t_sec)
 	Vector F = Ft + Ftr; /*obj ->F;*/	// + F1 + F2 + ...;
 	Vector a = F / obj->m;
 	Vector v = obj->velo + a*t_sec; 
-	Vector x = obj->Position + obj->velo*t_sec + obj->accel*t_sec*t_sec/2; 
+	Vector x = obj->Position + v*t_sec + a*t_sec*t_sec/2; 
 
 	obj->accel = a;
 	obj->velo = v;
@@ -80,7 +80,6 @@ Camera::Camera ()
 	accel = Vector(0,0,0);
 	F = Vector(0,0,0);
 	m =0;
-	bornTime = 0;
 	angle = 0;
 	m = 10;
 }
