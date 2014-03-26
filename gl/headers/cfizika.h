@@ -12,6 +12,7 @@
 #define res 0.8
 #define max8 100
 #define min8 -100
+#define K 0.1
 
 class Vector
 {
@@ -114,10 +115,10 @@ public:
 		z = val.GetZ();
 		return *this;
 	}
-	
+
 	bool operator<(double value)
 	{	
-		return value < 0 || this->length2() < value*value;
+		return value <= 0 || this->length2() < value*value;
 	}
 	bool operator==(Vector& const right)
 	{
@@ -451,10 +452,17 @@ public:
 	}
 };
 
+struct AllObject
+{
+	/*bool tes [100][100];
+	Sphere * obj;*/
+};
+
 class BaseObject
 {
 public:
 	Vector Position;
+	DWORD bornTime;
 	double m;
 	Vector velo;
 	Vector accel;
@@ -469,6 +477,7 @@ public:
 		F = Vector(0,0,0);
 		Angl = Vector(0,0,0);
 		m = 10;
+		bornTime = 0;
 	}
 };
 
@@ -476,16 +485,15 @@ class Sphere: public BaseObject
 {
 private: 
 	double rad;
-	double _g;
 public:
+	double _g;
 	Sphere()
 	{
 		rad = 1;
-		_g = 10;
+		_g = 9.8;
 		BaseObject();
 	}
 
-	//Sphere * TestMO (Sphere * obj, double t);
 
 	void Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строитс€ перпендикул€р
 	{
@@ -530,7 +538,9 @@ public:
 			double eq[3]  = {x,y,z};
 			Vector norm = (eq);
 			double e[3] = {0,0,0};
+
 			Plane * plan  = new Plane(eq);
+
 			Vector impulse = velo * m + obj->velo * obj->m;
 			Vector ve1 = impulse / (2 * m);
 			Vector ve2 = impulse / (2 * obj->m);
@@ -541,29 +551,31 @@ public:
 				obj->velo = e;
 
 
-			if((velo ^ norm) > 0)
-				velo = plan->GetMat() * ve1 /*velo*/ * res;
-			else
-				velo = ve1;
-			if( (obj->velo ^ norm) < 0)
-				obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
-			else
-				obj->velo = ve2;
+			//if((velo ^ norm) > 0)
+			//	velo = plan->GetMat() * ve1 /*velo*/ * res;
+			//else
+			//	velo = ve1;
+			//if( (obj->velo ^ norm) < 0)
+			//	obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
+			//else
+			//	obj->velo = ve2;
+			F = plan->GetN() * m * _g * velo.length() *sqrt(K * m);
+			obj->F = plan->GetN() * obj->m * obj->_g * obj->velo.length() *sqrt(K * obj->m);
 
 			Rotated(ve1,eq);
 			obj->Rotated(ve2,eq);
-			//	velo = plan->GetMat() * /*ve1*/ velo * res;
 
-			//obj->velo = plan->GetMat() * /*ve2*/ obj->velo * res;
 			delete plan;
 		}
+		obj->F = Vector();
+		F = Vector();
 	}
 	
 	double GetRad()
 	{
 		return rad;
 	}
-
+	
 	void operator=(Sphere * count)
 	{
 		Position = count->Position;
@@ -847,48 +859,6 @@ public:
 	
 };
 
-struct AllObject
-{
-private:
-	Sphere * obj[100];
-	int gen_test [100][100];
-	int nom;
-public:
-	AllObject()
-	{
-		for(int i =0;i<100;i++)
-		{
-			*obj[i] = Sphere();
-			for(int e =0;e<100;e++)
-				gen_test [i][e] =0;
-
-		}
-		nom = 0;
-	}
-	void CreateObj(Vector Pos)
-	{
-		obj[nom]->Position = Pos;
-		nom++;
-	}
-	Sphere * GetObj(int number)
-	{
-		return obj[number];
-	}
-	int GetN()
-	{
-		return nom++;
-	}
-	int GetGen_test(int i,int e)
-	{
-		return gen_test[i][e]; 
-	}
-	void SetGen_test(int count,int i,int e)
-	{
-		gen_test[i][e] = count; 
-	}
-
-};
-
 class World
 {
 private:
@@ -1001,7 +971,12 @@ public:
 			return 0;
 		else
 		{
-			return ( obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD() ) < 0; 
+			double eqa = pow(obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD(),2);
+			double lon = pow(Plan[i].GetA(),2) + pow(Plan[i].GetB(),2) + pow(Plan[i].GetC(),2);
+			if(lon == 0 )
+				return 0;
+
+			return ( eqa/lon/*obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD()*/ ) < pow(obj->GetRad() * 1.1,2); 
 		}
 	}
 	void Test(Sphere * obj,double resil)
@@ -1011,14 +986,17 @@ public:
 			if(TestEqua(obj,i))
 			{
 				Vector velo = obj->velo;
-
-				obj->velo = Plan[i].GetMat() * obj->velo * resil;
-				if(Plan[i].GetA() == 0.01 && Plan[i].GetB() == 1 && Plan[i].GetC() == 0.01)
-				{
-					obj->velo.SetY(0);
-				}
-
 				obj->Rotated(velo,Plan[i].GetN());
+				if(obj->velo.length2() < 1.4142)
+				{
+					obj->F = Plan[i].GetN() * obj->m * obj->_g * 1.5;
+				}
+				else
+				{
+					obj->velo = Plan[i].GetMat() * obj->velo * resil;
+					obj->F = Plan[i].GetN() * obj->m * obj->_g * obj->velo.length() *sqrt(K * obj->m);
+					/*obj->velo = Vector();*/
+				}
 			}
 		}
 	}
@@ -1053,18 +1031,13 @@ class Fizika
 private:
 	double _g;
 	World wor;
-	AllObject * AObj;
 public:
 	Fizika();
 	//void Kick (double plane[4],Camera * obj,double k);
 	friend World* GetWorld(Fizika obj);
 	void MoveObject(Camera * obj, double t);
 	void MoveObject(Sphere * obj, double t);
-	void MoveObj(double t);
-	AllObject* GetAObj ()
-	{
-		return AObj;
-	} 
+	Sphere* TestMO (Sphere * obj, double t); 
 };
 
 #endif
