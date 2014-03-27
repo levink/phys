@@ -12,6 +12,7 @@
 #define res 0.8
 #define max8 100
 #define min8 -100
+#define K 0.1
 
 class Vector
 {
@@ -114,7 +115,7 @@ public:
 		z = val.GetZ();
 		return *this;
 	}
-	
+
 	bool operator<(double value)
 	{	
 		return value <= 0 || this->length2() < value*value;
@@ -394,7 +395,7 @@ public:
 		equa[2] = equa[2] / longg;
 		//equa[3] = - equa[0] - equa[1] - equa[2];
 		if(equa[0] == 0)
-			equa[0] = 1;
+			equa[0] =1;
 
 		double a[3];
 		a[0] = equa[0];
@@ -461,6 +462,7 @@ class BaseObject
 {
 public:
 	Vector Position;
+	DWORD bornTime;
 	double m;
 	Vector velo;
 	Vector accel;
@@ -475,6 +477,7 @@ public:
 		F = Vector(0,0,0);
 		Angl = Vector(0,0,0);
 		m = 10;
+		bornTime = 0;
 	}
 };
 
@@ -482,12 +485,12 @@ class Sphere: public BaseObject
 {
 private: 
 	double rad;
-	double _g;
 public:
+	double _g;
 	Sphere()
 	{
 		rad = 1;
-		_g = 10;
+		_g = 9.8;
 		BaseObject();
 	}
 
@@ -548,25 +551,38 @@ public:
 				obj->velo = e;
 
 
-			if((velo ^ norm) > 0)
-				velo = plan->GetMat() * ve1 /*velo*/ * res;
-			else
-				velo = ve1;
-			if( (obj->velo ^ norm) < 0)
-				obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
-			else
-				obj->velo = ve2;
+			//if((velo ^ norm) > 0)
+			//	velo = plan->GetMat() * ve1 /*velo*/ * res;
+			//else
+			//	velo = ve1;
+			//if( (obj->velo ^ norm) < 0)
+			//	obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
+			//else
+			//	obj->velo = ve2;
+			F = plan->GetN() * m * _g * velo.length() *sqrt(K * m);
+			obj->F = plan->GetN() * obj->m * obj->_g * obj->velo.length() *sqrt(K * obj->m);
 
 			Rotated(ve1,eq);
 			obj->Rotated(ve2,eq);
 
 			delete plan;
 		}
+		obj->F = Vector();
+		F = Vector();
 	}
 	
 	double GetRad()
 	{
 		return rad;
+	}
+	
+	void operator=(Sphere * count)
+	{
+		Position = count->Position;
+		accel = count->accel;
+		F = count->F;
+		m = count->m;
+		velo = count->velo;
 	}
 };
 
@@ -955,7 +971,12 @@ public:
 			return 0;
 		else
 		{
-			return ( obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD() ) < 0; 
+			double eqa = pow(obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD(),2);
+			double lon = pow(Plan[i].GetA(),2) + pow(Plan[i].GetB(),2) + pow(Plan[i].GetC(),2);
+			if(lon == 0 )
+				return 0;
+
+			return ( eqa/lon/*obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD()*/ ) < pow(obj->GetRad() * 1.1,2); 
 		}
 	}
 	void Test(Sphere * obj,double resil)
@@ -965,14 +986,17 @@ public:
 			if(TestEqua(obj,i))
 			{
 				Vector velo = obj->velo;
-
-				obj->velo = Plan[i].GetMat() * obj->velo * resil;
-				if(Plan[i].GetA() == 0.01 && Plan[i].GetB() == 1 && Plan[i].GetC() == 0.01)
-				{
-					obj->velo.SetY(0);
-				}
-
 				obj->Rotated(velo,Plan[i].GetN());
+				if(obj->velo.length2() < 1.4142)
+				{
+					obj->F = Plan[i].GetN() * obj->m * obj->_g * 1.5;
+				}
+				else
+				{
+					obj->velo = Plan[i].GetMat() * obj->velo * resil;
+					obj->F = Plan[i].GetN() * obj->m * obj->_g * obj->velo.length() *sqrt(K * obj->m);
+					/*obj->velo = Vector();*/
+				}
 			}
 		}
 	}

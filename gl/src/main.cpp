@@ -21,6 +21,7 @@ double camHeight = 0;
 double oldX = 0;
 double oldY = 0;
 bool dragFlag = false; 
+bool needStep = false;
 
 DWORD previousTime = 0;
 DWORD t1 = 0;
@@ -64,7 +65,6 @@ double GetY(double x, double z,int i)
 	return -(GetPlane(*GetWorld(*phy))[i].GetD() + GetPlane(*GetWorld(*phy))[i].GetC()*z + GetPlane(*GetWorld(*phy))[i].GetA()*x)/GetPlane(*GetWorld(*phy))[i].GetB();
 }
 
-bool needStep = false;
 void keyboard(unsigned char key, int x, int y)
 {
 	switch(key)
@@ -82,8 +82,7 @@ void keyboard(unsigned char key, int x, int y)
 		if (lightHeight > -4) lightHeight-=1;
 		break;
 	case 't':
-		needStep = true;
-		break;
+		needStep  = true;
 	}
 	glutPostRedisplay();
 }
@@ -141,6 +140,7 @@ void idle(void)
 	{
 		lightAngle+=2;
 		if(lightAngle>360) lightAngle = 0;
+
 		previousTime = dt;
 		glutPostRedisplay();
 	}
@@ -235,49 +235,50 @@ void display(void)
 	glTranslated(0,0,-40);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
-	DWORD dt = 0;
-	double tim = 0;
-
-	if (needStep)
+	//DWORD dt = GetTickCount()-t1;
+	if(needStep) 
 	{
 		needStep = false;
-		/*DWORD*/ dt = 50;// = GetTickCount()-t1;
-		Sphere * te1 = NULL;
-		Sphere * te2 = NULL;
+		DWORD dt = 25/*GetTickCount()-t1*/; 
+		Sphere te1 = Sphere();
+		Sphere te2 = Sphere();
+		
 
-		/*double */tim = dt/1000.0;
-	
+		double tim = dt/1000.0;
+		
 		for(int i=0;i<num;i++)
 		{
 			for(int e = 0;e<num;e++)
 			{
 				if(i!=e && gen_test[i][e]==0)
 				{
-					/*te1 = obj[i];
+					te1 = obj[i];
 					te2 = obj[e];
 
-					phy->MoveObject(te1,tim);
-					phy->MoveObject(te2,tim);
+					phy->MoveObject(&te1,tim);
+					phy->MoveObject(&te2,tim);
 
 					bool tes = 0;
-					if((te1->Position - te2->Position).length() < ( obj[i]->GetRad() + obj[e]->GetRad()) * 1.1 )
-						tes = 1;*/
-					obj[i]->Test(obj[e],0);
+					if((te1.Position - te2.Position).length() < ( obj[i]->GetRad() + obj[e]->GetRad()) * 1.1 )
+						tes = 1;
+					obj[i]->Test(obj[e],tes);
 
-					/*gen_test[i][e] = 2;
-					gen_test[e][i] = 2;*/
+					gen_test[i][e] = 3;
+					gen_test[e][i] = 3;
 				}
-				/*else
+				else
 					if(gen_test[i][e] > 0)
-						gen_test[i][e]--;*/
+						gen_test[i][e]--;
 			}
 		}
-		//t1 += dt;
+		
+		for(int i=0;i<num;i++)
+		{
+			phy ->MoveObject(obj[i], tim);
+		}
 	}
-
 	for(int i=0;i<num;i++)
 	{
-		phy ->MoveObject(obj[i], tim);
 		glPushMatrix();
 		glTranslated(obj[i]->Position.GetX(),obj[i]->Position.GetY(), obj[i]->Position.GetZ());
 		glRotated(obj[i]->Angl.GetX(),0,0,1);
@@ -285,9 +286,8 @@ void display(void)
 		glutSolidSphere(1,5,5);
 		glPopMatrix();
 	}
-
-	dt = 0;
 	
+	//t1 += dt;
 	glPopMatrix();
 	glFlush();
 	glutSwapBuffers();
