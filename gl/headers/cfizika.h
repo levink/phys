@@ -108,6 +108,13 @@ public:
 			z * right.x - x * right.z,
 			x * right.y - y * right.x);
 	}
+	Vector sqrt_ve()
+	{
+		x = sqrt(x);
+		y = sqrt(y);
+		z = sqrt(z);
+		return Vector(x,y,z);
+	}
 	Vector& operator= (Vector val)
 	{
 		x = val.GetX();
@@ -386,7 +393,7 @@ public:
 		{
 			equa[i] = eq[i];
 			if(equa[i] == 0)
-				equa[i] = 0.01;
+				equa[i] = 0.00001;
 		}
 
 		double longg  =sqrt(equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]); 
@@ -395,7 +402,7 @@ public:
 		equa[2] = equa[2] / longg;
 		//equa[3] = - equa[0] - equa[1] - equa[2];
 		if(equa[0] == 0)
-			equa[0] =1;
+			equa[0] = 0.00001;
 
 		double a[3];
 		a[0] = equa[0];
@@ -541,29 +548,44 @@ public:
 
 			Plane * plan  = new Plane(eq);
 
-			Vector impulse = velo * m + obj->velo * obj->m;
+			/*Vector impulse = velo * m + obj->velo * obj->m;
 			Vector ve1 = impulse / (2 * m);
-			Vector ve2 = impulse / (2 * obj->m);
-			
-			if(velo < 0.01)
-				velo = e;
-			if(obj->velo < 0.01)
-				obj->velo = e;
+			Vector ve2 = impulse / (2 * obj->m);*/
+
+			//Vector one = Vector(1,1,1); 
+			//Vector D  = ( velo * m - obj->velo * obj->m - one) * ( velo * m - obj->velo * obj->m - one) - ( ( obj->velo * velo * obj->m * 2 - ( (velo * velo * m * (1 - m) + obj->velo * obj->m * (1 - obj->m) )/ m ) ) * 4 * m );
+			Vector D = (obj->velo * obj->m * 2 - velo * m * 2) * (obj->velo * obj->m * 2 - velo * m * 2) - ( velo * obj->velo * obj->m * 2 - ( (velo * velo * m * ( 1 - m ) + obj->velo * obj->velo * obj->m * ( 1 - obj->m )) / m) * m * 4 );  
+			D = D.sqrt_ve();
+
+			Vector ve1 = ( velo * m * 2 - obj->velo * obj->m * 2 + D) / (2 * m) ;
+
+			if((ve1 ^ norm) > 0)
+			{
+				ve1 = ( velo * m * 2 - obj->velo * obj->m * 2 - D) / (2 * m);
+			}
+
+			Vector ve2 = ((velo - ve1) * m + obj->velo * obj->m) / obj->m ;  
+
+			if(ve1 < 1)
+				ve1 = e;
+			if(ve2 < 1)
+				ve2 = e;
 
 
-			//if((velo ^ norm) > 0)
-			//	velo = plan->GetMat() * ve1 /*velo*/ * res;
-			//else
-			//	velo = ve1;
-			//if( (obj->velo ^ norm) < 0)
-			//	obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
-			//else
-			//	obj->velo = ve2;
-			F = plan->GetN() * m * _g * velo.length() *sqrt(K * m);
-			obj->F = plan->GetN() * obj->m * obj->_g * obj->velo.length() *sqrt(K * obj->m);
+			if((velo ^ norm) > 0)
+				velo = plan->GetMat() * ve1 /*velo*/ * res;
+			else
+				velo = ve1 * res;
+			if( (obj->velo ^ norm) < 0)
+				obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
+			else
+				obj->velo = ve2 * res;
+
+			F = plan->GetN() * m * _g * velo/*.length()*/ *sqrt(K * m);
+			obj->F = plan->GetN() * obj->m * obj->_g * obj->velo/*.length()*/ *sqrt(K * obj->m);
 
 			Rotated(ve1,eq);
-			obj->Rotated(ve2,eq);
+			//obj->Rotated(ve2,eq);
 
 			delete plan;
 		}
@@ -987,14 +1009,14 @@ public:
 			{
 				Vector velo = obj->velo;
 				obj->Rotated(velo,Plan[i].GetN());
-				if(obj->velo.length2() < 1.4142)
+				if(obj->velo.length2() < 1)
 				{
 					obj->F = Plan[i].GetN() * obj->m * obj->_g * 1.5;
 				}
 				else
 				{
 					obj->velo = Plan[i].GetMat() * obj->velo * resil;
-					obj->F = Plan[i].GetN() * obj->m * obj->_g * obj->velo.length() *sqrt(K * obj->m);
+					obj->F = Plan[i].GetN() * obj->m * obj->_g * obj->velo/*.length()*/ *sqrt(K * obj->m);
 					/*obj->velo = Vector();*/
 				}
 			}
