@@ -115,6 +115,13 @@ public:
 		z = sqrt(z);
 		return Vector(x,y,z);
 	}
+	Vector operator>(Vector& const right)
+	{
+		return Vector(
+			x * right.x,
+			y * right.y,
+			z * right.z);
+	}
 	Vector& operator= (Vector val)
 	{
 		x = val.GetX();
@@ -547,39 +554,56 @@ public:
 			double e[3] = {0,0,0};
 
 			Plane * plan  = new Plane(eq);
-
-			/*Vector impulse = velo * m + obj->velo * obj->m;
-			Vector ve1 = impulse / (2 * m);
-			Vector ve2 = impulse / (2 * obj->m);*/
-
-			//Vector one = Vector(1,1,1); 
-			//Vector D  = ( velo * m - obj->velo * obj->m - one) * ( velo * m - obj->velo * obj->m - one) - ( ( obj->velo * velo * obj->m * 2 - ( (velo * velo * m * (1 - m) + obj->velo * obj->m * (1 - obj->m) )/ m ) ) * 4 * m );
-			Vector D = (obj->velo * obj->m * 2 - velo * m * 2) * (obj->velo * obj->m * 2 - velo * m * 2) - ( velo * obj->velo * obj->m * 2 - ( (velo * velo * m * ( 1 - m ) + obj->velo * obj->velo * obj->m * ( 1 - obj->m )) / m) * m * 4 );  
-			D = D.sqrt_ve();
-
-			Vector ve1 = ( velo * m * 2 - obj->velo * obj->m * 2 + D) / (2 * m) ;
-
-			if((ve1 ^ norm) > 0)
+		
+			Vector v = velo - obj->velo;
+			Vector B = velo * m + obj->velo * obj->m;
+			if( v.GetX() < 0)
 			{
-				ve1 = ( velo * m * 2 - obj->velo * obj->m * 2 - D) / (2 * m);
+				v.SetX( - v.GetX());
 			}
+			if( v.GetY() < 0)
+			{
+				v.SetY( - v.GetY());
+			}
+			if( v.GetZ() < 0)
+			{
+				v.SetZ( -v.GetZ());
+			}
+			Vector ve2 = Vector();
+			Vector ve1 = Vector();
+			Vector D = v * 2 * m * obj->m;
 
-			Vector ve2 = ((velo - ve1) * m + obj->velo * obj->m) / obj->m ;  
+			if( D.length2() == 0)
+			{
+				ve2 = ( B ) / (m + obj->m);
+			}
+			else
+			{
+				ve2 = ( B + (velo - obj->velo) * m ) / (m + obj->m);
+				ve1 = (velo * m + (obj->velo - ve2) * obj->m) / m;
+
+				if(B != ve1 * m + ve2 * obj->m)
+				{
+					ve2 = ( B - (velo - obj->velo) * m ) / (m + obj->m);
+					ve1 = (velo * m + (obj->velo - ve2) * obj->m) / m;
+				}
+			}
 
 			if(ve1 < 1)
 				ve1 = e;
 			if(ve2 < 1)
 				ve2 = e;
-
+			velo = ve1;
+			obj->velo = ve2;
 
 			if((velo ^ norm) > 0)
-				velo = plan->GetMat() * ve1 /*velo*/ * res;
+				velo = plan->GetMat() * velo /*velo*/ * res;
 			else
-				velo = ve1 * res;
+				velo = velo * res;
 			if( (obj->velo ^ norm) < 0)
-				obj->velo = plan->GetMat() * ve2 /*obj->velo*/ * res;
+				obj->velo = plan->GetMat() * obj->velo /*obj->velo*/ * res;
 			else
-				obj->velo = ve2 * res;
+				obj->velo = obj->velo * res;
 
 			F = plan->GetN() * m * _g * velo/*.length()*/ *sqrt(K * m);
 			obj->F = plan->GetN() * obj->m * obj->_g * obj->velo/*.length()*/ *sqrt(K * obj->m);
