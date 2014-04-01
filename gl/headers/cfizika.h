@@ -12,7 +12,7 @@
 #define res 0.8
 #define max8 100
 #define min8 -100
-#define K 0.1
+#define K 1
 
 class Vector
 {
@@ -605,11 +605,11 @@ public:
 			else
 				obj->velo = obj->velo * res;
 
-			F = plan->GetN() * m * _g * velo/*.length()*/ *sqrt(K * m);
-			obj->F = plan->GetN() * obj->m * obj->_g * obj->velo/*.length()*/ *sqrt(K * obj->m);
+			F = plan->GetN() * m * _g * velo.length() *sqrt(K * m);
+			obj->F = plan->GetN() * obj->m * obj->_g * obj->velo.length() *sqrt(K * obj->m);
 
 			Rotated(ve1,eq);
-			//obj->Rotated(ve2,eq);
+			obj->Rotated(ve2,eq);
 
 			delete plan;
 		}
@@ -940,16 +940,11 @@ public:
 		rese[0][4] = max8;
 		rese[0][5] = min8;
 		rese[1][0] = 20;
-		rese[1][1] = 0;
+		rese[1][1] = -1;
 		rese[1][2] = max8;
 		rese[1][3] = -3;
 		rese[1][4] = max8;
 		rese[1][5] = min8;
-		/*double eq1 [3][3] = 
-		{	{0,-14,0},
-			{1,-14,0.5},
-			{1,14,0}};
-		*/
 		Plan[0] = Plane(eq1);
 		Plan[1] = Plane(eq2);
 	}
@@ -1035,7 +1030,7 @@ public:
 				obj->Rotated(velo,Plan[i].GetN());
 				if(obj->velo.length2() < 1)
 				{
-					obj->F = Plan[i].GetN() * obj->m * obj->_g * 1.5;
+					obj->F = Plan[i].GetN() * obj->m * obj->_g * 1.1;
 				}
 				else
 				{
