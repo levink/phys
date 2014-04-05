@@ -6,6 +6,7 @@
 #include "../headers/cfizika.h"
 #include "../headers/func.h"
 #include "../headers/colors.h"
+#include "../headers/test_cfizika.h"
 
 const int SCENE_W = 800;//1024;
 const int SCENE_H = 600;//768;
@@ -31,7 +32,7 @@ DWORD t1 = 0;
 #define Matr 0.5
 
 int num = 0;
-int max = 0;
+int maxx = 0;
 
 Sphere * obj[100];
 int gen_test [100][100];
@@ -295,6 +296,8 @@ void display(void)
 
 int main(int argc, char **argv)
 {
+	//Vector_t T;
+	//T.RunAll();
 	setlocale(LC_ALL,"RUS");
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -311,7 +314,7 @@ int main(int argc, char **argv)
 
 	int d = 1;
 	
-	max = 10;
+	maxx = 10;
 	phy = new Fizika();
 	t1 = GetTickCount();
 

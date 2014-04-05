@@ -73,6 +73,7 @@
     <ClInclude Include="headers\colors.h" />
     <ClInclude Include="headers\func.h" />
     <ClInclude Include="headers\scene.h" />
+    <ClInclude Include="test_cfizika.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

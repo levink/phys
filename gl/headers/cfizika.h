@@ -8,7 +8,7 @@
 #define __FIZIKA_H
 
 #define E 20
-#define T 5
+//#define T 5
 #define res 0.8
 #define max8 100
 #define min8 -100
@@ -597,16 +597,16 @@ public:
 			obj->velo = ve2;
 
 			if((velo ^ norm) > 0)
-				velo = plan->GetMat() * velo /*velo*/ * res;
+				velo = plan->GetMat() * velo * res;
 			else
 				velo = velo * res;
 			if( (obj->velo ^ norm) < 0)
-				obj->velo = plan->GetMat() * obj->velo /*obj->velo*/ * res;
+				obj->velo = plan->GetMat() * obj->velo * res;
 			else
 				obj->velo = obj->velo * res;
 
-			F = plan->GetN() * m * _g * velo.length() *sqrt(K * m);
-			obj->F = plan->GetN() * obj->m * obj->_g * obj->velo.length() *sqrt(K * obj->m);
+			F = plan->GetN() * m * _g /** velo.length() *sqrt(K * m)*/;
+			obj->F = plan->GetN() * obj->m * obj->_g /** obj->velo.length() *sqrt(K * obj->m)*/;
 
 			Rotated(ve1,eq);
 			obj->Rotated(ve2,eq);
