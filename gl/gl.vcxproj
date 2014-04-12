@@ -66,13 +66,16 @@
   <ItemGroup>
     <ClCompile Include="src\func.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\phisiks.cpp" />
+    <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="headers\cfizika.h" />
     <ClInclude Include="headers\colors.h" />
+    <ClInclude Include="headers\Fizika.h" />
     <ClInclude Include="headers\func.h" />
+    <ClInclude Include="headers\Geometry.h" />
+    <ClInclude Include="headers\Objects.h" />
     <ClInclude Include="headers\scene.h" />
+    <ClInclude Include="headers\World.h" />
     <ClInclude Include="test_cfizika.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

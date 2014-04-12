@@ -1,7 +1,7 @@
-
 #include <iostream>
-using namespace std;
 #include "cfizika.h"
+using namespace std;
+
 
 
 #ifndef __TEST_H

@@ -1,19 +1,34 @@
+#include <Windows.h>
 #include <iostream>
 #include <cmath>
-#include <Windows.h>
-#include <ctime>
-#include "../glut/glut.h"
-#include "../headers/cfizika.h"
-#include "../headers/func.h"
+
+
+const double PI = 3.1415916;
+const int E = 20;
+#define res 0.8
+#define max8 100
+#define min8 -100
+#define K 1
+
+#include "../headers/Geometry.h"
+#include "../headers/Objects.h"
+#include "../headers/World.h"
+#include "../headers/Fizika.h"
 #include "../headers/colors.h"
-#include "../headers/test_cfizika.h"
+#include "../glut/glut.h"
+
+// ‘изика
+// ’е-’е
+
+
+
 
 const int SCENE_W = 800;//1024;
 const int SCENE_H = 600;//768;
 
 double lightAngle = 0;
 double lightHeight = 8;
-const double PI = 3.1415916;
+
 
 double camAng1 = 0;
 double camAng2 = 0;
@@ -211,7 +226,7 @@ void display(void)
 		for(int i=0;i < x; i++)
 			for(int j=0;j > z; j--)
 			{
-				glVertex3d(i,GetY(i,j,1)-2,j);
+				glVertex3d(i, GetY(i,j,1)-2,j);
 				glVertex3d(i,GetY(i,j-1,1)-2,j-1);
 				glVertex3d(i+1,GetY(i+1,j-1,1)-2,j-1);
 				glVertex3d(i+1,GetY(i+1,j,1)-2,j);
