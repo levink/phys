@@ -4,6 +4,8 @@ using namespace std;
 
 World::World(/*bool test*/)
 	{
+		double const max8 = 100;
+		double const min8 = -100;
 		k = 2;
 		Plan = new Plane [k];
 		double eq1[4]  ={-10,10,0,5};
@@ -93,28 +95,21 @@ bool World::TestEqua(Sphere * obj,int i)
 		if(lon == 0 )
 			return 0;
 
-		return ( eqa/lon/*obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD()*/ ) < pow(obj->GetRad() * 1.1,2); 
+		return ( eqa/lon ) < pow(obj->GetRad() * 1.1,2); 
 	}
 }
 
 void World::Test(Sphere * obj,double resil)
 {
+	double const K = 0;
 	for(int i=0;i<k;i++)
 	{
 		if(TestEqua(obj,i))
 		{
-			Vector velo = obj->velo;
-			obj->Rotated(velo,Plan[i].GetN());
-			if(obj->velo.length2() < 1)
-			{
-				obj->F = Plan[i].GetN() * obj->m * obj->_g * 1.1;
-			}
-			else
-			{
-				obj->velo = Plan[i].GetMat() * obj->velo * resil;
-				obj->F = Plan[i].GetN() * obj->m * obj->_g * obj->velo/*.length()*/ *sqrt(K * obj->m);
-				/*obj->velo = Vector();*/
-			}
+			obj->Rotated(obj->velo,Plan[i].GetN());
+			obj->velo = Plan[i].GetMat() * obj->velo * resil;
+			obj->F = Plan[i].GetN() * obj->m * obj->_g *1.000001/** obj->velo.length()*sqrt(K * obj->m)*/;
+			
 		}
 	}
 }

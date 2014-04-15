@@ -5,10 +5,6 @@
 
 const double PI = 3.1415916;
 const int E = 20;
-#define res 0.8
-#define max8 100
-#define min8 -100
-#define K 1
 
 #include "../headers/Geometry.h"
 #include "../headers/Objects.h"

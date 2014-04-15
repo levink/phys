@@ -64,6 +64,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Fizika.cpp" />
+    <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="Objects.cpp" />
     <ClCompile Include="src\func.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\World.cpp" />

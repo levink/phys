@@ -1,4 +1,5 @@
-
+#include <cmath>
+#include "Objects.h"
 
 #ifndef __WORLD_H
 #define __WORLD_H
