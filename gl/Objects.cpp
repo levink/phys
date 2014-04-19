@@ -59,7 +59,7 @@ void Sphere::Test(Sphere * obj, bool motion)
 {
 	double const res = 0.8;
 	double const K = 10;
-	double len = (Position - obj->Position).length();
+	double len = (obj->Position - Position).length();
 	if( len < (rad + obj->rad) * 1.01 || motion)
 	{
 		double x = obj->Position.GetX() - Position.GetX();
@@ -123,8 +123,53 @@ void Sphere::Test(Sphere * obj, bool motion)
 			obj->velo = obj->velo * res;
 
 		len = (rad + obj->rad) - len; 
-		F = plan->GetN() * m * _g * pow(len * K,3)/** velo.length() *sqrt(K * m)*/;
-		obj->F = plan->GetN() * obj->m * obj->_g * len * K/** obj->velo.length() *sqrt(K * obj->m)*/;
+		//if(len < 0.4)
+		//{
+		//	F = -plan->GetN() * m * _g * pow(len * K * K,len * K)/** velo.length() *sqrt(K * m)*/;
+		//	obj->F = plan->GetN() * obj->m * obj->_g * pow(len * K * K,len * K)/* len * K/** obj->velo.length() *sqrt(K * obj->m)*/;
+		//}
+		/*double xA = Position.GetX() * plan->GetA();
+		double yA = Position.GetY() * plan->GetB();
+		double zA = Position.GetZ() * plan->GetC();
+		double D_ = -( xA + yA + zA);
+		double x_ = -( ( xA + plan->GetB() * (1 + Position.GetY()) + plan->GetC() * ( 1 + Position.GetZ()) + D_) / plan->GetA());
+		Vector B = Vector(plan->GetA() + x_,plan->GetB() + 1,plan->GetC() + 1);
+		Vector B_ = Vector(plan->GetA() - x_,plan->GetB() - 1,plan->GetC() - 1);
+*/
+		/*if( (B - obj->Position).length2() < (B_ - obj->Position).length2())
+		{*/
+			Vector W = plan->GetN() * len;
+			Vector B_[8] = {Vector(Position.GetX() - W.GetX(),Position.GetY() - W.GetY(), Position.GetZ() - W.GetZ()),
+						   Vector(Position.GetX() - W.GetX(),Position.GetY() - W.GetY(), Position.GetZ() + W.GetZ()),
+						   Vector(Position.GetX() - W.GetX(),Position.GetY() + W.GetY(), Position.GetZ() - W.GetZ()),
+						   Vector(Position.GetX() - W.GetX(),Position.GetY() + W.GetY(), Position.GetZ() + W.GetZ()),
+						   Vector(Position.GetX() + W.GetX(),Position.GetY() - W.GetY(), Position.GetZ() - W.GetZ()),
+						   Vector(Position.GetX() + W.GetX(),Position.GetY() - W.GetY(), Position.GetZ() + W.GetZ()),
+						   Vector(Position.GetX() + W.GetX(),Position.GetY() + W.GetY(), Position.GetZ() - W.GetZ()),
+						   Vector(Position.GetX() + W.GetX(),Position.GetY() + W.GetY(), Position.GetZ() + W.GetZ())};
+
+			double lenB [8] = { (B_[0] - obj->Position).length2(),
+								(B_[0] - obj->Position).length2(),
+								(B_[0] - obj->Position).length2(),
+								(B_[0] - obj->Position).length2(),
+								(B_[0] - obj->Position).length2(),
+								(B_[0] - obj->Position).length2(),
+								(B_[0] - obj->Position).length2(),
+								(B_[0] - obj->Position).length2()};
+			double Max = 0;
+			int corr = 0;
+			for(int i = 0;i<8;i++)
+			{
+				if(lenB[i] > Max)
+				{
+					Max = lenB[i];
+					corr = i;
+				}
+			}
+			Position = B_[corr];
+
+
+		//}
 
 		Rotated(ve1,eq);
 		obj->Rotated(ve2,eq);

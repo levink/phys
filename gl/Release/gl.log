@@ -1,0 +1,28 @@
+﻿Сборка начата 17.04.2014 13:24:22.
+     1>Проект "C:\Users\C\Desktop\ЮНК1\gl\gl.vcxproj" в узле 2 (целевые объекты build).
+     1>PrepareForBuild:
+         Создание каталога "C:\Users\C\Desktop\ЮНК1\Release\".
+       InitializeBuildStatus:
+         Обращение к "Release\gl.unsuccessfulbuild".
+       ClCompile:
+         Для всех выходных данных обновления не требуется.
+       Link:
+         c:\Леша\Программирование\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\C\Desktop\ЮНК1\Release\gl.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\gl.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\C\Desktop\ЮНК1\Release\gl.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\C\Desktop\ЮНК1\Release\gl.lib" /MACHINE:X86 Release\Fizika.obj
+         Release\Geometry.obj
+         Release\Objects.obj
+         Release\func.obj
+         Release\main.obj
+         Release\World.obj
+         Создание кода
+         Создание кода завершено
+         gl.vcxproj -> C:\Users\C\Desktop\ЮНК1\Release\gl.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\C\Desktop\ЮНК1\Release\gl.exe;#1" /manifest Release\gl.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Файл "Release\gl.unsuccessfulbuild" удаляется.
+         Обращение к "Release\gl.lastbuildstate".
+     1>Построение проекта "C:\Users\C\Desktop\ЮНК1\gl\gl.vcxproj" завершено (целевые объекты build).
+
+Построение успешно завершено.
+
+Затраченное время: 00:00:02.52
