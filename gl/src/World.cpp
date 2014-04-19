@@ -64,6 +64,12 @@ World::World(double A, double B, double C, double D, double reserve[6])
 		}
 }
 
+double World::GetYatXZ(double X, double Z, int i)
+{
+	if(Plan[i].GetB() == 0)
+		return 0;
+	return - (( Plan[i].GetA() * X + Plan[i].GetC() + Plan[i].GetD()) / Plan[i].GetB());
+}
 
 bool World::TestEqua(Camera * obj,int i)
 {
@@ -110,6 +116,10 @@ void World::Test(Sphere * obj,double resil)
 			obj->velo = Plan[i].GetMat() * obj->velo * resil;
 			obj->F = Plan[i].GetN() * obj->m * obj->_g *1.000001/** obj->velo.length()*sqrt(K * obj->m)*/;
 			
+			double eqa = pow(obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD(),2);
+			double lon = pow(Plan[i].GetA(),2) + pow(Plan[i].GetB(),2) + pow(Plan[i].GetC(),2);
+			eqa = sqrt(eqa/lon) / 4;
+			obj->Position = obj->Position + Plan[i].GetN() * eqa;
 		}
 	}
 }

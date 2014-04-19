@@ -37,6 +37,8 @@ bool needStep = false;
 
 DWORD previousTime = 0;
 DWORD t1 = 0;
+DWORD FPS = 0;
+double IFPS = 0;
 
 #define Fors 5
 #define Angle 2
@@ -69,12 +71,6 @@ World* GetWorld(Fizika obj)
 Plane* GetPlane(World obj)
 {
 	return obj.Plan;
-}
-
-double GetY(double x, double z,int i)
-{
-	if(GetPlane(*GetWorld(*phy))[i].GetB() == 0) return 0;
-	return -(GetPlane(*GetWorld(*phy))[i].GetD() + GetPlane(*GetWorld(*phy))[i].GetC()*z + GetPlane(*GetWorld(*phy))[i].GetA()*x)/GetPlane(*GetWorld(*phy))[i].GetB();
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -147,7 +143,14 @@ void mouseMotion(int x, int y)
 
 void idle(void)
 {
+
 	DWORD dt=GetTickCount();
+	if(dt - FPS > 3000)
+	{
+		cout << "FPS. " << IFPS << endl;
+		IFPS = 0;
+		FPS = dt;
+	}
 	if(dt - previousTime > 15)
 	{
 		lightAngle+=2;
@@ -176,13 +179,11 @@ void display(void)
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
-	
 	//Camera
 	glPushMatrix();
 	glTranslated(0,-5,-30 + camHeight);
 	glRotated(camAng2, 1,0,0);
 	glRotated(camAng1, 0,1,0);
-	
 	glTranslated(-10,0,10);
 	
 
@@ -217,17 +218,28 @@ void display(void)
 	glNormal3d(0,1,0);
 	int x = 20;
 	int z = -20;
-	//for(int i=0;i<GetWorld(*phy)->GetK();i++)
-	//{
+	/*for(int t=0;t<GetWorld(*phy)->GetK()+1;t++)
+	{
 		for(int i=0;i < x; i++)
 			for(int j=0;j > z; j--)
 			{
-				glVertex3d(i, GetY(i,j,1)-2,j);
-				glVertex3d(i,GetY(i,j-1,1)-2,j-1);
-				glVertex3d(i+1,GetY(i+1,j-1,1)-2,j-1);
-				glVertex3d(i+1,GetY(i+1,j,1)-2,j);
+				glVertex3d(i, GetWorld(*phy)->GetYatXZ(i,j,t),j);
+				glVertex3d(i,GetWorld(*phy)->GetYatXZ(i,j-1,t),j-1);
+				glVertex3d(i+1,GetWorld(*phy)->GetYatXZ(i+1,j-1,t),j-1);
+				glVertex3d(i+1,GetWorld(*phy)->GetYatXZ(i+1,j,1),t);
 			}
-	//}
+	}*/
+	for(int t=0;t<GetWorld(*phy)->GetK();t++)
+	{
+		for(int i=0;i < x; i++)
+			for(int j=0;j > z; j--)
+			{
+				glVertex3d(i, GetWorld(*phy)->GetYatXZ(i,j,t),j);
+				glVertex3d(i,GetWorld(*phy)->GetYatXZ(i,j-1,t),j-1);
+				glVertex3d(i+1,GetWorld(*phy)->GetYatXZ(i+1,j-1,t),j-1);
+				glVertex3d(i+1,GetWorld(*phy)->GetYatXZ(i+1,j,t),j);
+			}
+	}
 	glEnd();
 
 	//plane
@@ -238,12 +250,11 @@ void display(void)
 	glVertex3d(10, GetY(10,-40)-5,-40);
 	glVertex3d(30, GetY(30,-40)-5,-40);
 	glVertex3d(30, GetY(30,-0)-5,-0);*/
-	glVertex3d(10, GetY(10,-0,0)-6,-0);
-	glVertex3d(10, GetY(10,-30,0)-6,-30);
-	glVertex3d(60, GetY(60,-30,0)-6,-30);
-	glVertex3d(60, GetY(60,-0,0)-6,-0);
+	/*glVertex3d(10, GetWorld(*phy)->GetYatXZ(10,-0,0),-0);
+	glVertex3d(10, GetWorld(*phy)->GetYatXZ(10,-30,0),-30);
+	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-30,0),-30);
+	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-0,0),-0);*/
 	glEnd();
-
 	glTranslated(0,0,-40);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
@@ -297,10 +308,12 @@ void display(void)
 		glRotated(obj[i]->Angl.GetZ(),1,0,0);
 		glutSolidSphere(1,5,5);
 		glPopMatrix();
+		
 	}
 	
 	//t1 += dt;
 	glPopMatrix();
+	IFPS = IFPS + 1;
 	glFlush();
 	glutSwapBuffers();
 }
