@@ -29,7 +29,6 @@ public:
 	void Test(Sphere * obj,double resil);
 	bool TestEqua(Polyg * obj, int i);
 	void Test(Polyg * obj,double resil);
-
-	double GetYatXZ(double X, double Z, int i);
+	double GetYatXZ(double X,double Y,int nomber_plane);
 };
 #endif

@@ -1,6 +1,9 @@
-
+#include<iostream> // ÓÄÀËÈÒÜ!!!!!
 #ifndef __GEOMETRY_H
 #define __GEOMETRY_H
+
+using namespace std;
+
 class Vector
 {
 private:
@@ -28,9 +31,9 @@ public:
 	Vector operator*(double scale);
 	Vector operator/(double u);
 	
+	double operator&(Vector& const right);
 	double operator^(Vector& const right);
 	Vector operator*(Vector& const right);
-	Vector sqrt_ve();
 	Vector operator>(Vector& const right);
 	Vector& operator= (Vector val);
 
@@ -38,6 +41,8 @@ public:
 	bool operator==(Vector& const right);
 	bool operator!=(Vector& const right);
 };
+Vector sqrt_ve(Vector& const value);
+Vector Vector_norm(Vector value);
 
 class Matrix
 {

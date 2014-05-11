@@ -64,13 +64,6 @@ World::World(double A, double B, double C, double D, double reserve[6])
 		}
 }
 
-double World::GetYatXZ(double X, double Z, int i)
-{
-	if(Plan[i].GetB() == 0)
-		return 0;
-	return - (( Plan[i].GetA() * X + Plan[i].GetC() + Plan[i].GetD()) / Plan[i].GetB());
-}
-
 bool World::TestEqua(Camera * obj,int i)
 {
 	if(obj->Position.GetX() > rese[i][0] || obj->Position.GetX() < rese[i][1] || obj->Position.GetY() > rese[i][2] || obj->Position.GetY() < rese[i][3] || obj->Position.GetZ() > rese[i][4] || obj->Position.GetZ() < rese[i][5])
@@ -147,4 +140,11 @@ void World::Test(Polyg * obj,double resil)
 			obj->Rotated(velo,Plan[i].GetN());
 		}
 	}
+}
+
+double World::GetYatXZ(double X,double Z,int nomber_plane)
+{
+	if(Plan[nomber_plane].GetB() == 0) 
+		return 0;
+	return -( ( X * Plan[nomber_plane].GetA() + Z * Plan[nomber_plane].GetC() + Plan[nomber_plane].GetD() ) / Plan[nomber_plane].GetB() );
 }

@@ -16,9 +16,6 @@ const int E = 20;
 // ‘изика
 // ’е-’е
 
-
-
-
 const int SCENE_W = 800;//1024;
 const int SCENE_H = 600;//768;
 
