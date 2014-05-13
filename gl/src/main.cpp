@@ -61,9 +61,9 @@ void Start()
 	}
 }
 
-World* GetWorld(Fizika obj)
+World* GetWorld(Fizika* obj)
 {
-	return &obj.wor;
+	return &obj->wor;
 }
 Plane* GetPlane(World obj)
 {
@@ -226,15 +226,17 @@ void display(void)
 				glVertex3d(i+1,GetWorld(*phy)->GetYatXZ(i+1,j,1),t);
 			}
 	}*/
-	for(int t=0;t<GetWorld(*phy)->GetK();t++)
+	World* tmp = NULL;
+	tmp = GetWorld(phy);
+	for(int t=0;t<tmp->GetK();t++)
 	{
 		for(int i=0;i < x; i++)
 			for(int j=0;j > z; j--)
 			{
-				glVertex3d(i, GetWorld(*phy)->GetYatXZ(i,j,t),j);
-				glVertex3d(i,GetWorld(*phy)->GetYatXZ(i,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(*phy)->GetYatXZ(i+1,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(*phy)->GetYatXZ(i+1,j,t),j);
+				glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,t),j);
+				glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,t),j-1);
+				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,t),j-1);
+				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,t),j);
 			}
 	}
 	glEnd();
@@ -332,6 +334,30 @@ int main(int argc, char **argv)
 	glutMotionFunc(mouseMotion);
 	glutReshapeFunc(reshape);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	Sphere * tmp = new Sphere();
+	tmp->Position = Vector(10,17,25);
+	tmp->velo = Vector(0,-3,0);
+	obj[num] = tmp;
+	num++;
+	Sphere * tmp1 = new Sphere();
+	tmp1->Position = Vector(9,13,25);
+	obj[num] = tmp1;
+	num++;
+	
+	//Sphere * tmp = new Sphere();
+	//tmp->Position = Vector(	12-2.78,17-1.3,25); // |
+	//tmp->velo = Vector(0,-3,0);
+	//obj[num] = tmp;
+	//num++;
+	//Sphere * tmp1 = new Sphere();
+	//tmp1->Position = Vector(12-1.32,17-2.74,25); // ||
+	//obj[num] = tmp1;
+	//num++;
+	//Sphere * tmp2 = new Sphere();
+	//tmp2->Position = Vector(12-3.29,17-3.22,25); // ||
+	//obj[num] = tmp2;
+	//num++;
 
 	int d = 1;
 	

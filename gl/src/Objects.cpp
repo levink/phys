@@ -50,9 +50,11 @@ void Sphere::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор
 	double _y = (A + _z * C + D) / B; 
 	double _x = 1;
 	Vector normal = Vector(_x,_y,_z);
-
+	normal = Vector_norm(normal);
+	
 	if(normal.length() != 0)
-		ve_ro = normal * ( velo & normal ) / normal.length();
+		ve_ro = normal * ( velo & normal ) / normal.length() ;
+		//ve_ro = ( normal * ( velo & normal ) / velo.length() ) * 0.2 ;
 }
 
 void Sphere::Test(Sphere * obj, bool motion)
@@ -75,37 +77,7 @@ void Sphere::Test(Sphere * obj, bool motion)
 	
 		Vector ve2 = Vector();
 		Vector ve1 = Vector();
-		/*Vector v = velo - obj->velo;
-		Vector B = velo * m + obj->velo * obj->m;
-		if( v.GetX() < 0)
-		{
-			v.SetX( - v.GetX());
-		}
-		if( v.GetY() < 0)
-		{
-			v.SetY( - v.GetY());
-		}
-		if( v.GetZ() < 0)
-		{
-			v.SetZ( -v.GetZ());
-		}
-		Vector D = v * 2 * m * obj->m;
-
-		if( D.length2() == 0)
-		{
-			ve2 = ( B ) / (m + obj->m);
-		}
-		else
-		{
-			ve2 = ( B + (velo - obj->velo) * m ) / (m + obj->m);
-			ve1 = (velo * m + (obj->velo - ve2) * obj->m) / m;
-
-			if(B != ve1 * m + ve2 * obj->m)
-			{
-				ve2 = ( B - (velo - obj->velo) * m ) / (m + obj->m);
-				ve1 = (velo * m + (obj->velo - ve2) * obj->m) / m;
-			}
-		}*/
+		
 		Vector D = (velo - obj->velo) * obj->m;
 		Vector A = velo * m + obj->velo * obj->m;
 		if(D.length2() == 0)
@@ -117,8 +89,8 @@ void Sphere::Test(Sphere * obj, bool motion)
 		{
 			ve1 = (A + D) / (m + obj->m);
 			ve2 = (A - ve1 * m) / (obj->m);
-			Vector t_1 = velo * velo * m + obj->velo * obj->velo * obj->m;
-			Vector t_2 = ve1 * ve1 * m + ve2 * ve2 * obj->m; 
+			Vector t_1 = velo > velo * m + obj->velo > obj->velo * obj->m;
+			Vector t_2 = ve1 > ve1 * m + ve2 > ve2 * obj->m; 
 			double test = t_1.length2() - t_2.length2();
 			if( test > 0.0000001 || test < -0.0000001)
 			{
@@ -131,42 +103,27 @@ void Sphere::Test(Sphere * obj, bool motion)
 			ve1 = e;
 		if(ve2 < 0.01)
 			ve2 = e;
-		/*velo = ve1;
-		obj->velo = ve2;*/
+		velo = ve1;
+		obj->velo = ve2;
 
-		if((velo ^ norm) > 0)
-			velo = plan->GetMat() * /*velo*/ve1 * res;
-		else
-				velo = -/*velo*/norm * (ve1 * res).length();
-		if( (obj->velo ^ norm) < 0)
-			obj->velo = plan->GetMat() * /*obj->velo*/ve2 * res;
-		else
-			obj->velo = /*obj->velo*/norm * (ve2 * res).length();
-
-
+		//if((velo ^ norm) > 0)
+		//	velo = plan->GetMat() * /*velo*/ve1 * res;
+		//else
+		//		velo = -/*velo*/norm * (ve1 * res).length();
+		//if( (obj->velo ^ norm) < 0)
+		//	obj->velo = plan->GetMat() * /*obj->velo*/ve2 * res;
+		//else
+		//	obj->velo = /*obj->velo*/norm * (ve2 * res).length();
 
 		len = sqrt(len);
 		len = ((rad + obj->rad) - len)/2; 
-		//if(len < 0.4)
-		//{
-		//	F = -plan->GetN() * m * _g * pow(len * K * K,len * K)/** velo.length() *sqrt(K * m)*/;
-		//	obj->F = plan->GetN() * obj->m * obj->_g * pow(len * K * K,len * K)/* len * K/** obj->velo.length() *sqrt(K * obj->m)*/;
-		//}
-		/*double xA = Position.GetX() * plan->GetA();
-		double yA = Position.GetY() * plan->GetB();
-		double zA = Position.GetZ() * plan->GetC();
-		double D_ = -( xA + yA + zA);
-		double x_ = -( ( xA + plan->GetB() * (1 + Position.GetY()) + plan->GetC() * ( 1 + Position.GetZ()) + D_) / plan->GetA());
-		Vector B = Vector(plan->GetA() + x_,plan->GetB() + 1,plan->GetC() + 1);
-		Vector B_ = Vector(plan->GetA() - x_,plan->GetB() - 1,plan->GetC() - 1);
-`		*/
+		
 		 Position = Position - norm * len;
 		 obj->Position = obj->Position + norm * len;
 
 		Rotated(obj->velo,eq);
 		obj->Rotated(velo,eq);
 
-		//ve_ro = normal * ( velo & normal ) / normal.length();
 		if((norm ^ F) > 0)
 		{
 			F = - (norm * (obj->F & norm)) + F;
@@ -179,8 +136,6 @@ void Sphere::Test(Sphere * obj, bool motion)
 		}
 		delete plan;
 	}
-	/*F = Vector();
-	obj->F = Vector();*/
 }
 
 double Sphere::GetRad()
