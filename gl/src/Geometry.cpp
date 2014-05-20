@@ -273,6 +273,31 @@
 		}
 		equa[3] = 0; 
 	}
+
+	Matrix Plane::GetBathis ()
+	{
+		double x0 [3]; // x0
+		double x1 [3]; // x1
+		double x2 [3]; // x2
+		x0[0] = 2;
+		x0[1] = 3;
+		x0[2] = - ((equa[0] * x0[0] + equa[1] * x0[1] + equa[3])/equa[2]);
+		x1[0] = 4;
+		x1[1] = 5;
+		x1[2] = - ((equa[0] * x1[0] + equa[1] * x1[1] + equa[3])/equa[2]);
+		x2[0] = 6;
+		x2[2] = 
+			((x1[1] - x0[1]) * (x2[0]- x0[0]) * equa[0] + 
+			(x1[1] - x0[1]) * equa[3] - 
+			(x1[0]- x0[0]) * (x2[0]- x0[0]) * equa[1]) /
+			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[11]) * equa[2]);
+		x2[1] = -( ( (x2[0] -x0[0]) * equa[0] + (x2[2] - x0[2]) * equa[2] + equa[3] ) / equa[1]);
+		double  x[3][3] = { 
+					{equa[0],equa[1],equa[2]},
+					{x1[0] - x0[0],x1[1] - x0[1],x1[2] - x0[2]},
+					{x2[0] - x2[0],x2[1] - x2[1],x2[2] - x2[2]} };
+		return Matrix(x);
+	}
 	
 	Plane::Plane(double Ctmp[3][3])
 	{
@@ -408,8 +433,7 @@
 			Mat.SetM(equa[i],i,1);
 			Mat.SetM(b[i],i,2);
 		}
-		Matrix invert = Mat;
-		invert = invert.Invert();
+		Matrix invert = Mat.Invert();
 
 		double redoun[3][3] = 
 		{	{1,0,0},

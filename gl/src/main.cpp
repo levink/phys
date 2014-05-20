@@ -317,7 +317,16 @@ void display(void)
 	glutSwapBuffers();
 }
 
-int main(int argc, char **argv)
+int main()
+{
+	double eq[4] = {1,0,0,0};
+	Plane pl = Plane(eq);
+	Matrix mat = pl.GetBathis();
+
+	return 0;
+}
+
+int main1(int argc, char **argv)
 {
 	//Vector_t T;
 	//T.RunAll();

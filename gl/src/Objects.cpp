@@ -78,6 +78,9 @@ void Sphere::Test(Sphere * obj, bool motion)
 		Vector ve2 = Vector();
 		Vector ve1 = Vector();
 		
+		velo = plan->GetMat() * /*velo*/velo * res;
+		obj->velo = plan->GetMat() * /*velo*/obj->velo * res;
+
 		Vector D = (velo - obj->velo) * obj->m;
 		Vector A = velo * m + obj->velo * obj->m;
 		if(D.length2() == 0)
@@ -105,6 +108,9 @@ void Sphere::Test(Sphere * obj, bool motion)
 			ve2 = e;
 		velo = ve1;
 		obj->velo = ve2;
+
+		velo = plan->GetMat() * /*velo*/velo * res;
+		obj->velo = plan->GetMat() * /*velo*/obj->velo * res;
 
 		//if((velo ^ norm) > 0)
 		//	velo = plan->GetMat() * /*velo*/ve1 * res;

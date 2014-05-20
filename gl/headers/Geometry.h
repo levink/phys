@@ -82,7 +82,7 @@ private:
 	double equa [4];
 public:
 	Plane();
-	
+	Matrix GetBathis ();
 	Plane(double Ctmp[3][3]);
 
 	Plane(Vector x1,Vector x2, Vector x3);

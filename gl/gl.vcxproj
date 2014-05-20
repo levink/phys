@@ -69,6 +69,7 @@
     <ClCompile Include="src\Geometry.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Objects.cpp" />
+    <ClCompile Include="src\Test.cpp" />
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -79,7 +80,6 @@
     <ClInclude Include="headers\Objects.h" />
     <ClInclude Include="headers\scene.h" />
     <ClInclude Include="headers\World.h" />
-    <ClInclude Include="test_cfizika.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

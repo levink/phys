@@ -33,6 +33,9 @@
     <ClCompile Include="src\Objects.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="src\Test.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\scene.h">
@@ -42,9 +45,6 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="headers\colors.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="test_cfizika.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="headers\Geometry.h">
