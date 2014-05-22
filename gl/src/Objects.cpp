@@ -73,13 +73,14 @@ void Sphere::Test(Sphere * obj, bool motion)
 		norm = Vector_norm(norm);
 		double e[3] = {0,0,0};
 
-		Plane * plan  = new Plane(eq);
-	
+		Plane * plan  = new Plane();
+		plan->PlaneSetEquation(eq);	
+
 		Vector ve2 = Vector();
 		Vector ve1 = Vector();
 		
-		velo = plan->GetMat() * /*velo*/velo * res;
-		obj->velo = plan->GetMat() * /*velo*/obj->velo * res;
+		velo = plan->GetDirectMat() * velo;
+		obj->velo = plan->GetDirectMat() * obj->velo;
 
 		Vector D = (velo - obj->velo) * obj->m;
 		Vector A = velo * m + obj->velo * obj->m;
@@ -109,8 +110,8 @@ void Sphere::Test(Sphere * obj, bool motion)
 		velo = ve1;
 		obj->velo = ve2;
 
-		velo = plan->GetMat() * /*velo*/velo * res;
-		obj->velo = plan->GetMat() * /*velo*/obj->velo * res;
+		velo = plan->GetInvertMat() * velo;
+		obj->velo = plan->GetInvertMat() * obj->velo;
 
 		//if((velo ^ norm) > 0)
 		//	velo = plan->GetMat() * /*velo*/ve1 * res;

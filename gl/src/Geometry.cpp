@@ -274,6 +274,16 @@
 		equa[3] = 0; 
 	}
 
+	void Plane::PlaneSetEquation(double eq[4])
+	{
+		for(int i=0;i<4;i++)
+		{
+			equa[i] = eq[i];
+			if(equa[i] == 0 || equa[i] <-1000000)
+				equa[i] = 1;
+		}
+	}
+
 	Matrix Plane::GetBathis ()
 	{
 		double x0 [3]; // x0
@@ -290,12 +300,12 @@
 			((x1[1] - x0[1]) * (x2[0]- x0[0]) * equa[0] + 
 			(x1[1] - x0[1]) * equa[3] - 
 			(x1[0]- x0[0]) * (x2[0]- x0[0]) * equa[1]) /
-			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[11]) * equa[2]);
+			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[1]) * equa[2]);
 		x2[1] = -( ( (x2[0] -x0[0]) * equa[0] + (x2[2] - x0[2]) * equa[2] + equa[3] ) / equa[1]);
 		double  x[3][3] = { 
 					{equa[0],equa[1],equa[2]},
 					{x1[0] - x0[0],x1[1] - x0[1],x1[2] - x0[2]},
-					{x2[0] - x2[0],x2[1] - x2[1],x2[2] - x2[2]} };
+					{x2[0] - x0[0],x2[1] - x0[1],x2[2] - x0[2]} };
 		return Matrix(x);
 	}
 	
@@ -433,6 +443,33 @@
 			Mat.SetM(equa[i],i,1);
 			Mat.SetM(b[i],i,2);
 		}
+		double x0 [3]; // x0 // a
+		double x1 [3]; // x1 // b
+		double x2 [3]; // x2 // c
+		x0[0] = 2;
+		x0[1] = 3;
+		x0[2] = - ((equa[0] * x0[0] + equa[1] * x0[1] + equa[3])/equa[2]);
+		x1[0] = 4;
+		x1[1] = 5;
+		x1[2] = - ((equa[0] * x1[0] + equa[1] * x1[1] + equa[3])/equa[2]);
+		x2[0] = 6;
+		x2[2] = 
+			((x1[1] - x0[1]) * (x2[0]- x0[0]) * equa[0] + 
+			(x1[1] - x0[1]) * equa[3] - 
+			(x1[0]- x0[0]) * (x2[0]- x0[0]) * equa[1]) /
+			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[1]) * equa[2]);
+		x2[1] = -( ( (x2[0] -x0[0]) * equa[0] + (x2[2] - x0[2]) * equa[2] + equa[3] ) / equa[1]);
+
+		Mat.SetM(x2[0] - x0[0],0,0);
+		Mat.SetM(x2[1] - x0[1],1,0);
+		Mat.SetM(x2[2] - x0[2],2,0);
+		Mat.SetM(equa[0],0,1);
+		Mat.SetM(equa[1],1,1);
+		Mat.SetM(equa[2],2,1);
+		Mat.SetM(x1[0] - x0[0],0,2);
+		Mat.SetM(x1[1] - x0[1],1,2);
+		Mat.SetM(x1[2] - x0[2],2,2);
+
 		Matrix invert = Mat.Invert();
 
 		double redoun[3][3] = 
@@ -442,6 +479,78 @@
 		Matrix rebound = Matrix(redoun);
 
 		Mat = invert * rebound * Mat;
+	}
+
+	Matrix Plane::GetDirectMat()
+	{
+		double x0 [3]; // x0
+		double x1 [3]; // x1
+		double x2 [3]; // x2
+		x0[0] = 2;
+		x0[1] = 3;
+		x0[2] = - ((equa[0] * x0[0] + equa[1] * x0[1] + equa[3])/equa[2]);
+		x1[0] = 4;
+		x1[1] = 5;
+		x1[2] = - ((equa[0] * x1[0] + equa[1] * x1[1] + equa[3])/equa[2]);
+		x2[0] = 6;
+		x2[2] = 
+			((x1[1] - x0[1]) * (x2[0]- x0[0]) * equa[0] + 
+			(x1[1] - x0[1]) * equa[3] - 
+			(x1[0]- x0[0]) * (x2[0]- x0[0]) * equa[1]) /
+			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[1]) * equa[2]);
+		x2[1] = -( ( (x2[0] -x0[0]) * equa[0] + (x2[2] - x0[2]) * equa[2] + equa[3] ) / equa[1]);
+
+		Matrix Matr;
+		Matr.SetM(x1[0] - x0[0],0,0);
+		Matr.SetM(x1[1] - x0[1],1,0);
+		Matr.SetM(x1[2] - x0[2],2,0);
+		Matr.SetM(equa[0],0,1);
+		Matr.SetM(equa[1],1,1);
+		Matr.SetM(equa[2],2,1);
+		Matr.SetM(x2[0] - x0[0],0,2);
+		Matr.SetM(x2[1] - x0[1],1,2);
+		Matr.SetM(x2[2] - x0[2],2,2);
+		double e[3][3] = {
+			{1,0,0},
+			{0,-1,0},
+			{0,0,1} };
+		return Matr * Matrix(e);
+	}
+	Matrix Plane::GetInvertMat()
+	{
+		double x0 [3]; // x0
+		double x1 [3]; // x1
+		double x2 [3]; // x2
+		x0[0] = 2;
+		x0[1] = 3;
+		x0[2] = - ((equa[0] * x0[0] + equa[1] * x0[1] + equa[3])/equa[2]);
+		x1[0] = 4;
+		x1[1] = 5;
+		x1[2] = - ((equa[0] * x1[0] + equa[1] * x1[1] + equa[3])/equa[2]);
+		x2[0] = 6;
+		x2[2] = 
+			((x1[1] - x0[1]) * (x2[0]- x0[0]) * equa[0] + 
+			(x1[1] - x0[1]) * equa[3] - 
+			(x1[0]- x0[0]) * (x2[0]- x0[0]) * equa[1]) /
+			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[1]) * equa[2]);
+		x2[1] = -( ( (x2[0] -x0[0]) * equa[0] + (x2[2] - x0[2]) * equa[2] + equa[3] ) / equa[1]);
+
+		Matrix Matr;
+		Matr.SetM(x1[0] - x0[0],0,0);
+		Matr.SetM(x1[1] - x0[1],1,0);
+		Matr.SetM(x1[2] - x0[2],2,0);
+		Matr.SetM(equa[0],0,1);
+		Matr.SetM(equa[1],1,1);
+		Matr.SetM(equa[2],2,1);
+		Matr.SetM(x2[0] - x0[0],0,2);
+		Matr.SetM(x2[1] - x0[1],1,2);
+		Matr.SetM(x2[2] - x0[2],2,2);
+		Matr = Matr.Invert();
+		double e[3][3] = {
+			{1,0,0},
+			{0,-1,0},
+			{0,0,1} };
+		return Matr * Matrix(e);
 	}
 
 	Matrix Plane::GetMat()

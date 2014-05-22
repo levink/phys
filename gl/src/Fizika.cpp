@@ -1,7 +1,7 @@
 #include "../headers\Fizika.h"
 Fizika::Fizika()
 {
-	n = 0.5;
+	n = 0.1;
 	p = 1.2041;
 	_g = 9.8;
 	//World wor = World();

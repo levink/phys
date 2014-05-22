@@ -107,11 +107,11 @@ void World::Test(Sphere * obj,double resil)
 		{
 			obj->Rotated(obj->velo,Plan[i].GetN());
 			obj->velo = Plan[i].GetMat() * obj->velo * resil;
-			obj->F = Plan[i].GetN() * obj->m * obj->_g *1.000001/** obj->velo.length()*sqrt(K * obj->m)*/;
+			obj->F = obj->F + Vector_norm(Plan[i].GetN()) * obj->F.length()/** obj->velo.length()*sqrt(K * obj->m)*/;
 			
-			double eqa = pow(obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD(),2);
+			double eqa = obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD();
 			double lon = pow(Plan[i].GetA(),2) + pow(Plan[i].GetB(),2) + pow(Plan[i].GetC(),2);
-			eqa = sqrt(eqa/lon) / 4;
+			eqa = eqa/sqrt(lon) / 2;
 			obj->Position = obj->Position + Plan[i].GetN() * eqa;
 		}
 	}

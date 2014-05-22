@@ -319,8 +319,9 @@ void display(void)
 
 int main()
 {
-	double eq[4] = {1,0,0,0};
-	Plane pl = Plane(eq);
+	double eq[3] = {10,10,0};
+	Plane pl = Plane();
+	pl.PlaneSetEquation(eq);
 	Matrix mat = pl.GetBathis();
 
 	return 0;
@@ -344,29 +345,29 @@ int main1(int argc, char **argv)
 	glutReshapeFunc(reshape);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
+	/*Sphere * tmp = new Sphere();
+	tmp->Position = Vector(14,17,25);
+	tmp->velo = Vector(0,-3,0);
+	obj[num] = tmp;
+	num++;*/
+	/*Sphere * tmp1 = new Sphere();
+	tmp1->Position = Vector(9,13,25);
+	obj[num] = tmp1;
+	num++;
+	*/
 	Sphere * tmp = new Sphere();
-	tmp->Position = Vector(10,17,25);
+	tmp->Position = Vector(	12-2.78,17-1.3,25); // |
 	tmp->velo = Vector(0,-3,0);
 	obj[num] = tmp;
 	num++;
 	Sphere * tmp1 = new Sphere();
-	tmp1->Position = Vector(9,13,25);
+	tmp1->Position = Vector(12-1.32,17-2.74,25); // ||
 	obj[num] = tmp1;
 	num++;
-	
-	//Sphere * tmp = new Sphere();
-	//tmp->Position = Vector(	12-2.78,17-1.3,25); // |
-	//tmp->velo = Vector(0,-3,0);
-	//obj[num] = tmp;
-	//num++;
-	//Sphere * tmp1 = new Sphere();
-	//tmp1->Position = Vector(12-1.32,17-2.74,25); // ||
-	//obj[num] = tmp1;
-	//num++;
-	//Sphere * tmp2 = new Sphere();
-	//tmp2->Position = Vector(12-3.29,17-3.22,25); // ||
-	//obj[num] = tmp2;
-	//num++;
+	Sphere * tmp2 = new Sphere();
+	tmp2->Position = Vector(12-3.29,17-3.22,25); // ||
+	obj[num] = tmp2;
+	num++;
 
 	int d = 1;
 	

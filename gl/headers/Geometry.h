@@ -82,12 +82,16 @@ private:
 	double equa [4];
 public:
 	Plane();
+	void PlaneSetEquation(double eq[4]);
 	Matrix GetBathis ();
 	Plane(double Ctmp[3][3]);
 
 	Plane(Vector x1,Vector x2, Vector x3);
 
 	Plane(double eq [4]);
+
+	Matrix Plane::GetDirectMat();
+	Matrix Plane::GetInvertMat();
 
 	Matrix GetMat();
 	Vector GetN();
