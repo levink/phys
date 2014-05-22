@@ -48,6 +48,7 @@ Sphere * obj[100];
 int gen_test [100][100];
 Fizika * phy;
 
+double e [3] = {0,2,0};
 
 void Start()
 {
@@ -70,7 +71,7 @@ Plane* GetPlane(World obj)
 	return obj.Plan;
 }
 
-void keyboard(unsigned char key, int x, int y)
+void keyboard1(unsigned char key, int x, int y)
 {
 	switch(key)
 	{
@@ -91,6 +92,33 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	glutPostRedisplay();
 }
+
+void keyboard(unsigned char key, int x, int y)
+{
+	switch(key)
+	{
+	case 'e':
+		e[0]-=0.1;
+		break;
+	case 'v':
+		e[0]+=0.1;
+		break;
+	case 'r':
+		e[1]-=0.1;
+		break;
+	case 'f':
+		e[1]+=0.1;
+		break;
+	case 't':
+		e[2]-=0.1;
+		break;
+	case 'c':
+		e[2]+=0.1;
+		break;
+	}
+	glutPostRedisplay();
+}
+
 
 void mouseClick(int button, int state, int x, int y)
 {
@@ -120,7 +148,7 @@ void mouseClick(int button, int state, int x, int y)
 	{
 		dragFlag = false;
 	}
-	std::cout << " X : " << x << std::endl << "Y : " << y << std::endl;
+	//std::cout << " X : " << x << std::endl << "Y : " << y << std::endl;
 
 }
 
@@ -144,7 +172,7 @@ void idle(void)
 	DWORD dt=GetTickCount();
 	if(dt - FPS > 3000)
 	{
-		cout << "FPS. " << IFPS << endl;
+		//cout << "FPS. " << IFPS << endl;
 		IFPS = 0;
 		FPS = dt;
 	}
@@ -170,6 +198,24 @@ void reshape(int width, int height)
 
 }
 
+double GY (double X, double Z,Plane & pl)
+{
+	return -( ( X * pl.GetA() + Z * pl.GetC() + pl.GetD() ) / pl.GetB() );
+}
+void Draw(Vector & v)
+{
+	glBegin(GL_LINES);
+	glVertex3d(0,0,0);
+	glVertex3d(v.GetX(),v.GetY(),v.GetZ());
+	glEnd();
+}
+void DrawD(Vector & v)
+{
+	glBegin(GL_LINES);
+	glVertex3d(v.GetX(),v.GetY(),v.GetZ());
+	glVertex3d(0,0,0);
+	glEnd();
+}
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -178,10 +224,11 @@ void display(void)
 	glEnable(GL_NORMALIZE);
 	//Camera
 	glPushMatrix();
-	glTranslated(0,-5,-30 + camHeight);
+	//glTranslated(0,-5,-30 + camHeight);
 	glRotated(camAng2, 1,0,0);
 	glRotated(camAng1, 0,1,0);
-	glTranslated(-10,0,10);
+	//glTranslated(-10,0,10);
+	glTranslated(-0,0,-10);
 	
 
 	//Scene light
@@ -209,24 +256,52 @@ void display(void)
 	glEnable(GL_LIGHT0);
 	glPopMatrix();
 
+	/*glBegin(GL_LINES);
+		glVertex
+	glEnd();*/
+	glLineWidth(5.0);
 	//floor
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	glBegin(GL_QUADS);
 	glNormal3d(0,1,0);
 	int x = 20;
 	int z = -20;
-	/*for(int t=0;t<GetWorld(*phy)->GetK()+1;t++)
-	{
-		for(int i=0;i < x; i++)
-			for(int j=0;j > z; j--)
-			{
-				glVertex3d(i, GetWorld(*phy)->GetYatXZ(i,j,t),j);
-				glVertex3d(i,GetWorld(*phy)->GetYatXZ(i,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(*phy)->GetYatXZ(i+1,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(*phy)->GetYatXZ(i+1,j,1),t);
-			}
-	}*/
-	World* tmp = NULL;
+
+
+	Plane pl = Plane(e);
+	Vector eq = Vector(e);
+
+	for(int i=0;i < x; i++)
+		for(int j=0;j > z; j--)
+		{
+			glVertex3d(i, GY(i,j,pl),j);
+			glVertex3d(i,GY(i,j-1,pl),j-1);
+			glVertex3d(i+1,GY(i+1,j-1,pl),j-1);
+			glVertex3d(i+1,GY(i+1,j,pl),j);
+		}
+	glEnd();
+	
+
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, yellow); Draw(eq);
+	cout << "Equation : {" << eq.GetX() << ", " << eq.GetY() << ", " << eq.GetZ() << "}.";
+	
+	Vector down = Vector(3,5,0);
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red); DrawD(Vector(down));
+	cout << "Down : {3,-5,0}.\t";
+	
+	down = -(pl.GetMat() * down);
+	down = Vector_norm(down);
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green); DrawD(Vector(down));
+	cout << "Redound : { " << down.GetX() << ", " << down.GetY() << ", " << down.GetZ() << "}." << endl;
+
+
+	double v[3] = {0,1,0};
+	Vector velo = Vector(1,-0.001,0);
+	velo = -(Plane(v).GetMat() * velo);
+
+	Vector velo1 = Vector(1,-1,0);
+	velo1 = -(Plane(v).GetMat() * velo1);
+	/*World* tmp = NULL;
 	tmp = GetWorld(phy);
 	for(int t=0;t<tmp->GetK();t++)
 	{
@@ -239,7 +314,7 @@ void display(void)
 				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,t),j);
 			}
 	}
-	glEnd();
+	glEnd();*/
 
 	//plane
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
@@ -317,15 +392,28 @@ void display(void)
 	glutSwapBuffers();
 }
 
-int main()
+int main(int argc,char** argv)
 {
-	double eq[3] = {10,10,0};
-	Plane pl = Plane();
-	pl.PlaneSetEquation(eq);
-	Matrix mat = pl.GetBathis();
+	setlocale(LC_ALL,"RUS");
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitWindowSize(SCENE_W, SCENE_H);
+	glutCreateWindow("OpenGL тестовый мир");
+
+	glutDisplayFunc(display);
+	glutIdleFunc(idle);
+	glutKeyboardFunc(keyboard);
+	glutMouseFunc(mouseClick);
+	glutMotionFunc(mouseMotion);
+	glutReshapeFunc(reshape);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	glutMainLoop();
 
 	return 0;
 }
+
+
 
 int main1(int argc, char **argv)
 {

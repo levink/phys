@@ -189,9 +189,9 @@
 			double vy = vector.GetY();
 			double vz = vector.GetZ();
 			return Vector(
-				mat[0][0] * vx +  mat[0][1] * vy + mat[0][2] * vz,
-				mat[1][0] * vx +  mat[1][1] * vy + mat[1][2] * vz,
-				mat[2][0] * vx +  mat[2][1] * vy + mat[2][2] * vz);
+				(mat[0][0] * vx +  mat[0][1] * vy + mat[0][2] * vz),
+				(mat[1][0] * vx +  mat[1][1] * vy + mat[1][2] * vz),
+				(mat[2][0] * vx +  mat[2][1] * vy + mat[2][2] * vz));
 		}
 
 		Matrix Matrix::operator* (Matrix& const right)
@@ -413,36 +413,34 @@
 		{
 			equa[i] = eq[i];
 			if(equa[i] == 0)
-				equa[i] = 0.000001;
+				equa[i] = 0.001;
 		}
 		double length = sqrt(eq[0] * eq[0] + eq[1] * eq[1] + eq[2] * eq[2]); 
 
 		equa[0] = equa[0] / length;
 		equa[1] = equa[1] / length;
 		equa[2] = equa[2] / length;
+		equa[3] = equa[3] / length;
 
-		if(equa[3] == 0)
-			equa[3] = 0.0001;
+		//double a[3];
+		//a[0] = equa[0];
+		//a[1] =  - ( pow(equa[0],2) + pow(equa[2],2) )  / equa[1]; //-equa[1];
+		//a[2] = equa[2];
 
-		double a[3];
-		a[0] = equa[0];
-		a[1] =  - ( pow(equa[0],2) + pow(equa[2],2) )  / equa[1]; //-equa[1];
-		a[2] = equa[2];
-
-		double b[3];
-		// перпендикул€рные вектора, в том числе и нормаль
+		//double b[3];
+		//// перпендикул€рные вектора, в том числе и нормаль
 
 
-		b[0] =  - ( pow(a[1],2) + pow(a[2],2)) / a[0];//-a[0];
-		b[1] = a[1];
-		b[2] = a[2];
+		//b[0] =  - ( pow(a[1],2) + pow(a[2],2)) / a[0];//-a[0];
+		//b[1] = a[1];
+		//b[2] = a[2];
 
-		for(int i=0;i<3;i++)
-		{
-			Mat.SetM(a[i],i,0);
-			Mat.SetM(equa[i],i,1);
-			Mat.SetM(b[i],i,2);
-		}
+		//for(int i=0;i<3;i++)
+		//{
+		//	Mat.SetM(a[i],i,0);
+		//	Mat.SetM(equa[i],i,1);
+		//	Mat.SetM(b[i],i,2);
+		//}
 		double x0 [3]; // x0 // a
 		double x1 [3]; // x1 // b
 		double x2 [3]; // x2 // c
@@ -478,7 +476,7 @@
 			{0,0,1}, };
 		Matrix rebound = Matrix(redoun);
 
-		Mat = invert * rebound * Mat;
+		Mat = Mat * rebound * invert;
 	}
 
 	Matrix Plane::GetDirectMat()
