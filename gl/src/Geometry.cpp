@@ -286,26 +286,168 @@
 
 	Matrix Plane::GetBathis ()
 	{
-		double x0 [3]; // x0
-		double x1 [3]; // x1
-		double x2 [3]; // x2
-		x0[0] = 2;
-		x0[1] = 3;
-		x0[2] = - ((equa[0] * x0[0] + equa[1] * x0[1] + equa[3])/equa[2]);
-		x1[0] = 4;
-		x1[1] = 5;
-		x1[2] = - ((equa[0] * x1[0] + equa[1] * x1[1] + equa[3])/equa[2]);
-		x2[0] = 6;
-		x2[2] = 
-			((x1[1] - x0[1]) * (x2[0]- x0[0]) * equa[0] + 
-			(x1[1] - x0[1]) * equa[3] - 
-			(x1[0]- x0[0]) * (x2[0]- x0[0]) * equa[1]) /
-			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[1]) * equa[2]);
-		x2[1] = -( ( (x2[0] -x0[0]) * equa[0] + (x2[2] - x0[2]) * equa[2] + equa[3] ) / equa[1]);
+		double a [3]; // x0
+		double b [3]; // x1
+		double c [3]; // x2
+		double f [3];
+		double H = 0;
+
+		/*if(equa[0] != 0 &&  equa[1] != 0 && equa[2] != 0)
+		{*/
+			/*a[0] = 1;
+			a[1] = 1;
+			a[2] = - ((equa[0] * a[0] + equa[1] * a[1] + equa[3])/equa[2]);
+			b[0] = 2;
+			b[1] = 2;
+			b[2] = - ((equa[0] * b[0] + equa[1] * b[1] + equa[3])/equa[2]);
+			c[0] = 3;
+
+			f[0] = b[0] - a[0];
+			f[1] = b[1] - a[1];
+			f[2] = b[2] - a[2];
+			H = (a[1] * f[1] + a[2] * f[2] -(c[0] - a[0]) * f[0]) / f[2];
+
+			c[1] = (equa[0] * c[0] + equa[2] * H + equa[3]) / ( (equa[2] * f[1]) / f[2] - equa[1]);
+			c[2] = H - (c[1] * f[1]) / f[2]; */
+		//}
+
+			a[0] = 1;
+			a[1] = 1;
+			a[2] = - ((equa[0] * a[0] + equa[1] * a[1] + equa[3])/equa[2]);
+			b[0] = 2;
+			b[1] = 2;
+			b[2] = - ((equa[0] * b[0] + equa[1] * b[1] + equa[3])/equa[2]);
+			c[0] = 3;
+
+			f[0] = b[0] - a[0];
+			f[1] = b[1] - a[1];
+			f[2] = b[2] - a[2];
+			/*H = (a[1] * f[1] + a[2] * f[2] - (c[0] - a[0]) * f[0]) / f[2];
+
+			c[1] = (equa[0] * c[0] + equa[2] * H + equa[3]) / ((equa[2] * f[1]) / f[2] - equa[1]);
+			c[2] = - (((c[1] * f[1]) /f[2])  + H);*/ // не стабилен!!!
+
+			/*c[1] = ((equa[0] * c[0] + equa[2] * a[2] + equa[3]) * f[2] - equa[2] * ((c[0] - a[0]) * f[0] - a[1] * f[1]) ) / (equa[1] * f[2] - equa[2] * f[1] );
+			H = - ((c[0] - a[0]) * (b[0] - a[0]) + (c[1] - a[1]) * (b[1] - a[1]));
+			c[2] = H / (b[2] - a[2]) + a[2];*/  // не стабилен!!!
+
+			double r = (a[1] - b[1]) / (b[2] - a[2]);
+			H = (((c[0] - b[0]) * (a[0] - b[0])) / (b[2] - a[2]) ) - b[1] * r;
+
+			c[1] = - ( (equa[0] * c[0] + equa[2] * H + equa[2] * b[2] + equa[3]) / (equa[1] + equa[2] * r) );
+			c[2] = c[1] * r + H + b[2];
+		/*if(equa[0] == 0)
+		{
+			
+			a[0] = 1;
+			a[1] = 1;
+			a[2] = - ((equa[1] * a[1] + equa[3])/equa[2]);
+			b[0] = 2;
+			b[1] = 2;
+			b[2] = - ((equa[1] * b[1] + equa[3])/equa[2]);
+			c[0] = 3;
+
+			f[0] = 4;
+			f[1] = b[1] - a[1];
+			f[2] = b[2] - a[2];
+			H = (a[1] * f[1] + a[2] * f[2] -(c[0] - a[0]) * f[0]) / f[2];
+
+			c[1] = (equa[2] * H + equa[3]) / (equa[2] * (f[1] / f[2]) - equa[1]);
+			c[2] = H - (c[1] * f[1]) / f[2]; 
+		}
+		
+		if(equa[1] == 0)
+		{
+			a[0] = 1;
+			a[1] = 1;
+			a[2] = - ((equa[0] * a[0] + equa[3])/equa[2]);
+			b[0] = 2;
+			b[1] = 2;
+			b[2] = - ((equa[0] * b[0] + equa[3])/equa[2]);
+			c[0] = 1;
+
+			f[0] = b[0] - a[0];
+			f[1] = 3;
+			f[2] = b[2] - a[2];
+			H = (a[1] * f[1] + a[2] * f[2] -(c[0] - a[0]) * f[0]) / f[2];
+
+			c[1] = (( equa[3] + equa[0] * c[0] + H * equa[2] ) * f[2] ) / (equa[2] * f[1]); 
+			c[2] = -(( equa[3] + equa[0] * c[0] ) / equa[2] ); 
+		}
+		if(equa[2] == 0)
+		{
+			a[1] = 1;
+			a[2] = 1;
+			a[0] = -(( equa[1] * a[1] + equa[2] * a[2] + equa[3])/equa[0]);
+			b[1] = 2;
+			b[2] = 2;
+			b[0] = -(( equa[1] * b[1] + equa[2] * b[2] + equa[3])/equa[0]);
+			c[0] = 1;
+
+			f[0] = b[0] - a[0];
+			f[1] = b[1] - a[1];
+			f[2] = 3;
+			H = (a[1] * f[1] + a[2] * f[2] -(c[0] - a[0]) * f[0]) / f[2];
+
+			c[1] = - (( equa[0] * c[0] + equa[3] ) / equa[1]);
+			c[2] = H - (c[1] * f[1]) / f[2]; 
+		}
+		if(equa[0] == 0 && equa[1] == 0)
+		{
+			a[0] = 1;
+			a[1] = 1;
+			a[2] = - (equa[3]/equa[2]);
+			b[0] = 2;
+			b[1] = 2;
+			b[2] = - (equa[3]/equa[2]);
+			c[0] = 3;
+
+			f[0] = 4;
+			f[1] = 3;
+			f[2] = b[2] - a[2];
+
+			c[1] = 4;
+			c[2] = -(equa[3] / equa[2]);
+		}
+		if(equa[0] == 0 && equa[2] == 0)
+		{
+			a[0] = 1;
+			a[2] = 1;
+			a[1] = - (equa[1] / equa[3]);
+			b[0] = 2;
+			b[2] = 2;
+			b[1] = - (equa[1] / equa[3]);
+			c[0] = 3;
+
+			f[0] = 4;
+			f[1] = b[1] - a[1];
+			f[2] = 1;
+
+			c[1] = -(equa[3]/equa[1]);
+			c[2] = 2; 
+		}
+		if(equa[1] == 0 && equa[2] == 0)
+		{
+			a[1] = 1;
+			a[2] = 1;
+			a[0] = - equa[3]/equa[0];
+			b[1] = 2;
+			b[2] = 2;
+			b[0] = - equa[3]/equa[0];
+			c[1] = 3;
+			c[2] = 4;
+
+			f[0] = b[0] - a[0];
+			f[1] = 5;
+			f[2] = 1;
+			H = (a[1] * f[1] + a[2] * f[2] -(c[0] - a[0]) * f[0]) / f[2];
+
+			c[0] = H - (c[1] * f[1]) / f[2]; 
+		}*/
 		double  x[3][3] = { 
+					{f[0],f[1],f[2]},
 					{equa[0],equa[1],equa[2]},
-					{x1[0] - x0[0],x1[1] - x0[1],x1[2] - x0[2]},
-					{x2[0] - x0[0],x2[1] - x0[1],x2[2] - x0[2]} };
+					{c[0] - a[0],c[1] - a[1],c[2] - a[2]} };
 		return Matrix(x);
 	}
 	
@@ -320,34 +462,8 @@
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
 
-		equa[3] = - equa[0] - equa[1] - equa[2];
-
-		double a[3] = {Ctmp[0][0] - Ctmp[1][0],Ctmp[0][1] - Ctmp[1][1],Ctmp[0][2] - Ctmp[1][2]};
-		double b[3];
-		// коллинеальные вектора, в том числе и нормаль
-
-		longg  = sqrt(a[0] * a[0] + a[0] * a[0] + a[0] * a[0]); 
-		a[0] = a[0] / longg;
-		a[1] = a[1] / longg;
-		a[2] = a[2] / longg;
-
-		b[0] = -a[0];
-		b[1] = a[1];
-		b[2] = a[2];
-		/*double e = -(equa[2] * a[0] - a[2] * equa[0]) / (a[1]*equa[0] - a[0] * equa[1]);
-
-		b[2] = - equa[3] / ((e * equa[1] + equa[2])/equa[0])  * equa[0] + e* equa[1] + equa[2];
-		b[1] = e*b[2];
-		b[0] = - (b[2] * equa[1] + b[2] * equa[2]) / equa[0];*/
-
-		for(int i=0;i<3;i++)
-		{
-			Mat.SetM(a[i],i,0);
-			Mat.SetM(equa[i],i,1);
-			Mat.SetM(b[i],i,2);
-		}
-		Matrix invert = Mat;
-		invert = invert.Invert();
+		Mat = GetBathis();
+		Matrix invert = Mat.Invert();
 
 		double redoun[3][3] = 
 		{	{1,0,0},
@@ -369,34 +485,8 @@
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
 
-		equa[3] = - equa[0] - equa[1] - equa[2];
-
-		double a[3] = {x1.GetX() - x2.GetX(), x1.GetY() - x2.GetY(),x1.GetZ() - x2.GetZ()};
-		double b[3];
-		// коллинеальные вектора, в том числе и нормаль
-
-		longg  = sqrt(a[0] * a[0] + a[0] * a[0] + a[0] * a[0]); 
-		a[0] = a[0] / longg;
-		a[1] = a[1] / longg;
-		a[2] = a[2] / longg;
-
-		b[0] = -a[0];
-		b[1] = a[1];
-		b[2] = a[2];
-		/*double e = -(equa[2] * a[0] - a[2] * equa[0]) / (a[1]*equa[0] - a[0] * equa[1]);
-
-		b[2] = - equa[3] / ((e * equa[1] + equa[2])/equa[0])  * equa[0] + e* equa[1] + equa[2];
-		b[1] = e*b[2];
-		b[0] = - (b[2] * equa[1] + b[2] * equa[2]) / equa[0];*/
-
-		for(int i=0;i<3;i++)
-		{
-			Mat.SetM(a[i],i,0);
-			Mat.SetM(equa[i],i,1);
-			Mat.SetM(b[i],i,2);
-		}
-		/*Matrix invert = Mat;
-		invert = invert.Inverted();
+		Mat = GetBathis();
+		Matrix invert = Mat.Invert();
 
 		double redoun[3][3] = 
 		{	{1,0,0},
@@ -404,7 +494,7 @@
 			{0,0,1}, };
 		Matrix rebound = Matrix(redoun);
 
-		Mat = invert * rebound * Mat;*/
+		Mat = invert * rebound * Mat;
 	}
 
 	Plane::Plane(double eq [4])
@@ -412,8 +502,6 @@
 		for(int i=0;i<4;i++)
 		{
 			equa[i] = eq[i];
-			if(equa[i] == 0)
-				equa[i] = 0.001;
 		}
 		double length = sqrt(eq[0] * eq[0] + eq[1] * eq[1] + eq[2] * eq[2]); 
 
@@ -422,51 +510,7 @@
 		equa[2] = equa[2] / length;
 		equa[3] = equa[3] / length;
 
-		//double a[3];
-		//a[0] = equa[0];
-		//a[1] =  - ( pow(equa[0],2) + pow(equa[2],2) )  / equa[1]; //-equa[1];
-		//a[2] = equa[2];
-
-		//double b[3];
-		//// перпендикулярные вектора, в том числе и нормаль
-
-
-		//b[0] =  - ( pow(a[1],2) + pow(a[2],2)) / a[0];//-a[0];
-		//b[1] = a[1];
-		//b[2] = a[2];
-
-		//for(int i=0;i<3;i++)
-		//{
-		//	Mat.SetM(a[i],i,0);
-		//	Mat.SetM(equa[i],i,1);
-		//	Mat.SetM(b[i],i,2);
-		//}
-		double x0 [3]; // x0 // a
-		double x1 [3]; // x1 // b
-		double x2 [3]; // x2 // c
-		x0[0] = 2;
-		x0[1] = 3;
-		x0[2] = - ((equa[0] * x0[0] + equa[1] * x0[1] + equa[3])/equa[2]);
-		x1[0] = 4;
-		x1[1] = 5;
-		x1[2] = - ((equa[0] * x1[0] + equa[1] * x1[1] + equa[3])/equa[2]);
-		x2[0] = 6;
-		x2[2] = 
-			((x1[1] - x0[1]) * (x2[0]- x0[0]) * equa[0] + 
-			(x1[1] - x0[1]) * equa[3] - 
-			(x1[0]- x0[0]) * (x2[0]- x0[0]) * equa[1]) /
-			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[1]) * equa[2]);
-		x2[1] = -( ( (x2[0] -x0[0]) * equa[0] + (x2[2] - x0[2]) * equa[2] + equa[3] ) / equa[1]);
-
-		Mat.SetM(x2[0] - x0[0],0,0);
-		Mat.SetM(x2[1] - x0[1],1,0);
-		Mat.SetM(x2[2] - x0[2],2,0);
-		Mat.SetM(equa[0],0,1);
-		Mat.SetM(equa[1],1,1);
-		Mat.SetM(equa[2],2,1);
-		Mat.SetM(x1[0] - x0[0],0,2);
-		Mat.SetM(x1[1] - x0[1],1,2);
-		Mat.SetM(x1[2] - x0[2],2,2);
+		Mat = GetBathis();
 
 		Matrix invert = Mat.Invert();
 
@@ -479,76 +523,15 @@
 		Mat = Mat * rebound * invert;
 	}
 
-	Matrix Plane::GetDirectMat()
+	Matrix Plane::GetInvertMat()                            
 	{
-		double x0 [3]; // x0
-		double x1 [3]; // x1
-		double x2 [3]; // x2
-		x0[0] = 2;
-		x0[1] = 3;
-		x0[2] = - ((equa[0] * x0[0] + equa[1] * x0[1] + equa[3])/equa[2]);
-		x1[0] = 4;
-		x1[1] = 5;
-		x1[2] = - ((equa[0] * x1[0] + equa[1] * x1[1] + equa[3])/equa[2]);
-		x2[0] = 6;
-		x2[2] = 
-			((x1[1] - x0[1]) * (x2[0]- x0[0]) * equa[0] + 
-			(x1[1] - x0[1]) * equa[3] - 
-			(x1[0]- x0[0]) * (x2[0]- x0[0]) * equa[1]) /
-			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[1]) * equa[2]);
-		x2[1] = -( ( (x2[0] -x0[0]) * equa[0] + (x2[2] - x0[2]) * equa[2] + equa[3] ) / equa[1]);
-
-		Matrix Matr;
-		Matr.SetM(x1[0] - x0[0],0,0);
-		Matr.SetM(x1[1] - x0[1],1,0);
-		Matr.SetM(x1[2] - x0[2],2,0);
-		Matr.SetM(equa[0],0,1);
-		Matr.SetM(equa[1],1,1);
-		Matr.SetM(equa[2],2,1);
-		Matr.SetM(x2[0] - x0[0],0,2);
-		Matr.SetM(x2[1] - x0[1],1,2);
-		Matr.SetM(x2[2] - x0[2],2,2);
-		double e[3][3] = {
-			{1,0,0},
-			{0,-1,0},
-			{0,0,1} };
-		return Matr * Matrix(e);
-	}
-	Matrix Plane::GetInvertMat()
-	{
-		double x0 [3]; // x0
-		double x1 [3]; // x1
-		double x2 [3]; // x2
-		x0[0] = 2;
-		x0[1] = 3;
-		x0[2] = - ((equa[0] * x0[0] + equa[1] * x0[1] + equa[3])/equa[2]);
-		x1[0] = 4;
-		x1[1] = 5;
-		x1[2] = - ((equa[0] * x1[0] + equa[1] * x1[1] + equa[3])/equa[2]);
-		x2[0] = 6;
-		x2[2] = 
-			((x1[1] - x0[1]) * (x2[0]- x0[0]) * equa[0] + 
-			(x1[1] - x0[1]) * equa[3] - 
-			(x1[0]- x0[0]) * (x2[0]- x0[0]) * equa[1]) /
-			((x1[2]- x0[2]) * equa[1] - (x1[1]- x0[1]) * equa[2]);
-		x2[1] = -( ( (x2[0] -x0[0]) * equa[0] + (x2[2] - x0[2]) * equa[2] + equa[3] ) / equa[1]);
-
-		Matrix Matr;
-		Matr.SetM(x1[0] - x0[0],0,0);
-		Matr.SetM(x1[1] - x0[1],1,0);
-		Matr.SetM(x1[2] - x0[2],2,0);
-		Matr.SetM(equa[0],0,1);
-		Matr.SetM(equa[1],1,1);
-		Matr.SetM(equa[2],2,1);
-		Matr.SetM(x2[0] - x0[0],0,2);
-		Matr.SetM(x2[1] - x0[1],1,2);
-		Matr.SetM(x2[2] - x0[2],2,2);
+		Matrix Matr  = GetBathis();
 		Matr = Matr.Invert();
-		double e[3][3] = {
+		/*double e[3][3] = {
 			{1,0,0},
 			{0,-1,0},
-			{0,0,1} };
-		return Matr * Matrix(e);
+			{0,0,1} };*/
+		return  /*Matrix(e) **/ Matr;
 	}
 
 	Matrix Plane::GetMat()

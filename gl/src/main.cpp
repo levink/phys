@@ -48,7 +48,7 @@ Sphere * obj[100];
 int gen_test [100][100];
 Fizika * phy;
 
-double e [3] = {0,2,0};
+double e [3] = {2,2,2};
 
 void Start()
 {
@@ -71,7 +71,7 @@ Plane* GetPlane(World obj)
 	return obj.Plan;
 }
 
-void keyboard1(unsigned char key, int x, int y)
+void keyboard(unsigned char key, int x, int y)
 {
 	switch(key)
 	{
@@ -93,7 +93,7 @@ void keyboard1(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
-void keyboard(unsigned char key, int x, int y)
+void keyboard1(unsigned char key, int x, int y)
 {
 	switch(key)
 	{
@@ -285,22 +285,22 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, yellow); Draw(eq);
 	cout << "Equation : {" << eq.GetX() << ", " << eq.GetY() << ", " << eq.GetZ() << "}.";
 	
-	Vector down = Vector(3,5,0);
+	Vector down = Vector(3,-5,0);
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red); DrawD(Vector(down));
 	cout << "Down : {3,-5,0}.\t";
 	
 	down = -(pl.GetMat() * down);
-	down = Vector_norm(down);
+	//down = Vector_norm(down);
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green); DrawD(Vector(down));
 	cout << "Redound : { " << down.GetX() << ", " << down.GetY() << ", " << down.GetZ() << "}." << endl;
 
 
-	double v[3] = {0,1,0};
-	Vector velo = Vector(1,-0.001,0);
-	velo = -(Plane(v).GetMat() * velo);
+	//double v[3] = {0,1,0};
+	//Vector velo = Vector(1,-0.001,0);
+	//velo = -(Plane(v).GetMat() * velo);
 
-	Vector velo1 = Vector(1,-1,0);
-	velo1 = -(Plane(v).GetMat() * velo1);
+	//Vector velo1 = Vector(1,-1,0);
+	//velo1 = -(Plane(v).GetMat() * velo1);
 	/*World* tmp = NULL;
 	tmp = GetWorld(phy);
 	for(int t=0;t<tmp->GetK();t++)
@@ -402,7 +402,7 @@ int main(int argc,char** argv)
 
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
-	glutKeyboardFunc(keyboard);
+	glutKeyboardFunc(keyboard1);
 	glutMouseFunc(mouseClick);
 	glutMotionFunc(mouseMotion);
 	glutReshapeFunc(reshape);

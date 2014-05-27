@@ -79,8 +79,8 @@ void Sphere::Test(Sphere * obj, bool motion)
 		Vector ve2 = Vector();
 		Vector ve1 = Vector();
 		
-		velo = plan->GetDirectMat() * velo;
-		obj->velo = plan->GetDirectMat() * obj->velo;
+		velo = plan->GetBathis() * velo;
+		obj->velo = plan->GetBathis() * obj->velo;
 
 		Vector D = (velo - obj->velo) * obj->m;
 		Vector A = velo * m + obj->velo * obj->m;
