@@ -89,8 +89,6 @@ public:
 	Plane(Vector x1,Vector x2, Vector x3);
 
 	Plane(double eq [4]);
-
-	Matrix Plane::GetDirectMat();
 	Matrix Plane::GetInvertMat();
 
 	Matrix GetMat();

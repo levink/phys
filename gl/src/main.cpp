@@ -48,7 +48,7 @@ Sphere * obj[100];
 int gen_test [100][100];
 Fizika * phy;
 
-double e [3] = {2,2,2};
+double e [3] = {0,0,1};
 
 void Start()
 {
@@ -212,7 +212,7 @@ void Draw(Vector & v)
 void DrawD(Vector & v)
 {
 	glBegin(GL_LINES);
-	glVertex3d(v.GetX(),v.GetY(),v.GetZ());
+	glVertex3d(-v.GetX(),-v.GetY(),-v.GetZ());
 	glVertex3d(0,0,0);
 	glEnd();
 }
@@ -224,11 +224,11 @@ void display(void)
 	glEnable(GL_NORMALIZE);
 	//Camera
 	glPushMatrix();
-	//glTranslated(0,-5,-30 + camHeight);
+	glTranslated(0,-5,-30 + camHeight);
 	glRotated(camAng2, 1,0,0);
 	glRotated(camAng1, 0,1,0);
-	//glTranslated(-10,0,10);
-	glTranslated(-0,0,-10);
+	glTranslated(-10,0,10);
+	//glTranslated(-0,0,-10);
 	
 
 	//Scene light
@@ -282,25 +282,30 @@ void display(void)
 	glEnd();
 	
 
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, yellow); Draw(eq);
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, yellow); Draw(eq); Draw(-eq);
 	cout << "Equation : {" << eq.GetX() << ", " << eq.GetY() << ", " << eq.GetZ() << "}.";
 	
-	Vector down = Vector(3,-5,0);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red); DrawD(Vector(down));
-	cout << "Down : {3,-5,0}.\t";
+	Vector down = Vector(0,-5,0);
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red); DrawD(down);
+	//cout << "Down : {3,-5,0}.\t";
 	
-	down = -(pl.GetMat() * down);
+	Vector up = pl.GetMat() * down;
 	//down = Vector_norm(down);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green); DrawD(Vector(down));
-	cout << "Redound : { " << down.GetX() << ", " << down.GetY() << ", " << down.GetZ() << "}." << endl;
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green); DrawD(up);
+	//cout << "Redound : { " << down.GetX() << ", " << down.GetY() << ", " << down.GetZ() << "}." << endl;
 
+	/*double ang = ((up^eq) - (down^eq)) * ((up^eq) + (down^eq));
 
-	//double v[3] = {0,1,0};
-	//Vector velo = Vector(1,-0.001,0);
-	//velo = -(Plane(v).GetMat() * velo);
+	if(ang > 0.000001 || ang < -0.000001)
+		cout << "FATAL ERROR\n";
+	else
+		cout << "ALL RIGHT\n";*/
+	/*double v[3] = {0,1,0};
+	Vector velo = Vector(1,-0.001,0);
+	velo = -(Plane(v).GetMat() * velo);
 
-	//Vector velo1 = Vector(1,-1,0);
-	//velo1 = -(Plane(v).GetMat() * velo1);
+	Vector velo1 = Vector(1,-1,0);
+	velo1 = -(Plane(v).GetMat() * velo1);*/
 	/*World* tmp = NULL;
 	tmp = GetWorld(phy);
 	for(int t=0;t<tmp->GetK();t++)
@@ -413,9 +418,32 @@ int main(int argc,char** argv)
 	return 0;
 }
 
+int main1(int argc,char** argv)
+{
+	/*double s [3][3] = {{1,2,3},
+						{4,5,6},
+						{7,8,9} };
+	Matrix m = Matrix(s);
+	double f [3][3] = { {1,0,0},
+						{0,-1,0},
+						{0,0,1} };
+	Matrix m1 = Matrix(f);
+	 m = m * m1;
+	cout << "| " << m.GetM(0,0) << ", " << m.GetM(0,1) << ", " << m.GetM(0,2) << " |\n" 
+		 << "| " << m.GetM(1,0) << ", " << m.GetM(1,1) << ", " << m.GetM(1,2) << " |\n"
+		 << "| " << m.GetM(2,0) << ", " << m.GetM(2,1) << ", " << m.GetM(2,2) << " |\n";*/
+	Vector v = Vector(2,-3,4);
+	double s [3][3] = {{1,2,3},
+						{4,5,6},
+						{7,8,9} };
+	Matrix m = Matrix(s);
+	v = m * v;
+	cout << "{ " << v.GetX() << ", " << v.GetY() << ", " << v.GetZ() << " }\n";
+	system("Pause");
+	return 0;
+}
 
-
-int main1(int argc, char **argv)
+int main2(int argc, char **argv)
 {
 	//Vector_t T;
 	//T.RunAll();
