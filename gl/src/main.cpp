@@ -48,7 +48,7 @@ Sphere * obj[100];
 int gen_test [100][100];
 Fizika * phy;
 
-double e [3] = {0,0,1};
+double e [3] = {1,0,0};
 
 void Start()
 {
