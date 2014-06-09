@@ -276,12 +276,10 @@
 
 	void Plane::PlaneSetEquation(double eq[4])
 	{
-		for(int i=0;i<4;i++)
-		{
-			equa[i] = eq[i];
-			if(equa[i] == 0 || equa[i] <-1000000)
-				equa[i] = 1;
-		}
+		equa[0] = eq[0];
+		equa[1] = eq[1];
+		equa[2] = eq[2];
+		equa[3] = eq[3];
 	}
 
 	Matrix Plane::GetBathis ()

@@ -119,31 +119,6 @@ void World::Test(Sphere * obj,double resil)
 	}
 }
 
-bool World::TestEqua(Polyg * obj, int i)
-{
-	bool test  = 0;
-	for(int i=0;i<obj->GetN_t() && !test;i++)
-	{
-		if(obj->Get_tmpX(i) > rese[i][0] || obj->Get_tmpX(i) < rese[i][1] || obj->Get_tmpY(i) > rese[i][2] || obj->Get_tmpY(i) < rese[i][3] || obj->Get_tmpZ(i) > rese[i][4] || obj->Get_tmpZ(i) < rese[i][5])
-			if(  obj->Get_tmpX(i)* Plan[i].GetA() + obj->Get_tmpY(i)*Plan[i].GetB() + obj->Get_tmpZ(i)* Plan[i].GetC() + Plan[i].GetD()  < 0 )
-				test = 1;
-	}
-	return test;
-}
-
-void World::Test(Polyg * obj,double resil)
-{
-	for(int i=0;i<k;i++)
-	{
-		if(TestEqua(obj,i))
-		{
-			Vector velo = obj->velo;
-			obj->velo = Plan[i].GetMat() * obj->velo * resil;
-			obj->Rotated(velo,Plan[i].GetN());
-		}
-	}
-}
-
 double World::GetYatXZ(double X,double Z,int nomber_plane)
 {
 	if(Plan[nomber_plane].GetB() == 0) 

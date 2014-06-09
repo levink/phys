@@ -64,6 +64,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Garbage.cpp" />
     <ClCompile Include="src\Fizika.cpp" />
     <ClCompile Include="src\func.cpp" />
     <ClCompile Include="src\Geometry.cpp" />

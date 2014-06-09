@@ -259,8 +259,8 @@ void display(void)
 	/*glBegin(GL_LINES);
 		glVertex
 	glEnd();*/
-	glLineWidth(5.0);
-	//floor
+	//glLineWidth(5.0);
+	////floor
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	glBegin(GL_QUADS);
 	glNormal3d(0,1,0);
@@ -268,30 +268,30 @@ void display(void)
 	int z = -20;
 
 
-	Plane pl = Plane(e);
-	Vector eq = Vector(e);
+	//Plane pl = Plane(e);
+	//Vector eq = Vector(e);
 
-	for(int i=0;i < x; i++)
-		for(int j=0;j > z; j--)
-		{
-			glVertex3d(i, GY(i,j,pl),j);
-			glVertex3d(i,GY(i,j-1,pl),j-1);
-			glVertex3d(i+1,GY(i+1,j-1,pl),j-1);
-			glVertex3d(i+1,GY(i+1,j,pl),j);
-		}
-	glEnd();
-	
+	//for(int i=0;i < x; i++)
+	//	for(int j=0;j > z; j--)
+	//	{
+	//		glVertex3d(i, GY(i,j,pl),j);
+	//		glVertex3d(i,GY(i,j-1,pl),j-1);
+	//		glVertex3d(i+1,GY(i+1,j-1,pl),j-1);
+	//		glVertex3d(i+1,GY(i+1,j,pl),j);
+	//	}
+	//glEnd();
+	//
 
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, yellow); Draw(eq); Draw(-eq);
-	cout << "Equation : {" << eq.GetX() << ", " << eq.GetY() << ", " << eq.GetZ() << "}.";
-	
-	Vector down = Vector(0,-5,0);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red); DrawD(down);
-	//cout << "Down : {3,-5,0}.\t";
-	
-	Vector up = pl.GetMat() * down;
-	//down = Vector_norm(down);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green); DrawD(up);
+	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, yellow); Draw(eq); Draw(-eq);
+	//cout << "Equation : {" << eq.GetX() << ", " << eq.GetY() << ", " << eq.GetZ() << "}.";
+	//
+	//Vector down = Vector(0,-5,0);
+	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red); DrawD(down);
+	////cout << "Down : {3,-5,0}.\t";
+	//
+	//Vector up = pl.GetMat() * down;
+	////down = Vector_norm(down);
+	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green); DrawD(up);
 	//cout << "Redound : { " << down.GetX() << ", " << down.GetY() << ", " << down.GetZ() << "}." << endl;
 
 	/*double ang = ((up^eq) - (down^eq)) * ((up^eq) + (down^eq));
@@ -306,7 +306,7 @@ void display(void)
 
 	Vector velo1 = Vector(1,-1,0);
 	velo1 = -(Plane(v).GetMat() * velo1);*/
-	/*World* tmp = NULL;
+	World* tmp = NULL;
 	tmp = GetWorld(phy);
 	for(int t=0;t<tmp->GetK();t++)
 	{
@@ -319,7 +319,7 @@ void display(void)
 				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,t),j);
 			}
 	}
-	glEnd();*/
+	glEnd();
 
 	//plane
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
@@ -397,7 +397,7 @@ void display(void)
 	glutSwapBuffers();
 }
 
-int main(int argc,char** argv)
+int main1(int argc,char** argv)
 {
 	setlocale(LC_ALL,"RUS");
 	glutInit(&argc, argv);
@@ -418,7 +418,7 @@ int main(int argc,char** argv)
 	return 0;
 }
 
-int main1(int argc,char** argv)
+int main2(int argc,char** argv)
 {
 	/*double s [3][3] = {{1,2,3},
 						{4,5,6},
@@ -443,7 +443,7 @@ int main1(int argc,char** argv)
 	return 0;
 }
 
-int main2(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	//Vector_t T;
 	//T.RunAll();
