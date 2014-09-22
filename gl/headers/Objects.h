@@ -12,7 +12,7 @@ public:
 	Vector velo;
 	Vector accel;
 	Vector F;
-	Vector ve_ro;
+	Vector w;
 	Vector Angl;
 	BaseObject();
 };
@@ -32,6 +32,42 @@ public:
 	double GetRad();
 	
 	void operator=(Sphere * count);
+};
+
+class Tr_Sphere: public BaseObject
+{
+private: 
+	double rad;
+	double I;
+public:
+	double _g;
+	Tr_Sphere();
+
+	void Rotated(Tr_Sphere * obj);
+
+	void Test(Tr_Sphere * obj, bool motion);
+	
+	double GetRad();
+	
+	void operator=(Tr_Sphere * count);
+};
+
+class Polyg: public BaseObject
+{
+private: 
+	double ** tmp;
+	int ** plan;
+	int nom_pl;
+	int nom_tmp;
+public:
+	Polyg();
+	Polyg(double * point[3]); 
+	//Polyg(double point[3]);
+	void Plan();
+	void Rotated();
+	void Drow();
+	void Test();
+
 };
 
 class Camera: public BaseObject

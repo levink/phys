@@ -1,5 +1,6 @@
 
 #include "../headers\Objects.h"
+#include"../headers\Geometry.h"
 
 //BaseObject::
 
@@ -53,8 +54,8 @@ void Sphere::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор
 	normal = Vector_norm(normal);
 	
 	if(normal.length() != 0)
-		ve_ro = normal * ( velo & normal ) / normal.length() ;
-		//ve_ro = ( normal * ( velo & normal ) / velo.length() ) * 0.2 ;
+		w = normal * ( velo & normal ) / normal.length() ;
+		//w = ( normal * ( velo & normal ) / velo.length() ) * 0.2 ;
 }
 
 void Sphere::Test(Sphere * obj, bool motion)
@@ -159,6 +160,118 @@ void Sphere::operator=(Sphere * count)
 	velo = count->velo;
 }
 
+
+Tr_Sphere:: Tr_Sphere()
+{
+	rad = 1;
+	_g = 9.8;
+	BaseObject();
+	I = 0.4 * m * rad * rad;
+}
+
+void Tr_Sphere:: Rotated(Tr_Sphere * obj)
+{
+	Vector norm = Vector(1,1,-((obj->velo.GetX() + obj->velo.GetY()) / obj->velo.GetZ()));
+	Vector tmp = Vector(Position.GetX() - ((Position.GetX() * velo.GetY() * norm.GetX() - obj->Position.GetX() * norm.GetY() *  velo.GetX() - Position.GetY() * velo.GetX() * norm.GetX() + obj->Position.GetY() * velo.GetX() * norm.GetX())/ (velo.GetY() * norm.GetX() - norm.GetY() * velo.GetX())),
+						Position.GetY() - ((Position.GetY() * velo.GetX() * norm.GetY() - obj->Position.GetY() * norm.GetX() *  velo.GetY() - Position.GetX() * velo.GetY() * norm.GetX() + obj->Position.GetX() * velo.GetY() * norm.GetY())/ (velo.GetX() * norm.GetY() - norm.GetX() * velo.GetY())),
+						Position.GetZ() - ((Position.GetZ() * velo.GetY() * norm.GetZ() - obj->Position.GetZ() * norm.GetY() *  velo.GetZ() - Position.GetY() * velo.GetZ() * norm.GetX() + obj->Position.GetY() * velo.GetZ() * norm.GetZ())/ (velo.GetY() * norm.GetZ() - norm.GetY() * velo.GetZ())));
+	double r = tmp.length();
+	Vector rot = velo *  (velo.length() - ((velo & norm) / norm.length())); 
+	double en = ((r/rad) * m * (pow(rot.length(),2)))/ I;
+
+}
+
+void Tr_Sphere:: Test(Tr_Sphere * obj, bool motion)
+{
+	double const res = 0.8;
+	double const K = 10;
+	double len = (obj->Position - Position).length2();
+	if( len < (rad + obj->rad)* (rad + obj->rad) * 1.001 || motion)
+	{
+		double x = obj->Position.GetX() - Position.GetX();
+		double y = obj->Position.GetY() - Position.GetY();
+		double z = obj->Position.GetZ() - Position.GetZ();
+
+		double eq[3]  = {x,y,z};
+		Vector norm = Vector(eq);
+		norm = Vector_norm(norm);
+		double e[3] = {0,0,0};
+
+		Plane * plan  = new Plane();
+		plan->PlaneSetEquation(eq);	
+
+		Vector ve2 = Vector();
+		Vector ve1 = Vector();
+		
+		velo = plan->GetBathis() * velo;
+		obj->velo = plan->GetBathis() * obj->velo;
+
+		Vector D = (velo - obj->velo) * obj->m;
+		Vector A = velo * m + obj->velo * obj->m;
+		if(D.length2() == 0)
+		{
+			ve1 = (A) / (m + obj->m);
+			ve2 = (A - ve1 * m) / (obj->m);
+		}
+		else
+		{
+			ve1 = (A + D) / (m + obj->m);
+			ve2 = (A - ve1 * m) / (obj->m);
+			Vector t_1 = velo > velo * m + obj->velo > obj->velo * obj->m;
+			Vector t_2 = ve1 > ve1 * m + ve2 > ve2 * obj->m; 
+			double test = t_1.length2() - t_2.length2();
+			if( test > 0.0000001 || test < -0.0000001)
+			{
+				ve1 = (A  - D) / (m + obj->m);
+				ve2 = (A - ve1 * m) / (obj->m);
+			}
+		}
+		
+		if((-velo ^ ve1) > 0)
+			velo = plan->GetMat() * ve1 * res;
+		if((-obj->velo ^ norm) < 0)
+			obj->velo = plan->GetMat() * ve2 * res;
+
+		velo = plan->GetInvertMat() * ve1;
+		obj->velo = plan->GetInvertMat() * ve2;
+
+		len = sqrt(len);
+		len = ((rad + obj->rad) - len)/2; 
+		
+		 Position = Position - norm * len;
+		 obj->Position = obj->Position + norm * len;
+
+		//Rotated(obj->velo,eq);
+		//obj->Rotated(velo,eq);
+
+		if((norm ^ F) > 0)
+		{
+			F = - (norm * (obj->F & norm)) + F;
+			obj->F = (norm * (F & norm) + obj->F);
+		}
+		else
+		{
+			F = (norm * (obj->F & norm)) + F;
+			obj->F = -(norm * (F & norm) + obj->F);
+		}
+		delete plan;
+	}
+}
+
+double Tr_Sphere:: GetRad()
+{
+	return rad;
+}
+
+void Tr_Sphere:: operator=(Tr_Sphere * count)
+{
+	Position = count->Position;
+	accel = count->accel;
+	F = count->F;
+	m = count->m;
+	velo = count->velo;
+}
+
 //Camera::
 
 Camera::Camera()
@@ -176,3 +289,88 @@ void Camera::SetAngleXOZ(int ang)
 		angle = 0;
 }
 
+void Polyg::Plan()
+{
+	/*double com = 0;
+	bool pl_test = 1;
+	int global_test = 0; // мы можем с уверенностью сказать, что определили все грани фигуры, 
+	int er_cou = 0;		 // если каждое её ребро принадлежит двум граням, чесло граней = число вершин. 
+	bool test = 0;		 // Тогда, если global_test = число вершин * 2, то мы определили все грани.
+	bool cor_test;
+	bool one = 1;
+	bool one_er = 1;
+	double tm[3][3] = { {tmp[0][0],tmp[0][1],tmp[0][2]},
+						{tmp[1][0],tmp[1][1],tmp[1][2]},
+						{tmp[2][0],tmp[2][1],tmp[2][2]}};
+	plan = new int[3][9];
+	plan[0][0] = 0;
+	plan[0][1] = 1;
+	plan[0][2] = 2;
+	int max = 8;
+	int nom = 2;
+	nom_pl = 0;
+	Plane pl = Plane(tm);
+	global_test += 1; // первая грань, образованная 1 и 0 точками, принадлежит одной плоскости
+	while(global_test < nom_tmp*2)
+	{
+		
+		for(int i = 0;i<nom_tmp;i++)
+		{
+			com = pl.GetA() * tmp[i][0] + pl.GetB() * tmp[i][1] + pl.GetC() * tmp[i][2] + pl.GetD();
+			while(one)
+			{
+				if(i!= plan[nom_pl][0] && i!= plan[nom_pl][1] && i!=plan[nom_pl][2])
+				{
+					test = com > 0;
+					one = 0;
+				}
+				i++;
+			}
+			if(i!= plan[nom_pl][0] && i!= plan[nom_pl][1] && i!=plan[nom_pl][2])
+			{
+				cor_test = com > 0;
+			}
+			if(cor_test != test)
+			{
+				pl_test = 0;
+				return;
+			}
+			if(com == 0 )
+			{
+				if(nom<max)
+				{
+					nom++;
+					plan[nom_pl][nom] = i;
+				}
+				else
+				{
+					int ** cop;
+					cop = new int[nom_pl][max]; 
+					for(int i = 0;i <= nom_pl;i++)
+					{
+						for(int e = 0; e <= max; e++)
+						{
+							cop[i][e] = plan[i][e]; 
+						}
+					}
+					delete plan;
+					max +=6;
+					plan = new int[nom_pl][max];
+					for(int i = 0;i<=nom_pl;i++)
+					{
+						for(int e = 0; e <= nom; e++)
+						{
+							plan[i][e] = cop[i][e];
+						}
+					}
+					nom++;
+					plan[nom_pl][nom] = i;
+				}
+				if(plan[nom_pl][nom] = plan[nom_pl][nom-1] + 1 || (plan[nom_pl][nom] == nom_tmp-- && plan[nom_pl][0] == 0))
+				{
+					global_test++;
+				}
+			}
+		}
+	}*/
+}

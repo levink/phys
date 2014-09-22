@@ -27,25 +27,25 @@ public:
 	void MakeLine();
 };
 
-class Polyg : public BaseObject
-{
-private:
-	Margin * mar;
-	int nu_m;
-	Vector * tmp;
-	int nu_t;
-	double _g;
-public:
-	Polyg();
-	void SetTmp(Vector p1);
-	void SetMargin(Vector p1,Vector p2,Vector p3);
-	int GetN_t();
-	double Get_tmpX(int i);
-	double Get_tmpY(int i);
-	double Get_tmpZ(int i);
-	void Rotated(Vector ve1, Vector nor);
-	void Test(Polyg * obj, bool motion);
-};
+//class Polyg : public BaseObject
+//{
+//private:
+//	Margin * mar;
+//	int nu_m;
+//	Vector * tmp;
+//	int nu_t;
+//	double _g;
+//public:
+//	Polyg();
+//	void SetTmp(Vector p1);
+//	void SetMargin(Vector p1,Vector p2,Vector p3);
+//	int GetN_t();
+//	double Get_tmpX(int i);
+//	double Get_tmpY(int i);
+//	double Get_tmpZ(int i);
+//	void Rotated(Vector ve1, Vector nor);
+//	void Test(Polyg * obj, bool motion);
+//};
 
 
 Line::Line()
@@ -182,110 +182,110 @@ void Margin::MakeLine()
 
 //Polyg::
 
-Polyg::Polyg()
-{
-	mar = NULL;
-	nu_m = 0;
-	tmp = NULL;
-	nu_t = 0;
-	_g = 9.8;
-}
-void Polyg::SetTmp(Vector p1)
-{
-	Vector * copy;
-	copy = new Vector [nu_t];
-	for(int i=0;i<nu_t ;i++)
-	{
-		copy[i] = tmp[i];
-	}
-	delete tmp;
-	tmp = new Vector[nu_t++];
-	for(int i=0;i<nu_t;i++)
-	{
-		tmp[i] = copy[i];
-	}
-	nu_t ++;
-	tmp[nu_t ] = p1;
-	delete copy;
-}
-void Polyg::SetMargin(Vector p1,Vector p2,Vector p3)
-{
-	Margin * copy;
-	copy = new Margin [nu_m];
-	for(int i=0;i<nu_m ;i++)
-	{
-		copy[i] = mar[i];
-	}
-	delete mar;
-	mar = new Margin[nu_m++];
-	for(int i=0;i<nu_m;i++)
-	{
-		mar[i] = copy[i];
-	}
-	nu_m ++;
-	mar[nu_m ] = Margin(p1,p2,p3);
-	delete copy;
-}
-int Polyg::GetN_t()
-{
-	return nu_t;
-}
-double Polyg::Get_tmpX(int i)
-{
-	if(i<=nu_t)
-		return tmp[i].GetX();
-	else
-		return 0;
-}
-double Polyg::Get_tmpY(int i)
-{
-	if(i<=nu_t)
-		return tmp[i].GetY();
-	else
-		return 0;
-}
-double Polyg::Get_tmpZ(int i)
-{
-	if(i<=nu_t)
-		return tmp[i].GetZ();
-	else
-		return 0;
-}
-void Polyg::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строитс€ перпендикул€р
-{
-	double A = ve1.GetY() * velo.GetZ() - velo.GetY() * ve1.GetZ();
-	double B = -(ve1.GetX() * velo.GetZ() - ve1.GetZ() * velo.GetX());
-	double C = ve1.GetX() * velo.GetY() - ve1.GetY() * velo.GetX();
-	double D = - Position.GetX() * A + Position.GetY() * B - Position.GetZ() * C;
-	/*if(C == 0)
-		C = 1;
-	if(ve1.GetY() == 0)
-		ve1.SetY(1);
-	if(ve1.GetZ() == 0)
-		ve1.SetZ(1);
-	if(B == (C * ve1.GetY()) / ve1.GetZ() )
-		B +=1;
-	double _y = -D / ( B - ( ( C * ve1.GetY() ) / ve1.GetZ() ) );
-	double _z = - ( ve1.GetY() * _y ) / ve1.GetZ();
-
-	Vector normal = Vector(0,_y,_z);*/
-
-	if(B==0)
-		B = 1;
-	if(nor.GetY() * C + nor.GetZ() * B == 0)
-		C+=1;
-	double _z = - (nor.GetX() + nor.GetY() * (A + D)) / (nor.GetY() * C + nor.GetZ() * B);
-	double _y = (A + _z * C + D) / B; 
-	double _x = 1;
-	Vector normal = Vector(_x,_y,_z);
-
-	if(normal.length() != 0)
-		ve_ro = normal * ( velo ^ normal ) / normal.length();
-}
-void Polyg::Test(Polyg * obj, bool motion)
-{
-
-}
+//Polyg::Polyg()
+//{
+//	mar = NULL;
+//	nu_m = 0;
+//	tmp = NULL;
+//	nu_t = 0;
+//	_g = 9.8;
+//}
+//void Polyg::SetTmp(Vector p1)
+//{
+//	Vector * copy;
+//	copy = new Vector [nu_t];
+//	for(int i=0;i<nu_t ;i++)
+//	{
+//		copy[i] = tmp[i];
+//	}
+//	delete tmp;
+//	tmp = new Vector[nu_t++];
+//	for(int i=0;i<nu_t;i++)
+//	{
+//		tmp[i] = copy[i];
+//	}
+//	nu_t ++;
+//	tmp[nu_t ] = p1;
+//	delete copy;
+//}
+//void Polyg::SetMargin(Vector p1,Vector p2,Vector p3)
+//{
+//	Margin * copy;
+//	copy = new Margin [nu_m];
+//	for(int i=0;i<nu_m ;i++)
+//	{
+//		copy[i] = mar[i];
+//	}
+//	delete mar;
+//	mar = new Margin[nu_m++];
+//	for(int i=0;i<nu_m;i++)
+//	{
+//		mar[i] = copy[i];
+//	}
+//	nu_m ++;
+//	mar[nu_m ] = Margin(p1,p2,p3);
+//	delete copy;
+//}
+//int Polyg::GetN_t()
+//{
+//	return nu_t;
+//}
+//double Polyg::Get_tmpX(int i)
+//{
+//	if(i<=nu_t)
+//		return tmp[i].GetX();
+//	else
+//		return 0;
+//}
+//double Polyg::Get_tmpY(int i)
+//{
+//	if(i<=nu_t)
+//		return tmp[i].GetY();
+//	else
+//		return 0;
+//}
+//double Polyg::Get_tmpZ(int i)
+//{
+//	if(i<=nu_t)
+//		return tmp[i].GetZ();
+//	else
+//		return 0;
+//}
+//void Polyg::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строитс€ перпендикул€р
+//{
+//	double A = ve1.GetY() * velo.GetZ() - velo.GetY() * ve1.GetZ();
+//	double B = -(ve1.GetX() * velo.GetZ() - ve1.GetZ() * velo.GetX());
+//	double C = ve1.GetX() * velo.GetY() - ve1.GetY() * velo.GetX();
+//	double D = - Position.GetX() * A + Position.GetY() * B - Position.GetZ() * C;
+//	/*if(C == 0)
+//		C = 1;
+//	if(ve1.GetY() == 0)
+//		ve1.SetY(1);
+//	if(ve1.GetZ() == 0)
+//		ve1.SetZ(1);
+//	if(B == (C * ve1.GetY()) / ve1.GetZ() )
+//		B +=1;
+//	double _y = -D / ( B - ( ( C * ve1.GetY() ) / ve1.GetZ() ) );
+//	double _z = - ( ve1.GetY() * _y ) / ve1.GetZ();
+//
+//	Vector normal = Vector(0,_y,_z);*/
+//
+//	if(B==0)
+//		B = 1;
+//	if(nor.GetY() * C + nor.GetZ() * B == 0)
+//		C+=1;
+//	double _z = - (nor.GetX() + nor.GetY() * (A + D)) / (nor.GetY() * C + nor.GetZ() * B);
+//	double _y = (A + _z * C + D) / B; 
+//	double _x = 1;
+//	Vector normal = Vector(_x,_y,_z);
+//
+//	if(normal.length() != 0)
+//		w = normal * ( velo ^ normal ) / normal.length();
+//}
+//void Polyg::Test(Polyg * obj, bool motion)
+//{
+//
+//}
 
 //bool World::TestEqua(Polyg * obj, int i)
 //{
