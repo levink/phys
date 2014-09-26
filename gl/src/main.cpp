@@ -323,10 +323,10 @@ void display(void)
 	for(int i=0;i < x; i++)
 		for(int j=0;j > z; j--)
 		{
-			glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,1)+10,j);
-			glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,1)+10,j-1);
-			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,1)+10,j-1);
-			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+10,j);
+			glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,1)+20,j);
+			glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,1)+20,j-1);
+			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,1)+20,j-1);
+			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+20,j);
 		}
 
 	glEnd();
@@ -348,6 +348,7 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	//DWORD dt = GetTickCount()-t1;
+	needStep = 1; // удалить
 	if(needStep) 
 	{
 		needStep = false;
@@ -477,7 +478,7 @@ int main(int argc, char **argv)
 	obj[num] = tmp;
 	num++;*/
 	Sphere * tmp1 = new Sphere();
-	tmp1->Position = Vector(5,12,25);
+	tmp1->Position = Vector(5,22,25);
 	obj[num] = tmp1;
 	num++;
 	

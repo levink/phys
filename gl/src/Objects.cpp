@@ -50,8 +50,7 @@ void Sphere::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор
 	double _z = - (nor.GetX() + nor.GetY() * (A + D)) / (nor.GetY() * C + nor.GetZ() * B);
 	double _y = (A + _z * C + D) / B; 
 	double _x = 1;
-	Vector normal = Vector(_x,_y,_z);
-	normal = Vector_norm(normal);
+	Vector normal = Vector_norm(Vector(_x,_y,_z));
 	
 	if(normal.length() != 0)
 		w = normal * ( velo & normal ) / normal.length() ;
