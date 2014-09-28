@@ -111,7 +111,7 @@ void World::Test(Sphere * obj,double resil)
 			double velo = obj->velo.length();
 			obj->velo = Vector_norm(Plan[i].GetMat() * obj->velo);
 			obj->velo = obj->velo * velo * resil;
-			//obj->F = obj->F + Vector_norm(Plan[i].GetN()) * obj->F.length()/** obj->velo.length()*sqrt(K * obj->m)*/;
+			obj->F = obj->F + Vector_norm(Plan[i].GetN()) * obj->F.length()/** obj->velo.length()*sqrt(K * obj->m)*/;
 			
 			cout << "Velo after Plane : {" << obj->velo.GetX() << ", " << obj->velo.GetY() << ", " << obj->velo.GetZ() << "}.\n\n";
 			double eqa = obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD();

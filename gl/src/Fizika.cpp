@@ -43,7 +43,7 @@ void Fizika::MoveObject(Sphere * obj, double t_sec)
 	Vector Ft = Vector(0,-obj->m * _g,0); //+ F1 + F2 + ...
 	//Vector Ftr = - (obj->velo > obj->velo * p / 2) *  n * 3.14;
 	Vector F = Ft /*+ Ftr*/;	// + F1 + F2 + ...;
-	Vector a = F / obj->m;
+	Vector a = obj->F / obj->m;
 	Vector v = obj->velo + a*t_sec; 
 	Vector x = obj->Position + /*obj->velo*/v*t_sec + (/*obj->accel*/a*t_sec*t_sec)/2; 
 
