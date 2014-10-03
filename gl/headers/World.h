@@ -26,7 +26,7 @@ public:
 	bool TestEqua(Camera * obj,int i);
 	void Test(Camera * obj,double resil);
 	bool TestEqua(Sphere * obj,int i);
-	void Test(Sphere * obj,double resil);
+	void Test(Sphere * obj,double resil, double t);
 	bool TestEqua(Tr_Sphere * obj,int i);
 	void Test(Tr_Sphere * obj,double resil);
 	/*bool TestEqua(Polyg * obj, int i);

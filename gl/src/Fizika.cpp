@@ -1,4 +1,5 @@
 #include "../headers\Fizika.h"
+double k = 1 - (0.245/18.865);
 Fizika::Fizika()
 {
 	n = 0.1;
@@ -45,14 +46,14 @@ void Fizika::MoveObject(Sphere * obj, double t_sec)
 	Vector F = Ft /*+ Ftr*/;	// + F1 + F2 + ...;
 	Vector a = obj->F / obj->m;
 	Vector v = obj->velo + a*t_sec; 
-	Vector x = obj->Position + /*obj->velo*/v*t_sec + (/*obj->accel*/a*t_sec*t_sec)/2; 
+	Vector x = obj->Position + obj->velo*t_sec + (a*t_sec*t_sec)/2; 
 
 	obj->accel = a;
 	obj->velo = v;
 	obj->Position = x;
 	obj->F = F;
 
-	wor.Test(obj,1); // 0.975
+	wor.Test(obj,k,t_sec); // 0.975
 
 	double l = obj->GetRad() * 2 * PI;
 	obj->Angl  = ( (obj->w * t_sec) / l) * 360 + obj->Angl;
