@@ -106,16 +106,19 @@ void World::Test(Sphere * obj,double resil, double t)
 	{
 		if(TestEqua(obj,i))
 		{
-			//cout << "Velo to Plane : {" << obj->velo.GetX() << ", " << obj->velo.GetY() << ", " << obj->velo.GetZ() << "}.";
 			obj->Rotated(obj->velo,Plan[i].GetN());
 			//double velo = obj->velo.length();
 			//obj->velo = Vector_norm(Plan[i].GetMat() * obj->velo);
 			//obj->velo = obj->velo * velo * resil;
 			//obj->F = obj->F + Vector_norm(Plan[i].GetN()) * obj->F.length()/** obj->velo.length()*sqrt(K * obj->m)*/;
-			Vector vy = Vector_norm(Plan[i].GetN()) * (((obj->velo) & Plan[i].GetN()) /Plan[i].GetN().length());
-			obj->F = - ((vy * 2 * obj->m)/(t)) ;
+			if(obj->velo < 4.3)
+				obj->velo = Vector(0,0,0);
+
+			Vector n = Vector_norm(Plan[i].GetN());
+			Vector vy = n * (((obj->velo * resil) & Plan[i].GetN()) /Plan[i].GetN().length());
+			obj->F = - ((vy * 2 * obj->m)/(t)) - n * obj->F.length() + obj->F;
 			
-			cout << "Velo after Plane : {" << obj->velo.GetX() << ", " << obj->velo.GetY() << ", " << obj->velo.GetZ() << "}.\n\n";
+			cout << "Velo to Plane : {" << obj->velo.GetX() << ", " << obj->velo.GetY() << ", " << obj->velo.GetZ() << "}.\n\n";
 			double eqa = obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD();
 			double lon = pow(Plan[i].GetA(),2) + pow(Plan[i].GetB(),2) + pow(Plan[i].GetC(),2);
 			eqa = eqa/sqrt(lon) / 2;
