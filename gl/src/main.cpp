@@ -481,6 +481,10 @@ int main(int argc, char **argv)
 	tmp1->Position = Vector(5,12,25);
 	obj[num] = tmp1;
 	num++;
+	Sphere * tmp2 = new Sphere();
+	tmp2->Position = Vector(4,9,25);
+	obj[num] = tmp2;
+	num++;
 	
 	//Sphere * tmp = new Sphere();
 	//tmp->Position = Vector(	12-2.78,17-1.3,25); // |

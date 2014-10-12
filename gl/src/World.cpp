@@ -95,7 +95,7 @@ bool World::TestEqua(Sphere * obj,int i)
 		if(lon == 0 )
 			return 0;
 
-		return ( eqa/lon ) < pow(obj->GetRad() * 1.1,2); 
+		return ( eqa/lon ) <= pow(obj->GetRad(),2); 
 	}
 }
 
@@ -122,11 +122,27 @@ void World::Test(Sphere * obj,double resil, double t)
 			Vector N_velo = - ((vy * 2 * obj->m)/(t));
 			obj->F = - ((vy * 2 * obj->m)/(t)) - n * Fy + obj->F;
 			
+			
+
 			cout << "Velo to Plane : {" << obj->velo.GetX() << ", " << obj->velo.GetY() << ", " << obj->velo.GetZ() << "}.\n\n";
-			double eqa = obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD();
+			double eqa =abs( obj->Position.GetX()*Plan[i].GetA() + obj->Position.GetY()*Plan[i].GetB() + obj->Position.GetZ()* Plan[i].GetC() + Plan[i].GetD());
 			double lon = pow(Plan[i].GetA(),2) + pow(Plan[i].GetB(),2) + pow(Plan[i].GetC(),2);
-			eqa = eqa/sqrt(lon) / 2;
-			obj->Position = obj->Position + Plan[i].GetN() * eqa;
+			eqa = eqa/(sqrt(lon) );
+			if((obj->velo ^ Plan[i].GetN()) < 0 )   
+				obj->Position = obj->Position  + Plan[i].GetN() * (obj->GetRad() - eqa);
+			else
+				obj->Position = obj->Position + Plan[i].GetN() * (eqa - obj->GetRad());
+
+			Vector Ft = Vector(0,-obj->m * obj->_g,0); 
+			Vector F = obj->F; 
+			Vector a = obj->F / obj->m;
+			Vector v = obj->velo + a*t; 
+			Vector x = obj->Position + obj->velo*t + (a*t*t)/2; 
+
+			obj->accel = a;
+			obj->velo = v;
+			obj->Position = x;
+			obj->F = Ft;
 		}
 	}
 }
