@@ -19,6 +19,7 @@
 *.exe
 *.out
 *.app
+*.v11.suo
 Debug/
 gl.sdf
 ipch
