@@ -477,10 +477,10 @@ int main(int argc, char **argv)
 	tmp->velo = Vector(0,-3,0);
 	obj[num] = tmp;
 	num++;*/
-	Sphere * tmp1 = new Sphere();
+	/*Sphere * tmp1 = new Sphere();
 	tmp1->Position = Vector(5,12,25);
 	obj[num] = tmp1;
-	num++;
+	num++;*/
 	Sphere * tmp2 = new Sphere();
 	tmp2->Position = Vector(4,9,25);
 	obj[num] = tmp2;

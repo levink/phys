@@ -1,184 +1,184 @@
 #include"headers\Geometry.h"
 #include"headers\Objects.h"
 #include"headers\World.h"
-class Line
-{
-private:
-	double k;
-	double e;
-public:
-	Line();
-	Line(Vector a, Vector b);
-	bool Up_Down(Vector point);
-};
-
-class Margin
-{
-private:
-	Plane plan;
-	Vector * tmp;
-	int number;
-	int * line [2];
-public:
-	Margin();
-	Margin(Vector point1,Vector point2,Vector point3);
-	bool Test(Vector point );
-	bool SetTmp(Vector point);
-	void MakeLine();
-};
-
-//class Polyg : public BaseObject
+//class Line
 //{
 //private:
-//	Margin * mar;
-//	int nu_m;
-//	Vector * tmp;
-//	int nu_t;
-//	double _g;
+//	double k;
+//	double e;
 //public:
-//	Polyg();
-//	void SetTmp(Vector p1);
-//	void SetMargin(Vector p1,Vector p2,Vector p3);
-//	int GetN_t();
-//	double Get_tmpX(int i);
-//	double Get_tmpY(int i);
-//	double Get_tmpZ(int i);
-//	void Rotated(Vector ve1, Vector nor);
-//	void Test(Polyg * obj, bool motion);
+//	Line();
+//	Line(Vector a, Vector b);
+//	bool Up_Down(Vector point);
 //};
-
-
-Line::Line()
-{
-	k = 0;
-	e = 0;
-}
-Line::Line(Vector a, Vector b)
-{
-	k = (b.GetX() - a.GetX()) / (b.GetY() - a.GetY());
-	e = a.GetX() - a.GetY() * k;
-}
-bool Line::Up_Down(Vector point)
-{
-	if(point.GetX() > point.GetY() * k + e)
-		return 1;
-	else
-		return 0;
-}
-
-//Margin::
-
-Margin::Margin()
-{
-	plan = Plane();
-	tmp = NULL;
-	number = 0;
-	line[0] = NULL;
-	line[1] = NULL;
-}
-Margin::Margin(Vector point1,Vector point2,Vector point3)
-{
-	Vector * copy;
-		copy = new Vector[number];
-		for(int i=0;i<number;i++)
-		{
-			copy[i] = tmp[i];
-		}
-		delete tmp;
-		tmp = new Vector [number+3];
-		for(int i=0;i<number;i++)
-		{
-			tmp[i] = copy[i];
-		}
-			number++;
-			tmp[number] = point1;
-			number++;
-			tmp[number] = point2;
-			number++;
-			tmp[number] = point3;
-		delete copy;
-	plan = Plane(point1,point2,point3);
-}
-bool Margin::Test(Vector point )
-{
-	if(plan.GetA() * point.GetX() + plan.GetB() * point.GetX() + plan.GetC() * point.GetZ() + plan.GetD() ==0)
-		return 1;
-	else 
-		return 0;
-}
-bool Margin::SetTmp(Vector point)
-{
-	if(Test(point) ==1)
-	{
-		Vector * copy;
-		copy = new Vector[number];
-		for(int i=0;i<number;i++)
-		{
-			copy[i] = tmp[i];
-		}
-		delete tmp;
-		tmp = new Vector [number++];
-		for(int i=0;i<number;i++)
-		{
-			tmp[i] = copy[i];
-		}
-		number++;
-		tmp[number] = point;
-		delete copy;
-		return 1;
-	}
-	else 
-		return 0;
-
-}
-void Margin::MakeLine()
-{
-	Line l;
-	bool t;
-	line[0] = new int [number];
-	line[1] = new int [number];
-	int l_t = 0;
-	Vector * c_tmp;
-	c_tmp = new Vector [number];
-	for(int i=0;i<number;i++)
-	{
-		c_tmp[i] = plan.GetMat() * tmp[i]; 
-	}
-	for(int i=0;i<number;i++)
-	{
-		for(int e=0;e<number;e++)
-		{
-			if(i != e)
-			{	
-				l = Line(tmp[i],tmp[e]);
-				for(int a =0;a<number;a++)
-				{
-					bool test;
-					bool first = 1;
-					if(a != e && a!= i)
-					{
-						if(first)
-						{
-							test = l.Up_Down(tmp[a]);\
-							first = 0;
-						}
-						if(l.Up_Down(tmp[a]) != test)
-						{
-							t = 0;
-							return;
-						}
-					}
-				}
-				if(t != 0)
-				{
-					line[0][l_t] = i;
-					line[0][l_t] = i;
-					l_t++;
-				}
-			}
-		}
-	}
-}
+//
+//class Margin
+//{
+//private:
+//	Plane plan;
+//	Vector * tmp;
+//	int number;
+//	int * line [2];
+//public:
+//	Margin();
+//	Margin(Vector point1,Vector point2,Vector point3);
+//	bool Test(Vector point );
+//	bool SetTmp(Vector point);
+//	void MakeLine();
+//};
+//
+////class Polyg : public BaseObject
+////{
+////private:
+////	Margin * mar;
+////	int nu_m;
+////	Vector * tmp;
+////	int nu_t;
+////	double _g;
+////public:
+////	Polyg();
+////	void SetTmp(Vector p1);
+////	void SetMargin(Vector p1,Vector p2,Vector p3);
+////	int GetN_t();
+////	double Get_tmpX(int i);
+////	double Get_tmpY(int i);
+////	double Get_tmpZ(int i);
+////	void Rotated(Vector ve1, Vector nor);
+////	void Test(Polyg * obj, bool motion);
+////};
+//
+//
+//Line::Line()
+//{
+//	k = 0;
+//	e = 0;
+//}
+//Line::Line(Vector a, Vector b)
+//{
+//	k = (b.GetX() - a.GetX()) / (b.GetY() - a.GetY());
+//	e = a.GetX() - a.GetY() * k;
+//}
+//bool Line::Up_Down(Vector point)
+//{
+//	if(point.GetX() > point.GetY() * k + e)
+//		return 1;
+//	else
+//		return 0;
+//}
+//
+////Margin::
+//
+//Margin::Margin()
+//{
+//	plan = Plane();
+//	tmp = NULL;
+//	number = 0;
+//	line[0] = NULL;
+//	line[1] = NULL;
+//}
+//Margin::Margin(Vector point1,Vector point2,Vector point3)
+//{
+//	Vector * copy;
+//		copy = new Vector[number];
+//		for(int i=0;i<number;i++)
+//		{
+//			copy[i] = tmp[i];
+//		}
+//		delete tmp;
+//		tmp = new Vector [number+3];
+//		for(int i=0;i<number;i++)
+//		{
+//			tmp[i] = copy[i];
+//		}
+//			number++;
+//			tmp[number] = point1;
+//			number++;
+//			tmp[number] = point2;
+//			number++;
+//			tmp[number] = point3;
+//		delete copy;
+//	plan = Plane(point1,point2,point3);
+//}
+//bool Margin::Test(Vector point )
+//{
+//	if(plan.GetA() * point.GetX() + plan.GetB() * point.GetX() + plan.GetC() * point.GetZ() + plan.GetD() ==0)
+//		return 1;
+//	else 
+//		return 0;
+//}
+//bool Margin::SetTmp(Vector point)
+//{
+//	if(Test(point) ==1)
+//	{
+//		Vector * copy;
+//		copy = new Vector[number];
+//		for(int i=0;i<number;i++)
+//		{
+//			copy[i] = tmp[i];
+//		}
+//		delete tmp;
+//		tmp = new Vector [number++];
+//		for(int i=0;i<number;i++)
+//		{
+//			tmp[i] = copy[i];
+//		}
+//		number++;
+//		tmp[number] = point;
+//		delete copy;
+//		return 1;
+//	}
+//	else 
+//		return 0;
+//
+//}
+//void Margin::MakeLine()
+//{
+//	Line l;
+//	bool t;
+//	line[0] = new int [number];
+//	line[1] = new int [number];
+//	int l_t = 0;
+//	Vector * c_tmp;
+//	c_tmp = new Vector [number];
+//	for(int i=0;i<number;i++)
+//	{
+//		c_tmp[i] = plan.GetMat() * tmp[i]; 
+//	}
+//	for(int i=0;i<number;i++)
+//	{
+//		for(int e=0;e<number;e++)
+//		{
+//			if(i != e)
+//			{	
+//				l = Line(tmp[i],tmp[e]);
+//				for(int a =0;a<number;a++)
+//				{
+//					bool test;
+//					bool first = 1;
+//					if(a != e && a!= i)
+//					{
+//						if(first)
+//						{
+//							test = l.Up_Down(tmp[a]);\
+//							first = 0;
+//						}
+//						if(l.Up_Down(tmp[a]) != test)
+//						{
+//							t = 0;
+//							return;
+//						}
+//					}
+//				}
+//				if(t != 0)
+//				{
+//					line[0][l_t] = i;
+//					line[0][l_t] = i;
+//					l_t++;
+//				}
+//			}
+//		}
+//	}
+//}
 
 //Polyg::
 

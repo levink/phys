@@ -489,3 +489,30 @@
 	{
 		return equa[3];
 	}
+
+	Line::Line ()
+	{
+		vec = Vector();
+		tmp = Vector();
+	}
+	Line::Line(Vector v, Vector t)
+	{
+		vec = v;
+		tmp = t;
+	}
+	Vector Line::projection(Vector t)
+	{
+		double p[3] = {vec.GetX(),vec.GetY(),vec.GetZ()};
+		double _p1 = 1/p[1];
+		double D = - vec & t;
+		double A = (p[0] * p[0] + p[2] * p[2] ) * _p1;
+		double y = (t.GetY() * A - t.GetX() * p[0] - t.GetZ() * p[2] - D) / ( A + p[1]);
+		double x = (y - t.GetY()) * p[0] * _p1 + t.GetX();
+		double z = (y - t.GetY()) * p[2] * _p1 + t.GetZ();
+		return Vector(x,y,z);
+	}
+	Vector Line::lineXYZ(double x)
+	{
+		Vector t = Vector(x,vec.GetY() * (x - tmp.GetX())/vec.GetX() + tmp.GetY(), vec.GetZ() * (x - tmp.GetX())/vec.GetX() + tmp.GetZ());
+		return t ;
+	}

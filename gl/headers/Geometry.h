@@ -98,4 +98,17 @@ public:
 	double GetC();
 	double GetD();
 };
+
+
+class Line 
+{
+private:
+	Vector vec;
+	Vector tmp;
+public:
+	Line();
+	Line(Vector v, Vector t);
+	Vector projection(Vector t);
+	Vector lineXYZ(double x);
+};
 #endif
