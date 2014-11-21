@@ -263,15 +263,27 @@
 //Plane
 	Plane::Plane()
 	{
-		for(int i=0;i<3;i++)
-		{
-			equa[i] = 0;
-			for(int e=0;e<3;e++)
-			{
-				tmp[i][e] = 0;
-			}
-		}
+		equa[0] = 0;
+		equa[1] = 0;
+		equa[2] = 0;
 		equa[3] = 0; 
+		tmp[0] = NULL;
+		tmp[1] = NULL;
+		tmp[2] = NULL;
+		num = 0;
+		Mat = Matrix();
+		nor[0] = Vector();
+		nor[1] = Vector();
+		nor[2] = Vector();
+		tr[0] = NULL;
+		tr[1] = NULL;
+		tr[2] = NULL;
+		tes[0] = 0;
+		tes[1] = 0;
+		tes[2] = 0;
+		tes[3] = 0;
+		tes[4] = 0;
+		tes[5] = 0;
 	}
 
 	void Plane::PlaneSetEquation(double eq[4])
@@ -488,6 +500,96 @@
 	double Plane::GetD()
 	{
 		return equa[3];
+	}
+	void Plane::st(double * t[3])
+	{
+		double * cop[3];
+		cop[0] = new double[num];
+		cop[1] = new double[num];
+		cop[2] = new double[num];
+		for(int i =0;i<num;i++)
+		{
+			cop[0][i] = tmp[0][num];
+			cop[1][i] = tmp[1][num];
+			cop[2][i] = tmp[2][num];
+		}
+		delete tmp;
+		tmp[0] = new double[num+1];
+		tmp[1] = new double[num+1];
+		tmp[2] = new double[num+1];
+		for(int i =0;i<num;i++)
+		{
+			tmp[0][i] = cop[0][num];
+			tmp[1][i] = cop[1][num];
+			tmp[2][i] = cop[2][num];
+		}
+		delete cop;
+	}
+	void Plane::triangulation()
+	{
+		tr[0] = new int[2];
+		tr[1] = new int[2];
+		tr[2] = new int[2];
+		tr[0][0] = 0;
+		tr[1][0] = 1;
+		tr[2][0] = 2;
+		tr[0][1] = 0;
+		tr[1][1] = 2;
+		tr[2][1] = 3;
+		double max = tmp[num][0];
+		for(int i = 0;i<num;i++)
+		{
+			if(tmp[i][0] < max)
+			{
+				max = tmp[i][0];
+			}
+		}
+		tes[0] = max;
+		max = tmp[num][0];
+		for(int i = 0;i<num;i++)
+		{
+			if(tmp[i][0] > max)
+			{
+				max = tmp[i][0];
+			}
+		}
+		tes[1] = max;
+		max = tmp[num][0];
+		for(int i = 0;i<num;i++)
+		{
+			if(tmp[i][1] < max)
+			{
+				max = tmp[i][1];
+			}
+		}
+		tes[2] = max;
+		max = tmp[num][0];
+		for(int i = 0;i<num;i++)
+		{
+			if(tmp[i][1] > max)
+			{
+				max = tmp[i][0];
+			}
+		}
+		tes[3] = max;
+		max = tmp[num][0];
+		for(int i = 0;i<num;i++)
+		{
+			if(tmp[i][2] < max)
+			{
+				max = tmp[i][0];
+			}
+		}
+		tes[4] = max;
+		max = tmp[num][0];
+		for(int i = 0;i<num;i++)
+		{
+			if(tmp[i][2] > max)
+			{
+				max = tmp[i][0];
+			}
+		}
+		tes[5] = max;
 	}
 
 	Line::Line ()

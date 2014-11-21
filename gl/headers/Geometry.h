@@ -77,7 +77,11 @@ class Matrix
 class Plane
 {
 private:
-	double tmp [3][3];
+	int *  tr[3];
+	double tes [6];
+	double * tmp[3];
+	int num;
+	Vector nor [3];
 	Matrix Mat;
 	double equa [4];
 public:
@@ -90,6 +94,18 @@ public:
 
 	Plane(double eq [4]);
 	Matrix Plane::GetInvertMat();
+
+	void st(double * t[3]);
+	void triangulation();
+
+	bool test(Vector pos)
+	{
+		if(pos.GetX() < tes[0] || pos.GetX() > tes[1] || pos.GetX() < tes[2]  || pos.GetX() > tes[3] || pos.GetX() < tes[4]|| pos.GetX() > tes[5])
+		{
+			double x = (pos.GetX() * (equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * pos.GetY() + pos.GetZ() * equa[2] + equa[3])) /  ( equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]);
+			
+		}
+	}		
 
 	Matrix GetMat();
 	Vector GetN();
