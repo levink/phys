@@ -272,9 +272,6 @@
 		tmp[2] = NULL;
 		num = 0;
 		Mat = Matrix();
-		nor[0] = Vector();
-		nor[1] = Vector();
-		nor[2] = Vector();
 		tr[0] = NULL;
 		tr[1] = NULL;
 		tr[2] = NULL;
@@ -503,30 +500,30 @@
 	}
 	void Plane::st(double * t[3])
 	{
-		double * cop[3];
-		cop[0] = new double[num];
-		cop[1] = new double[num];
-		cop[2] = new double[num];
+		Vector * cop;
+		cop = new Vector[num];
 		for(int i =0;i<num;i++)
 		{
-			cop[0][i] = tmp[0][num];
-			cop[1][i] = tmp[1][num];
-			cop[2][i] = tmp[2][num];
+			cop[i] = tmp[i];
+			
 		}
 		delete tmp;
-		tmp[0] = new double[num+1];
-		tmp[1] = new double[num+1];
-		tmp[2] = new double[num+1];
+		tmp = new Vector[num+1];
 		for(int i =0;i<num;i++)
 		{
-			tmp[0][i] = cop[0][num];
-			tmp[1][i] = cop[1][num];
-			tmp[2][i] = cop[2][num];
+			tmp[i] = cop[i];
 		}
 		delete cop;
 	}
-	void Plane::triangulation()
+	void Plane::triangulation() // триангуляция !!!!!!!работает только для четырёхугольников! + определение ограничивающего куба + определение контура
 	{
+		Vector * t_p = new Vector[num];
+
+		/*for(int i = 0;i<num;i++)
+		{
+			t_p = GetInvertMat() 
+		}*/
+
 		tr[0] = new int[2];
 		tr[1] = new int[2];
 		tr[2] = new int[2];
@@ -536,60 +533,67 @@
 		tr[0][1] = 0;
 		tr[1][1] = 2;
 		tr[2][1] = 3;
-		double max = tmp[num][0];
+
+		vec = new Vector[num];
+		vec[0] = Vector(tmp[1].GetX() - tmp[0].GetX(),tmp[1].GetY() - tmp[0].GetY(),tmp[1].GetZ() - tmp[0].GetZ());
+		vec[1] = Vector(tmp[2].GetX() - tmp[1].GetX(),tmp[2].GetY() - tmp[1].GetY(),tmp[2].GetZ() - tmp[1].GetZ());
+		vec[2] = Vector(tmp[3].GetX() - tmp[2].GetX(),tmp[3].GetY() - tmp[2].GetY(),tmp[3].GetZ() - tmp[2].GetZ());
+		vec[3] = Vector(tmp[0].GetX() - tmp[3].GetX(),tmp[0].GetY() - tmp[3].GetY(),tmp[0].GetZ() - tmp[3].GetZ());
+
+		double max = tmp[num].GetX();
 		for(int i = 0;i<num;i++)
 		{
-			if(tmp[i][0] < max)
+			if(tmp[i].GetX() < max)
 			{
-				max = tmp[i][0];
+				max = tmp[i].GetX();
 			}
 		}
-		tes[0] = max;
-		max = tmp[num][0];
+		tes[0] = max - 2;
+		max = tmp[num].GetX();
 		for(int i = 0;i<num;i++)
 		{
-			if(tmp[i][0] > max)
+			if(tmp[i].GetX() > max)
 			{
-				max = tmp[i][0];
+				max = tmp[i].GetX();
 			}
 		}
-		tes[1] = max;
-		max = tmp[num][0];
+		tes[1] = max + 2;
+		max = tmp[num].GetY();
 		for(int i = 0;i<num;i++)
 		{
-			if(tmp[i][1] < max)
+			if(tmp[i].GetY() < max)
 			{
-				max = tmp[i][1];
+				max = tmp[i].GetY();
 			}
 		}
-		tes[2] = max;
-		max = tmp[num][0];
+		tes[2] = max - 2;
+		max = tmp[num].GetY();
 		for(int i = 0;i<num;i++)
 		{
-			if(tmp[i][1] > max)
+			if(tmp[i].GetY() > max)
 			{
-				max = tmp[i][0];
+				max = tmp[i].GetY();
 			}
 		}
-		tes[3] = max;
-		max = tmp[num][0];
+		tes[3] = max + 2;
+		max = tmp[num].GetY();
 		for(int i = 0;i<num;i++)
 		{
-			if(tmp[i][2] < max)
+			if(tmp[i].GetZ() < max)
 			{
-				max = tmp[i][0];
+				max = tmp[i].GetZ();
 			}
 		}
-		tes[4] = max;
-		max = tmp[num][0];
+		tes[4] = max - 2;
+		max = tmp[num].GetZ();
 		for(int i = 0;i<num;i++)
 		{
-			if(tmp[i][2] > max)
+			if(tmp[i].GetZ() > max)
 			{
-				max = tmp[i][0];
+				max = tmp[i].GetZ();
 			}
 		}
-		tes[5] = max;
+		tes[5] = max + 2;
 	}
 
 	Line::Line ()

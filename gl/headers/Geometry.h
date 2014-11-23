@@ -74,16 +74,30 @@ class Matrix
 		Matrix Invert();
 };
 
+class Line 
+{
+private:
+	Vector vec;
+	Vector tmp;
+public:
+	Line();
+	Line(Vector v, Vector t);
+	Vector projection(Vector t);
+	Vector lineXYZ(double x);
+};
+
 class Plane
 {
 private:
-	int *  tr[3];
-	double tes [6];
-	double * tmp[3];
-	int num;
-	Vector nor [3];
-	Matrix Mat;
-	double equa [4];
+	double equa [4]; // Нормаль к плоскости.
+	Matrix Mat; // Матрица перевода в СК, связанную с плоскостью.
+	Vector * tmp; // Точки, определяющие ВЫПУКЛЫЙ контур.
+	int num; // Количество вершин.
+	Vector * vec; // Направляющие вектора прямых, ограничивающих контур. Точки, через которые проходят прямые - это tmp под номером = номеру вектора.
+	int li_num; // количество прямых
+	int *  tr[3]; // Треугольники. Содержит номера вершин, принадлежащих треугольникам. Необходимо для проверки столкновения и правильной отрисовки плоскостей.
+	int tr_num;
+	double tes [6]; // Ограничивающий куб.
 public:
 	Plane();
 	void PlaneSetEquation(double eq[4]);
@@ -103,7 +117,10 @@ public:
 		if(pos.GetX() < tes[0] || pos.GetX() > tes[1] || pos.GetX() < tes[2]  || pos.GetX() > tes[3] || pos.GetX() < tes[4]|| pos.GetX() > tes[5])
 		{
 			double x = (pos.GetX() * (equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * pos.GetY() + pos.GetZ() * equa[2] + equa[3])) /  ( equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]);
-			
+			double y = (equa[1] *  (x - pos.GetX() ) ) / (equa[0]) + pos.GetY();
+			double z = (equa[2] *  (x - pos.GetX() ) ) / (equa[0]) + pos.GetZ();
+			Matrix ma = GetInvertMat();
+			Vector p = ma * Vector(x,y,z);
 		}
 	}		
 
@@ -115,16 +132,4 @@ public:
 	double GetD();
 };
 
-
-class Line 
-{
-private:
-	Vector vec;
-	Vector tmp;
-public:
-	Line();
-	Line(Vector v, Vector t);
-	Vector projection(Vector t);
-	Vector lineXYZ(double x);
-};
 #endif

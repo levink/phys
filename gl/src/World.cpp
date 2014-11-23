@@ -7,33 +7,29 @@ World::World(/*bool test*/)
 	{
 		double const max8 = 100;
 		double const min8 = -100;
-		//k = 2;
-		//Plan = new Plane [k];
-		//double eq1[4]  ={-5,5,0,30};
-		//double eq2[4] = {0,1,0,-3};
-		//for(int i=0;i<6;i++)
-		//{
-		//	//if(rese[i] == NULL)
-		//		rese[i] = new double [k];
-		//}
-		//rese[0][0] = 50.0;
-		//rese[0][1] = -50;
-		//rese[0][2] = max8;
-		//rese[0][3] = 0;
-		//rese[0][4] = max8;
-		//rese[0][5] = min8;
-		//rese[1][0] = 20;
-		//rese[1][1] = -1;
-		//rese[1][2] = max8;
-		//rese[1][3] = -3;
-		//rese[1][4] = max8;
-		//rese[1][5] = min8;
-		//Plan[0] = Plane(eq1);
-		//Plan[1] = Plane(eq2);
-
-		Line li;
-		li = Line(Vector(0,0,1),Vector(0,0,0));
-
+		k = 2;
+		Plan = new Plane [k];
+		double eq1[4]  ={-5,5,0,30};
+		double eq2[4] = {0,1,0,-3};
+		for(int i=0;i<6;i++)
+		{
+			//if(rese[i] == NULL)
+				rese[i] = new double [k];
+		}
+		rese[0][0] = 50.0;
+		rese[0][1] = -50;
+		rese[0][2] = max8;
+		rese[0][3] = 0;
+		rese[0][4] = max8;
+		rese[0][5] = min8;
+		rese[1][0] = 20;
+		rese[1][1] = -1;
+		rese[1][2] = max8;
+		rese[1][3] = -3;
+		rese[1][4] = max8;
+		rese[1][5] = min8;
+		Plan[0] = Plane(eq1);
+		Plan[1] = Plane(eq2);
 	}
 
 World::World(double A, double B, double C, double D, double reserve[6])

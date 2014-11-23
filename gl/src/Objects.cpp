@@ -227,9 +227,9 @@ void Tr_Sphere:: Test(Tr_Sphere * obj, bool motion)
 		}
 		
 		if((-velo ^ ve1) > 0)
-			velo = plan->GetMat() * ve1 * res;
+			velo = plan->GetInvertMat() * ve1 * res;
 		if((-obj->velo ^ norm) < 0)
-			obj->velo = plan->GetMat() * ve2 * res;
+			obj->velo = plan->GetInvertMat() * ve2 * res;
 
 		velo = plan->GetInvertMat() * ve1;
 		obj->velo = plan->GetInvertMat() * ve2;
