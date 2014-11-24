@@ -387,7 +387,6 @@
 			cout << "ERROR\n";
 		}
 
-
 		return Matrix(x);
 	}
 	
@@ -405,13 +404,13 @@
 		Mat = GetBathis();
 		Matrix invert = Mat.Invert();
 
-		double redoun[3][3] = 
+		/*double redoun[3][3] = 
 		{	{1,0,0},
 			{0,-1,0},
 			{0,0,1}, };
-		Matrix rebound = Matrix(redoun);
+		Matrix rebound = Matrix(redoun);*/
 
-		Mat = invert * rebound * Mat;
+		Mat = invert /** rebound * Mat*/;
 	}
 
 	Plane::Plane(Vector x1,Vector x2, Vector x3)
@@ -428,13 +427,13 @@
 		Mat = GetBathis();
 		Matrix invert = Mat.Invert();
 
-		double redoun[3][3] = 
+		/*double redoun[3][3] = 
 		{	{1,0,0},
 			{0,-1,0},
 			{0,0,1}, };
-		Matrix rebound = Matrix(redoun);
+		Matrix rebound = Matrix(redoun);*/
 
-		Mat = invert * rebound * Mat;
+		Mat = invert /** rebound * Mat*/;
 	}
 
 	Plane::Plane(double eq [4])
@@ -451,16 +450,15 @@
 		equa[3] = equa[3] / length;
 
 		Mat = GetBathis();
-
 		Matrix invert = Mat.Invert();
 
-		double redoun[3][3] = 
+		/*double redoun[3][3] = 
 		{	{1,0,0},
 			{0,-1,0},
 			{0,0,1}, };
-		Matrix rebound = Matrix(redoun);
+		Matrix rebound = Matrix(redoun);*/
 
-		Mat = invert * rebound * Mat;
+		Mat = invert /** rebound * Mat*/;
 	}
 
 	Matrix Plane::GetInvertMat()                            
@@ -539,6 +537,43 @@
 		vec[1] = Vector(tmp[2].GetX() - tmp[1].GetX(),tmp[2].GetY() - tmp[1].GetY(),tmp[2].GetZ() - tmp[1].GetZ());
 		vec[2] = Vector(tmp[3].GetX() - tmp[2].GetX(),tmp[3].GetY() - tmp[2].GetY(),tmp[3].GetZ() - tmp[2].GetZ());
 		vec[3] = Vector(tmp[0].GetX() - tmp[3].GetX(),tmp[0].GetY() - tmp[3].GetY(),tmp[0].GetZ() - tmp[3].GetZ());
+
+		Vector * ve = new Vector[num];
+		tmp_p = new Vector[num];
+		for(int i = 0;i<num;i++)
+		{
+			ve[i] = Mat * vec[i];
+			tmp_p[i] = Mat * tmp[i];
+		}
+		int n = 0;
+		Vector testing;
+		for(int i = 0;i<num;i++)
+		{
+			n = i + 2;
+			if(n > num)
+			{
+				n  = n - (num+1);
+			}
+			testing = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),tmp_p[n].GetY() - tmp_p[i].GetY(), 0);
+
+			if(ve[i].GetY() == 0)
+			{
+				nor[i] = Vector(0,1,0);
+				if((nor[i] ^ testing )< 0) // Возможно, надо оптимизировать поиск значения угла
+				{
+					nor[i] = Vector(0,-1,0);
+				}
+			}
+			else
+			{
+				nor[i] = Vector(1,-(ve[i].GetX()/ve[i].GetY()),0);
+				if((nor[i] ^ testing) < 0) // Возможно, надо оптимизировать поиск значения угла
+				{
+					nor[i] = Vector(-1,-(ve[i].GetX()/ve[i].GetY()),0);
+				}
+			}
+
+		}
 
 		double max = tmp[num].GetX();
 		for(int i = 0;i<num;i++)
