@@ -27,11 +27,13 @@ public:
 
 	void Rotated(Vector ve1, Vector nor);
 
-	void Test(Sphere * obj, bool motion);
+	void Test_Sphere(Sphere * obj, bool motion);
 	
 	double GetRad();
 	
 	void operator=(Sphere * count);
+
+	bool inspections(Plane pl);
 };
 
 class Tr_Sphere: public BaseObject

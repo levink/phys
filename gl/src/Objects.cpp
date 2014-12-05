@@ -1,7 +1,4 @@
-
 #include "../headers\Objects.h"
-#include"../headers\Geometry.h"
-
 //BaseObject::
 
 BaseObject::BaseObject()
@@ -57,7 +54,7 @@ void Sphere::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор
 		//w = ( normal * ( velo & normal ) / velo.length() ) * 0.2 ;
 }
 
-void Sphere::Test(Sphere * obj, bool motion)
+void Sphere::Test_Sphere(Sphere * obj, bool motion)
 {
 	double const res = 0.8;
 	double const K = 10;
@@ -157,6 +154,10 @@ void Sphere::operator=(Sphere * count)
 	F = count->F;
 	m = count->m;
 	velo = count->velo;
+}
+bool Sphere::inspections(Plane pl)
+{
+	
 }
 
 

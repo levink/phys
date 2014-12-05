@@ -1,9 +1,15 @@
 #include <cmath>
-#include "Objects.h"
+
 
 #ifndef __WORLD_H
 #define __WORLD_H
-
+struct CollisionInfo
+{
+	Plane * pl;
+	Line * li;
+	Vector * ve;
+};
+#include "Objects.h"
 class World
 {
 private:
@@ -13,7 +19,6 @@ private:
 public: 
 	
 	World();
-	
 	World(double A, double B, double C, double D, double reserve[6]);
 
 	friend Plane*  GetPlane(World obj);
@@ -31,6 +36,11 @@ public:
 	void Test(Tr_Sphere * obj,double resil);
 	/*bool TestEqua(Polyg * obj, int i);
 	void Test(Polyg * obj,double resil);*/
+	CollisionInfo GlobalTest()
+	{
+	}
+
+
 	double GetYatXZ(double X,double Y,int nomber_plane);
 };
 #endif

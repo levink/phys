@@ -115,38 +115,36 @@ public:
 	void st(double * t[3]);
 	void triangulation();
 
-	bool test(Sphere * obj)
-	{
-		Vector pos = obj->Posiion;
-		if(pos.GetX() < tes[0] || pos.GetX() > tes[1] || pos.GetX() < tes[2]  || pos.GetX() > tes[3] || pos.GetX() < tes[4]|| pos.GetX() > tes[5])
-		{
-			bool test = 1;
-			for(int i = 0; i< num; i ++)
-			{
-				if(((Vector(tmp[0].GetX() - pos.GetX(),tmp[0].GetY() - pos.GetY(),tmp[0].GetZ() - pos.GetZ()) * vec[i]).lenth2 / vec[i].length2) < obj->GetRad() * obj->GetRad())
-				{
+	//Test inspection ( Sphere * obj)
+	//{
+	//	Vector pos = obj->Posiion;
+	//	if(pos.GetX() < tes[0] || pos.GetX() > tes[1] || pos.GetY() < tes[2]  || pos.GetY() > tes[3] || pos.GetZ() < tes[4]|| pos.GetZ() > tes[5])
+	//	{
+	//		bool test = 1;
+	//		for(int i = 0; i< num; i ++)
+	//		{
+	//			if(((Vector(tmp[0].GetX() - pos.GetX(),tmp[0].GetY() - pos.GetY(),tmp[0].GetZ() - pos.GetZ()) * vec[i]).length2() / vec[i].length2()) < obj->GetRad() * obj->GetRad()) // расстояние от объекта до прямой
+	//			{
 
-				}
-			}
+	//			}
+	//		}
 
 
-			double x = (pos.GetX() * (equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * pos.GetY() + pos.GetZ() * equa[2] + equa[3])) /  ( equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]);
-			double y = (equa[1] *  (x - pos.GetX() ) ) / (equa[0]) + pos.GetY();
-			double z = (equa[2] *  (x - pos.GetX() ) ) / (equa[0]) + pos.GetZ();
-			Vector p = Mat * Vector(x,y,z);
-			test = 1;
-			for(int i = 0;i<num;i++)
-			{
-				if((nor[i] ^ Vector(p.GetX() - tmp_p[i].GetX(), p.GetY() - tmp_p[i].GetY(), 0)) < 0)
-					test = 0;
-			}
-			if(test == 1)
-				return 1;
-			else
-				return 0;
-
-		}
-	}		
+	//		double x = (pos.GetX() * (equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * pos.GetY() + pos.GetZ() * equa[2] + equa[3])) /  ( equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]);
+	//		double y = (equa[1] *  (x - pos.GetX() ) ) / (equa[0]) + pos.GetY();
+	//		double z = (equa[2] *  (x - pos.GetX() ) ) / (equa[0]) + pos.GetZ();
+	//		Vector p = Mat * Vector(x,y,z);
+	//		test = 1;
+	//		for(int i = 0;i<num;i++)
+	//		{
+	//			if((nor[i] ^ Vector(p.GetX() - tmp_p[i].GetX(), p.GetY() - tmp_p[i].GetY(), 0)) < 0)
+	//				test = 0;
+	//		}
+	//		if(test == 1)
+	//			return 1;
+	//		else
+	//			return 0;
+	//}
 
 	Matrix GetMat();
 	Vector GetN();
