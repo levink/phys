@@ -155,9 +155,75 @@ void Sphere::operator=(Sphere * count)
 	m = count->m;
 	velo = count->velo;
 }
+
 bool Sphere::inspections(Plane pl)
 {
+	if(!pl.cubeinspection(Position))
+		return 0;
+	else
+	{
+		double eqa = pow(Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD(),2);
+		double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
+
+		if(lon == 0 )
+			return 0;
+		if((eqa/lon ) <= rad * rad)
+		{
+			Vector progect;
+			double x = ((Position.GetX()/pl.GetA()) *(pl.GetB() * pl.GetB() + pl.GetC() * pl.GetC()) - pl.GetB() * Position.GetY() - pl.GetC() * Position.GetZ() - pl.GetD())/(pl.GetA() + (pl.GetB() * pl.GetB() + pl.GetC() * pl.GetC())/pl.GetA());
+			progect = Vector(x,(pl.GetB() * (x - Position.GetX()))/pl.GetA() + Position.GetY(),(pl.GetC() * (x - Position.GetX()))/pl.GetA() + Position.GetZ());
+
+			bool test = ((Vector(progect.GetX() - pl.tmp_p[0].GetX(),progect.GetY() - pl.tmp_p[0].GetY(),progect.GetZ() - pl.tmp_p[0].GetZ()) % pl.li[0].norm) > 0);
+			bool flag = 1;
+
+			for(int i = 1;i<pl.li_num;i++)
+			{
+				if( ((Vector(progect.GetX() - pl.tmp_p[i].GetX(),progect.GetY() - pl.tmp_p[i].GetY(),progect.GetZ() - pl.tmp_p[i].GetZ()) % pl.li[i].norm) != test))
+				{
+					flag = 0;
+					return 0;
+				}
+			}
+			if(flag == 1)
+				return 1;
+			else
+				return 0;
+		} 
+	}
+}
+void Sphere::calculation(Plane pl,double resil, double t)
+{
+	Vector normal = pl.GetN();
+	Rotated(velo,normal);
+	//double velo = obj->velo.length();
+	//obj->velo = Vector_norm(Plan[i].GetMat() * obj->velo);
+	//obj->velo = obj->velo * velo * resil;
+	//obj->F = obj->F + Vector_norm(Plan[i].GetN()) * obj->F.length()/** obj->velo.length()*sqrt(K * obj->m)*/;
+	if(velo < 4.3)
+		velo = Vector(0,0,0);
+
+	Vector n = Vector_norm(normal);
+	Vector vy = n * (((velo * resil) & normal) /normal.length());
+	double Fy =  (((F * resil) & normal) /normal.length());
+	Vector N_standart =  - n * Fy;
+	Vector F_obj = F;
+	Vector N_velo = - ((vy * 2 * m)/(t));
+	F = - ((vy * 2 * m)/(t)) - n * Fy + F;
 	
+	cout << "Velo to Plane : {" << velo.GetX() << ", " << velo.GetY() << ", " << velo.GetZ() << "}.\n\n";
+	double eqa =abs( Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD());
+	double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
+	eqa = eqa/(sqrt(lon) );
+	if((velo ^ normal) < 0 )   
+		Position = Position  + normal * (rad - eqa);
+	else
+		Position = Position + normal * (eqa - rad);
+
+	Vector Ft = Vector(0,-m * _g,0); 
+	F = Ft; 
+	accel = F / m;
+	velo = velo + accel*t; 
+	Position = Position + velo*t + (accel*t*t)/2; 
 }
 
 

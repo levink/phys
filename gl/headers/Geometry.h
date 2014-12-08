@@ -33,6 +33,7 @@ public:
 	
 	double operator&(Vector& const right);
 	double operator^(Vector& const right);
+	double operator%(Vector& const right);
 	Vector operator*(Vector& const right);
 	Vector operator>(Vector& const right);
 	Vector& operator= (Vector val);
@@ -76,10 +77,11 @@ class Matrix
 
 class Line 
 {
-private:
+public:
 	Vector vec;
 	Vector tmp;
-public:
+	Vector norm;
+
 	Line();
 	Line(Vector v, Vector t);
 	Vector projection(Vector t);
@@ -93,15 +95,17 @@ private:
 	Matrix Mat; // Матрица перевода в СК, связанную с плоскостью.
 	Vector * tmp; // Точки, определяющие ВЫПУКЛЫЙ контур.
 	int num; // Количество вершин.
-	Vector * tmp_p; // Проекции точек ^
 	int num_p;
-	Vector * vec; // Направляющие вектора прямых, ограничивающих контур. Точки, через которые проходят прямые - это tmp под номером = номеру вектора.
-	int li_num; // количество прямых
-	Vector * nor; // Нормали к прямым, ограничивающим контур. В СК, связанной с плоскостью.
+	//Vector * vec; // Направляющие вектора прямых, ограничивающих контур. Точки, через которые проходят прямые - это tmp под номером = номеру вектора.
+	//int li_num; // количество прямых
+	//Vector * nor; // Нормали к прямым, ограничивающим контур. В СК, связанной с плоскостью.
 	int *  tr[3]; // Треугольники. Содержит номера вершин, принадлежащих треугольникам. Необходимо для проверки столкновения и правильной отрисовки плоскостей.
 	int tr_num;
-	double tes [6]; // Ограничивающий куб.
+	double tes [6]; // Ограничивающий куб. MaxX->MinX->MaxY->MinY->MaxZ->MinZ
 public:
+	Line * li;
+	Vector * tmp_p; // Проекции точек, определяющих ВЫПУКЛЫЙ контур.
+	int li_num;
 	Plane();
 	void PlaneSetEquation(double eq[4]);
 	Matrix GetBathis ();
@@ -110,11 +114,14 @@ public:
 	Plane(Vector x1,Vector x2, Vector x3);
 
 	Plane(double eq [4]);
-	Matrix Plane::GetInvertMat();
+	Matrix GetInvertMat();
 
-	void st(double * t[3]);
+	void SetTmp(double * t[3]);
 	void triangulation();
-
+	bool cubeinspection(Vector tmp)
+	{
+		return ( tmp.GetX() > tes[0] || tmp.GetX() < tes[1] || tmp.GetY() > tes[2] || tmp.GetY() < tes[3] || tmp.GetZ() > tes[4] || tmp.GetZ() < tes[5]);
+	}
 	//Test inspection ( Sphere * obj)
 	//{
 	//	Vector pos = obj->Posiion;

@@ -32,8 +32,8 @@ public:
 	double GetRad();
 	
 	void operator=(Sphere * count);
-
 	bool inspections(Plane pl);
+	void calculation(Plane pl,double resil, double t);
 };
 
 class Tr_Sphere: public BaseObject

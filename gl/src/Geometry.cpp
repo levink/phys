@@ -85,6 +85,10 @@
 	{
 		return( (x * right.GetX() + y * right.GetY() + z * right.GetZ() ) / (sqrt( (x * x + y * y + z * z) * right.length2())) );
 	}
+	double Vector::operator%(Vector& const right)
+	{
+		return x * right.GetX() + y * right.GetY() + z * right.GetZ();
+	}
 	Vector Vector::operator*(Vector& const right)
 	{
 		//vector multiply
@@ -496,7 +500,7 @@
 	{
 		return equa[3];
 	}
-	void Plane::st(double * t[3])
+	void Plane::SetTmp(double * t[3])
 	{
 		Vector * cop;
 		cop = new Vector[num];
@@ -515,8 +519,6 @@
 	}
 	void Plane::triangulation() // триангуляция !!!!!!!работает только для четырёхугольников! + определение ограничивающего куба + определение контура
 	{
-		Vector * t_p = new Vector[num];
-
 		/*for(int i = 0;i<num;i++)
 		{
 			t_p = GetInvertMat() 
@@ -532,22 +534,27 @@
 		tr[1][1] = 2;
 		tr[2][1] = 3;
 
-		vec = new Vector[num];
-		vec[0] = Vector(tmp[1].GetX() - tmp[0].GetX(),tmp[1].GetY() - tmp[0].GetY(),tmp[1].GetZ() - tmp[0].GetZ());
-		vec[1] = Vector(tmp[2].GetX() - tmp[1].GetX(),tmp[2].GetY() - tmp[1].GetY(),tmp[2].GetZ() - tmp[1].GetZ());
-		vec[2] = Vector(tmp[3].GetX() - tmp[2].GetX(),tmp[3].GetY() - tmp[2].GetY(),tmp[3].GetZ() - tmp[2].GetZ());
-		vec[3] = Vector(tmp[0].GetX() - tmp[3].GetX(),tmp[0].GetY() - tmp[3].GetY(),tmp[0].GetZ() - tmp[3].GetZ());
+		li = new Line[num];
+		li[0].vec = Vector(tmp[1].GetX() - tmp[0].GetX(),tmp[1].GetY() - tmp[0].GetY(),tmp[1].GetZ() - tmp[0].GetZ());
+		li[1].vec = Vector(tmp[2].GetX() - tmp[1].GetX(),tmp[2].GetY() - tmp[1].GetY(),tmp[2].GetZ() - tmp[1].GetZ());
+		li[2].vec = Vector(tmp[3].GetX() - tmp[2].GetX(),tmp[3].GetY() - tmp[2].GetY(),tmp[3].GetZ() - tmp[2].GetZ());
+		li[3].vec = Vector(tmp[0].GetX() - tmp[3].GetX(),tmp[0].GetY() - tmp[3].GetY(),tmp[0].GetZ() - tmp[3].GetZ());
+
+		li[0].tmp = tmp[0];
+		li[1].tmp = tmp[1];
+		li[2].tmp = tmp[2];
+		li[3].tmp = tmp[3];
 
 		Vector * ve = new Vector[num];
 		tmp_p = new Vector[num];
 		for(int i = 0;i<num;i++)
 		{
-			ve[i] = Mat * vec[i];
+			ve[i] = Mat * li[i].vec;
 			tmp_p[i] = Mat * tmp[i];
 		}
 		int n = 0;
-		Vector testing;
-		for(int i = 0;i<num;i++)
+		Vector testing = Vector();
+		for(int i = 0;i<num;i++) // Поиск нормалей к прямым в СК, связанной с плоскостью. Необходимо для определения столкновения.
 		{
 			n = i + 2;
 			if(n > num)
@@ -558,25 +565,26 @@
 
 			if(ve[i].GetY() == 0)
 			{
-				nor[i] = Vector(0,1,0);
-				if((nor[i] ^ testing )< 0) // Возможно, надо оптимизировать поиск значения угла
+				li[i].norm = Vector(0,1,0);
+				if((li[i].norm % testing )< 0) // +оптимизировал Возможно, надо оптимизировать поиск знака угла.
 				{
-					nor[i] = Vector(0,-1,0);
+					li[i].norm = Vector(0,-1,0);
 				}
 			}
 			else
 			{
-				nor[i] = Vector(1,-(ve[i].GetX()/ve[i].GetY()),0);
-				if((nor[i] ^ testing) < 0) // Возможно, надо оптимизировать поиск значения угла
+				li[i].norm = Vector(1,-(ve[i].GetX()/ve[i].GetY()),0);
+				if((li[i].norm % testing) < 0) // +оптимизировал 
 				{
-					nor[i] = Vector(-1,-(ve[i].GetX()/ve[i].GetY()),0);
+					li[i].norm = Vector(-1,-(ve[i].GetX()/ve[i].GetY()),0);
 				}
 			}
-
 		}
-
+		delete ve;
+		// Коней поиска.
+		//Определение ограничивающего куба.
 		double max = tmp[num].GetX();
-		for(int i = 0;i<num;i++)
+		for(int i = 0;i<num;i++) 
 		{
 			if(tmp[i].GetX() < max)
 			{
@@ -629,6 +637,7 @@
 			}
 		}
 		tes[5] = max + 2;
+		//Конец определения куба.
 	}
 
 	Line::Line ()

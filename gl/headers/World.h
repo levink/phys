@@ -38,6 +38,12 @@ public:
 	void Test(Polyg * obj,double resil);*/
 	CollisionInfo GlobalTest()
 	{
+
+	}
+
+	void Calculation()
+	{
+
 	}
 
 
