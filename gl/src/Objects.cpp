@@ -225,7 +225,59 @@ void Sphere::calculation(Plane pl,double resil, double t)
 	velo = velo + accel*t; 
 	Position = Position + velo*t + (accel*t*t)/2; 
 }
+bool Sphere::inspections(Line li)
+{
+	return (((Vector(li.tmp.GetX() - Position.GetX(),li.tmp.GetY() - Position.GetY(),li.tmp.GetZ() - Position.GetZ()) * li.vec).length2() / li.vec.length2()) < rad * rad);
+}
+void Sphere::calculation(Line li, double resil, double t)
+{
+	Vector pro = li.projection(Position);
+	Vector normal = Vector(Position.GetX() - pro.GetX(),Position.GetY() - pro.GetY(),Position.GetZ() - pro.GetZ());
+	Vector vec_n = Vector_norm(normal);
+	Vector vy = vec_n * (((velo * resil) & normal) /normal.length());
+	double Fy =  (((F * resil) & normal) /normal.length());
+	F = - ((vy * 2 * m) / t) + vec_n * Fy + F;
 
+	double eqa = abs( Position.GetX()*normal.GetX() + Position.GetY()*normal.GetY() + Position.GetZ()* normal.GetZ() - (li.tmp.GetX() * normal.GetX() + li.tmp.GetY() * normal.GetY() + li.tmp.GetZ() * normal.GetZ()));
+	double lon = pow(normal.GetX(),2) + pow(normal.GetY(),2) + pow(normal.GetZ(),2);
+	eqa = eqa/(sqrt(lon) );
+	if((velo ^ normal) < 0 )   
+		Position = Position  + normal * (rad - eqa);
+	else
+		Position = Position + normal * (eqa - rad);
+
+	Vector Ft = Vector(0,-m * _g,0); 
+	F = Ft; 
+	accel = F / m;
+	velo = velo + accel*t; 
+	Position = Position + velo*t + (accel*t*t)/2; 
+}
+bool Sphere::inspections(Vector tmp)
+{
+	return ((Vector(tmp.GetX() - Position.GetX(),tmp.GetY() - Position.GetY(),tmp.GetZ() - Position.GetZ()).length2()) < rad * rad);
+}
+void Sphere::calculation(Vector tmp, double resil, double t)
+{
+	Vector normal = Vector(Position.GetX() - tmp.GetX(), Position.GetX() - tmp.GetY(), Position.GetX() - tmp.GetZ());
+	Vector vec_n = Vector_norm(normal);
+	Vector vy = vec_n * (((velo * resil) & normal) /normal.length());
+	double Fy =  (((F * resil) & normal) /normal.length());
+	F = - ((vy * 2 * m) / t) + vec_n * Fy + F;
+
+	double eqa = abs( Position.GetX()*normal.GetX() + Position.GetY()*normal.GetY() + Position.GetZ()* normal.GetZ() - (tmp.GetX() * normal.GetX() + tmp.GetY() * normal.GetY() + tmp.GetZ() * normal.GetZ()));
+	double lon = pow(normal.GetX(),2) + pow(normal.GetY(),2) + pow(normal.GetZ(),2);
+	eqa = eqa/(sqrt(lon) );
+	if((velo ^ normal) < 0 )   
+		Position = Position  + normal * (rad - eqa);
+	else
+		Position = Position + normal * (eqa - rad);
+
+	Vector Ft = Vector(0,-m * _g,0); 
+	F = Ft; 
+	accel = F / m;
+	velo = velo + accel*t; 
+	Position = Position + velo*t + (accel*t*t)/2; 
+}
 
 Tr_Sphere:: Tr_Sphere()
 {
@@ -353,6 +405,38 @@ void Camera::SetAngleXOZ(int ang)
 	angle += ang;
 	if(angle > 360)
 		angle = 0;
+}
+
+ContainerObjects::ContainerObjects()
+{
+	obj = NULL;
+	n = 0;
+}
+
+void ContainerObjects::SetObjects(Sphere * count)
+{
+	number +=1;
+	Sphere * copy = new Sphere[n];
+	for(int i = 0; i< number;i++)
+	{
+		copy = obj[i];
+	}
+	delete obj;
+	obj = new Sphere[n];
+	for(int i = 0; i<number;i++)
+	{
+		obj[i] = copy;
+	}
+	delete copy;
+	obj[n] = count;
+}
+
+Sphere ContainerObjects::GetSphere(int n)
+{
+	if(n<number)
+		return obj[n];
+	else
+		return Sphere();
 }
 
 void Polyg::Plan()

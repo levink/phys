@@ -33,7 +33,11 @@ public:
 	
 	void operator=(Sphere * count);
 	bool inspections(Plane pl);
-	void calculation(Plane pl,double resil, double t);
+	void calculation(Plane pl, double resil, double t);
+	bool inspections(Line li);
+	void calculation(Line li, double resil, double t);
+	bool inspections(Vector tmp);
+	void calculation(Vector tmp, double resil, double t); 
 };
 
 class Tr_Sphere: public BaseObject
@@ -80,6 +84,21 @@ public:
 	Camera();
 	double GetAngleXOZ();
 	void SetAngleXOZ(int ang);
+};
+
+class ContainerObjects
+{
+private:
+	Sphere * obj;
+	int number;
+public:
+	ContainerObjects();
+	void SetObjects(Sphere * count);
+	Sphere GetSphere(int n);
+	int GetNumber()
+	{
+		return number;
+	}
 };
 
 #endif

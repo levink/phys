@@ -8,6 +8,7 @@ double n;
 double p;
 private:
 	double _g;
+	ContainerObjects con_obj;
 	World wor;
 public:
 	Fizika();
@@ -16,7 +17,6 @@ public:
 	void MoveObject(Camera * obj, double t);
 	void MoveObject(Sphere * obj, double t);
 	void MoveObject(Tr_Sphere * obj, double t);
-	Sphere* TestMO (Sphere * obj, double t); 
 };
 
 #endif

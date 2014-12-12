@@ -189,3 +189,102 @@ double World::GetYatXZ(double X,double Z,int nomber_plane)
 		return 0;
 	return -( ( X * Plan[nomber_plane].GetA() + Z * Plan[nomber_plane].GetC() + Plan[nomber_plane].GetD() ) / Plan[nomber_plane].GetB() );
 }
+
+CollisionInfo * World::inspections()
+{
+	CollisionInfo *  col = new CollisionInfo[100];
+	int current = 0;
+	int max = 100;
+	bool test = 1;
+	for(int i = 0;i<GetNumber();i++)
+	{
+		Sphere sp = GetSphere(i);
+		for(int e = 0;e <k;e++)
+		{
+			Plane pl = Plan[e];
+			for(int c = 0;c<pl.num;c++)
+			{
+				if(sp.inspections(pl.tmp[i]))
+				{
+					current +=1;
+					if(	current >= max)
+					{
+						CollisionInfo * copy = new CollisionInfo[max];
+						for(int i = 0;i<max;i++)
+						{
+							copy[i] = col[i];
+						}
+						delete col;
+						max +=10;
+						col = new CollisionInfo[max];
+						for(int i = 0;i<max;i++)
+						{
+							col[i] = copy[i];
+						}
+						delete copy;
+					}
+					col[current].pl = NULL;
+					col[current].li = NULL;
+					col[current].tm = *pl.tmp[i];
+					col[current].sp = sp;
+					test = 0;
+					return 0;
+				}
+			}
+			for(int c = 0;c<pl.li_num && test;c++)
+			{
+				if(sp.inspections(pl.li[i]))
+				{
+					current +=1;
+					if(	current >= max)
+					{
+						CollisionInfo * copy = new CollisionInfo[max];
+						for(int i = 0;i<max;i++)
+						{
+							copy[i] = col[i];
+						}
+						delete col;
+						max +=10;
+						col = new CollisionInfo[max];
+						for(int i = 0;i<max;i++)
+						{
+							col[i] = copy[i];
+						}
+						delete copy;
+					}
+					col[current].pl = NULL;
+					col[current].li = *pl.li[i];
+					col[current].tm = NULL;
+					col[current].sp = sp;
+					test = 0;
+					return 0;
+				}
+			}
+			if(sp.inspections(pl) && test)
+			{
+				current +=1;
+				if(	current >= max)
+				{
+					CollisionInfo * copy = new CollisionInfo[max];
+					for(int i = 0;i<max;i++)
+					{
+						copy[i] = col[i];
+					}
+					delete col;
+					max +=10;
+					col = new CollisionInfo[max];
+					for(int i = 0;i<max;i++)
+					{
+						col[i] = copy[i];
+					}
+					delete copy;
+				}
+				col[current].pl = pl;
+				col[current].li = NULL;
+				col[current].tm = NULL;
+				col[current].sp = sp;
+			}
+			}
+		}
+	}
+}

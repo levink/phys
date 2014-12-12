@@ -3,11 +3,13 @@
 
 #ifndef __WORLD_H
 #define __WORLD_H
+
 struct CollisionInfo
 {
 	Plane * pl;
 	Line * li;
-	Vector * ve;
+	Vector * tm;
+	Sphere * sp;
 };
 #include "Objects.h"
 class World
@@ -27,7 +29,6 @@ public:
 	{
 		return k;
 	}
-
 	bool TestEqua(Camera * obj,int i);
 	void Test(Camera * obj,double resil);
 	bool TestEqua(Sphere * obj,int i);
@@ -36,16 +37,8 @@ public:
 	void Test(Tr_Sphere * obj,double resil);
 	/*bool TestEqua(Polyg * obj, int i);
 	void Test(Polyg * obj,double resil);*/
-	CollisionInfo GlobalTest()
-	{
-
-	}
-
-	void Calculation()
-	{
-
-	}
-
+	CollisionInfo inspections();
+	void Calculation(CollisionInfo * col, int n);
 
 	double GetYatXZ(double X,double Y,int nomber_plane);
 };
