@@ -8,9 +8,9 @@ double n;
 double p;
 private:
 	double _g;
+public:
 	ContainerObjects con_obj;
 	World wor;
-public:
 	Fizika();
 	//void Kick (double plane[4],Camera * obj,double k);
 	friend World* GetWorld(Fizika* obj);

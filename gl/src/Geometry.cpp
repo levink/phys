@@ -85,10 +85,6 @@
 	{
 		return( (x * right.GetX() + y * right.GetY() + z * right.GetZ() ) / (sqrt( (x * x + y * y + z * z) * right.length2())) );
 	}
-	double Vector::operator%(Vector& const right)
-	{
-		return x * right.GetX() + y * right.GetY() + z * right.GetZ();
-	}
 	Vector Vector::operator*(Vector& const right)
 	{
 		//vector multiply
@@ -566,7 +562,7 @@
 			if(ve[i].GetY() == 0)
 			{
 				li[i].norm = Vector(0,1,0);
-				if((li[i].norm % testing )< 0) // +оптимизировал Возможно, надо оптимизировать поиск знака угла.
+				if((li[i].norm & testing )< 0) // +оптимизировал Возможно, надо оптимизировать поиск знака угла.
 				{
 					li[i].norm = Vector(0,-1,0);
 				}
@@ -574,14 +570,14 @@
 			else
 			{
 				li[i].norm = Vector(1,-(ve[i].GetX()/ve[i].GetY()),0);
-				if((li[i].norm % testing) < 0) // +оптимизировал 
+				if((li[i].norm & testing) < 0) // +оптимизировал 
 				{
 					li[i].norm = Vector(-1,-(ve[i].GetX()/ve[i].GetY()),0);
 				}
 			}
 		}
 		delete ve;
-		// Коней поиска.
+		// Конец поиска.
 		//Определение ограничивающего куба.
 		double max = tmp[num].GetX();
 		for(int i = 0;i<num;i++) 

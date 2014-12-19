@@ -196,15 +196,15 @@ CollisionInfo * World::inspections()
 	int current = 0;
 	int max = 100;
 	bool test = 1;
-	for(int i = 0;i<GetNumber();i++)
+	for(int i = 0;i<k;i++)
 	{
-		Sphere sp = GetSphere(i);
+		Sphere * sp = NULL;//GetSphere(i);
 		for(int e = 0;e <k;e++)
 		{
 			Plane pl = Plan[e];
 			for(int c = 0;c<pl.num;c++)
 			{
-				if(sp.inspections(pl.tmp[i]))
+				if(sp->inspections(pl.tmp[i]))
 				{
 					current +=1;
 					if(	current >= max)
@@ -225,7 +225,7 @@ CollisionInfo * World::inspections()
 					}
 					col[current].pl = NULL;
 					col[current].li = NULL;
-					col[current].tm = *pl.tmp[i];
+					col[current].tmp = &pl.tmp[i];
 					col[current].sp = sp;
 					test = 0;
 					return 0;
@@ -233,7 +233,7 @@ CollisionInfo * World::inspections()
 			}
 			for(int c = 0;c<pl.li_num && test;c++)
 			{
-				if(sp.inspections(pl.li[i]))
+				if(sp->inspections(pl.li[i]))
 				{
 					current +=1;
 					if(	current >= max)
@@ -253,14 +253,14 @@ CollisionInfo * World::inspections()
 						delete copy;
 					}
 					col[current].pl = NULL;
-					col[current].li = *pl.li[i];
-					col[current].tm = NULL;
+					col[current].li = &pl.li[i];
+					col[current].tmp = NULL;
 					col[current].sp = sp;
 					test = 0;
 					return 0;
 				}
 			}
-			if(sp.inspections(pl) && test)
+			if(sp->inspections(pl) && test)
 			{
 				current +=1;
 				if(	current >= max)
@@ -279,12 +279,34 @@ CollisionInfo * World::inspections()
 					}
 					delete copy;
 				}
-				col[current].pl = pl;
+				col[current].pl = &pl;
 				col[current].li = NULL;
-				col[current].tm = NULL;
+				col[current].tmp = NULL;
 				col[current].sp = sp;
 			}
 			}
 		}
+		col[0].num = current;
 	}
+
+const double res = 1;
+
+void World::Calculation(CollisionInfo * col, int n, double t_sec)
+{
+	//if(n<=col[0].num)
+	//{
+	//	if(col[n].tmp != NULL)
+	//	{
+	//		col[n].sp->calculation(col[n].tmp,res, t_sec);
+	//	}
+	//	if(col[n].li != NULL)
+	//	{
+	//		col[n].sp->calculation(col[n].li,res,t_sec);
+	//	}
+	//	if(col[n].pl != NULL)
+	//	{
+	//		col[n].sp->calculation(col[n].pl,res,t_sec);
+	//	}
+	//}
+	
 }

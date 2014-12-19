@@ -28,7 +28,8 @@ public:
 	void Rotated(Vector ve1, Vector nor);
 
 	void Test_Sphere(Sphere * obj, bool motion);
-	
+	bool Test(Sphere * obj);
+	void HandlerCollision(Sphere * obj);
 	double GetRad();
 	
 	void operator=(Sphere * count);
@@ -86,15 +87,27 @@ public:
 	void SetAngleXOZ(int ang);
 };
 
+struct CollisionInfoOfSphere
+{
+	Sphere * sp1;
+	Sphere * sp2;
+	int num;
+};
+
 class ContainerObjects
 {
 private:
-	Sphere * obj;
+	Sphere ** obj;
 	int number;
 public:
+	void MoveOutSphere(Sphere * sp, double t_sec); 
+	void MoveSphere(int n, double t_sec);
 	ContainerObjects();
-	void SetObjects(Sphere * count);
-	Sphere GetSphere(int n);
+	void CreateSphere(Sphere * count);
+	Sphere* GetSphere(int n);
+	CollisionInfoOfSphere* inspection();
+	void calculation(CollisionInfoOfSphere * col,int n);
+	void all_calculation(CollisionInfoOfSphere * col);
 	int GetNumber()
 	{
 		return number;

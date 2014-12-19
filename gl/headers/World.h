@@ -1,4 +1,6 @@
 #include <cmath>
+#include "Objects.h"
+#include "Geometry.h"
 
 
 #ifndef __WORLD_H
@@ -6,12 +8,14 @@
 
 struct CollisionInfo
 {
-	Plane * pl;
-	Line * li;
-	Vector * tm;
+	Plane* pl;
+	Line* li;
+	Vector * tmp;
 	Sphere * sp;
+	int num;
 };
-#include "Objects.h"
+
+
 class World
 {
 private:
@@ -35,10 +39,9 @@ public:
 	void Test(Sphere * obj,double resil, double t);
 	bool TestEqua(Tr_Sphere * obj,int i);
 	void Test(Tr_Sphere * obj,double resil);
-	/*bool TestEqua(Polyg * obj, int i);
-	void Test(Polyg * obj,double resil);*/
-	CollisionInfo inspections();
-	void Calculation(CollisionInfo * col, int n);
+
+	CollisionInfo* inspections();
+	void Calculation(CollisionInfo * col, int n, double t_sec);
 
 	double GetYatXZ(double X,double Y,int nomber_plane);
 };

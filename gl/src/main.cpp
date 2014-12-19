@@ -44,23 +44,9 @@ double IFPS = 0;
 int num = 0;
 int maxx = 0;
 
-Sphere * obj[100];
-int gen_test [100][100];
 Fizika * phy;
 
 double e [3] = {1,0,0};
-
-void Start()
-{
-	for(int i=0;i<100;i++)
-	{
-		*obj[i] = Sphere();
-		for(int e=0;e<100;e++)
-		{
-			gen_test[i][e] = 0;
-		}
-	}
-}
 
 World* GetWorld(Fizika* obj)
 {
@@ -134,9 +120,9 @@ void mouseClick(int button, int state, int x, int y)
 
 		Sphere * tmp = new Sphere();
 		tmp->Position = pos;
-		obj[num] = tmp;
-		num++;
-		tmp = NULL;
+		phy->con_obj.CreateSphere(tmp);
+
+		delete tmp;
 	}
 	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
 	{
@@ -172,7 +158,7 @@ void idle(void)
 	DWORD dt=GetTickCount();
 	if(dt - FPS > 3000)
 	{
-		//cout << "FPS. " << IFPS << endl;
+		cout << "FPS. " << IFPS << endl;
 		IFPS = 0;
 		FPS = dt;
 	}
@@ -353,49 +339,24 @@ void display(void)
 	{
 		needStep = false;
 		DWORD dt = 25/*GetTickCount()-t1*/; 
-		Sphere te1 = Sphere();
-		Sphere te2 = Sphere();
 		
+		CollisionInfoOfSphere * col_of_sp = phy->con_obj.inspection();
+		phy->con_obj.all_calculation(col_of_sp);
 
-		double tim = dt/1000.0;
+		CollisionInfo * col = phy->wor.inspections();
+
 		
-		for(int i=0;i<num;i++)
+		for(int i=0;i<phy->con_obj.GetNumber();i++)
 		{
-			for(int e = 0;e<num;e++)
-			{
-				if(i!=e && gen_test[i][e]==0)
-				{
-					te1 = obj[i];
-					te2 = obj[e];
-
-					phy->MoveObject(&te1,tim);
-					phy->MoveObject(&te2,tim);
-
-					bool tes = 0;
-					if((te1.Position - te2.Position).length() < ( obj[i]->GetRad() + obj[e]->GetRad()) * 1.1 )
-						tes = 1;
-					obj[i]->Test(obj[e],tes);
-
-					gen_test[i][e] = 3;
-					gen_test[e][i] = 3;
-				}
-				else
-					if(gen_test[i][e] > 0)
-						gen_test[i][e]--;
-			}
-		}
-		
-		for(int i=0;i<num;i++)
-		{
-			phy ->MoveObject(obj[i], tim);
+			phy->con_obj.MoveSphere(i,dt);
 		}
 	}
 	for(int i=0;i<num;i++)
 	{
 		glPushMatrix();
-		glTranslated(obj[i]->Position.GetX(),obj[i]->Position.GetY(), obj[i]->Position.GetZ());
-		glRotated(obj[i]->Angl.GetX(),0,0,1);
-		glRotated(obj[i]->Angl.GetZ(),1,0,0);
+		//glTranslated(obj[i]->Position.GetX(),obj[i]->Position.GetY(), obj[i]->Position.GetZ());
+		//glRotated(obj[i]->Angl.GetX(),0,0,1);
+		//glRotated(obj[i]->Angl.GetZ(),1,0,0);
 		glutSolidSphere(1,5,5);
 		glPopMatrix();
 		
@@ -483,7 +444,7 @@ int main(int argc, char **argv)
 	num++;*/
 	Sphere * tmp2 = new Sphere();
 	tmp2->Position = Vector(4,9,25);
-	obj[num] = tmp2;
+	//obj[num] = tmp2;
 	num++;
 	
 	//Sphere * tmp = new Sphere();
@@ -508,7 +469,7 @@ int main(int argc, char **argv)
 
 	glutMainLoop();
 	
-	delete obj;
-	delete phy;
+	//delete obj;
+	//delete phy;
 	return 0;
 }
