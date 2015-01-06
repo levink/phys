@@ -256,15 +256,28 @@ bool Sphere::inspections(Plane pl)
 		if((eqa/lon ) <= rad * rad)
 		{
 			Vector progect;
-			double x = ((Position.GetX()/pl.GetA()) *(pl.GetB() * pl.GetB() + pl.GetC() * pl.GetC()) - pl.GetB() * Position.GetY() - pl.GetC() * Position.GetZ() - pl.GetD())/(pl.GetA() + (pl.GetB() * pl.GetB() + pl.GetC() * pl.GetC())/pl.GetA());
-			progect = Vector(x,(pl.GetB() * (x - Position.GetX()))/pl.GetA() + Position.GetY(),(pl.GetC() * (x - Position.GetX()))/pl.GetA() + Position.GetZ());
-
+			if(pl.GetA() != 0)
+			{
+				double x = (Position.GetX() * ( pl.GetB() * pl.GetB() + pl.GetC() * pl.GetC()) - pl.GetA() * (pl.GetB() * Position.GetY() + pl.GetC() * Position.GetZ() + pl.GetD())) / pl.GetN().length2();
+				progect = Vector(x,(pl.GetB() * (x - Position.GetX()))/pl.GetA() + Position.GetY(),(pl.GetC() * (x - Position.GetX()))/pl.GetA() + Position.GetZ());
+			}
+			if(pl.GetB() != 0)
+			{
+				double y = (Position.GetY() * ( pl.GetA() * pl.GetA() + pl.GetC() * pl.GetC()) - pl.GetB() * (pl.GetA() * Position.GetX() + pl.GetC() * Position.GetZ() + pl.GetD())) / pl.GetN().length2();
+				progect = Vector((pl.GetA() * (y - Position.GetY()))/pl.GetB() + Position.GetX(),y,(pl.GetC() * (y - Position.GetY()))/pl.GetB() + Position.GetZ());
+			}
+			if(pl.GetC() != 0)
+			{
+				double z = (Position.GetZ() * ( pl.GetA() * pl.GetA() + pl.GetB() * pl.GetB()) - pl.GetC() * (pl.GetA() * Position.GetX() + pl.GetB() * Position.GetY() + pl.GetD())) / pl.GetN().length2();
+				progect = Vector((pl.GetA() * (z - Position.GetZ()))/pl.GetC() + Position.GetX(),(pl.GetB() * (z - Position.GetZ()))/pl.GetC() + Position.GetY(),z);
+			}
 			bool test = ((Vector(progect.GetX() - pl.tmp_p[0].GetX(),progect.GetY() - pl.tmp_p[0].GetY(),progect.GetZ() - pl.tmp_p[0].GetZ()) & pl.li[0].norm) > 0);
+			
 			bool flag = 1;
 
 			for(int i = 1;i<pl.li_num;i++)
 			{
-				if( ((Vector(progect.GetX() - pl.tmp_p[i].GetX(),progect.GetY() - pl.tmp_p[i].GetY(),progect.GetZ() - pl.tmp_p[i].GetZ()) & pl.li[i].norm) != test))
+				if( ((Vector(progect.GetX() - pl.tmp_p[i].GetX(),progect.GetY() - pl.tmp_p[i].GetY(),progect.GetZ() - pl.tmp_p[i].GetZ()) & pl.li[i].norm) > 0 )!= test)
 				{
 					flag = 0;
 					return 0;
@@ -274,7 +287,9 @@ bool Sphere::inspections(Plane pl)
 				return 1;
 			else
 				return 0;
-		} 
+		}
+		else
+			return 0;
 	}
 }
 void Sphere::calculation(Plane pl,double resil, double t)
@@ -299,17 +314,15 @@ void Sphere::calculation(Plane pl,double resil, double t)
 	cout << "Velo to Plane : {" << velo.GetX() << ", " << velo.GetY() << ", " << velo.GetZ() << "}.\n\n";
 	double eqa =abs( Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD());
 	double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
-	eqa = eqa/(sqrt(lon) );
+	eqa = eqa/(sqrt(lon));
 	if((velo ^ normal) < 0 )   
 		Position = Position  + normal * (rad - eqa);
 	else
 		Position = Position + normal * (eqa - rad);
 
-	Vector Ft = Vector(0,-m * _g,0); 
-	F = Ft; 
-	accel = F / m;
-	velo = velo + accel*t; 
-	Position = Position + velo*t + (accel*t*t)/2; 
+	accel = F/m;
+	velo = velo +  accel*t;
+	F = Vector(0,-m * _g,0);
 }
 bool Sphere::inspections(Line li)
 {
@@ -332,11 +345,10 @@ void Sphere::calculation(Line li, double resil, double t)
 	else
 		Position = Position + normal * (eqa - rad);
 
-	Vector Ft = Vector(0,-m * _g,0); 
-	F = Ft; 
-	accel = F / m;
-	velo = velo + accel*t; 
-	Position = Position + velo*t + (accel*t*t)/2; 
+	accel = F/m;
+	velo = velo +  accel*t;
+	F = Vector(0,-m * _g,0);
+	
 }
 bool Sphere::inspections(Vector tmp)
 {
@@ -358,123 +370,11 @@ void Sphere::calculation(Vector tmp, double resil, double t)
 	else
 		Position = Position + normal * (eqa - rad);
 
-	Vector Ft = Vector(0,-m * _g,0); 
-	F = Ft; 
-	accel = F / m;
-	velo = velo + accel*t; 
-	Position = Position + velo*t + (accel*t*t)/2; 
+	accel = F/m;
+	velo = velo +  accel*t;
+	F = Vector(0,-m * _g,0);
 }
 
-Tr_Sphere:: Tr_Sphere()
-{
-	rad = 1;
-	_g = 9.8;
-	BaseObject();
-	I = 0.4 * m * rad * rad;
-}
-
-void Tr_Sphere:: Rotated(Tr_Sphere * obj)
-{
-	Vector norm = Vector(1,1,-((obj->velo.GetX() + obj->velo.GetY()) / obj->velo.GetZ()));
-	Vector tmp = Vector(Position.GetX() - ((Position.GetX() * velo.GetY() * norm.GetX() - obj->Position.GetX() * norm.GetY() *  velo.GetX() - Position.GetY() * velo.GetX() * norm.GetX() + obj->Position.GetY() * velo.GetX() * norm.GetX())/ (velo.GetY() * norm.GetX() - norm.GetY() * velo.GetX())),
-						Position.GetY() - ((Position.GetY() * velo.GetX() * norm.GetY() - obj->Position.GetY() * norm.GetX() *  velo.GetY() - Position.GetX() * velo.GetY() * norm.GetX() + obj->Position.GetX() * velo.GetY() * norm.GetY())/ (velo.GetX() * norm.GetY() - norm.GetX() * velo.GetY())),
-						Position.GetZ() - ((Position.GetZ() * velo.GetY() * norm.GetZ() - obj->Position.GetZ() * norm.GetY() *  velo.GetZ() - Position.GetY() * velo.GetZ() * norm.GetX() + obj->Position.GetY() * velo.GetZ() * norm.GetZ())/ (velo.GetY() * norm.GetZ() - norm.GetY() * velo.GetZ())));
-	double r = tmp.length();
-	Vector rot = velo *  (velo.length() - ((velo & norm) / norm.length())); 
-	double en = ((r/rad) * m * (pow(rot.length(),2)))/ I;
-
-}
-
-void Tr_Sphere:: Test(Tr_Sphere * obj, bool motion)
-{
-	double const res = 0.8;
-	double const K = 10;
-	double len = (obj->Position - Position).length2();
-	if( len < (rad + obj->rad)* (rad + obj->rad) * 1.001 || motion)
-	{
-		double x = obj->Position.GetX() - Position.GetX();
-		double y = obj->Position.GetY() - Position.GetY();
-		double z = obj->Position.GetZ() - Position.GetZ();
-
-		double eq[3]  = {x,y,z};
-		Vector norm = Vector(eq);
-		norm = Vector_norm(norm);
-		double e[3] = {0,0,0};
-
-		Plane * plan  = new Plane();
-		plan->PlaneSetEquation(eq);	
-
-		Vector ve2 = Vector();
-		Vector ve1 = Vector();
-		
-		velo = plan->GetBathis() * velo;
-		obj->velo = plan->GetBathis() * obj->velo;
-
-		Vector D = (velo - obj->velo) * obj->m;
-		Vector A = velo * m + obj->velo * obj->m;
-		if(D.length2() == 0)
-		{
-			ve1 = (A) / (m + obj->m);
-			ve2 = (A - ve1 * m) / (obj->m);
-		}
-		else
-		{
-			ve1 = (A + D) / (m + obj->m);
-			ve2 = (A - ve1 * m) / (obj->m);
-			Vector t_1 = velo > velo * m + obj->velo > obj->velo * obj->m;
-			Vector t_2 = ve1 > ve1 * m + ve2 > ve2 * obj->m; 
-			double test = t_1.length2() - t_2.length2();
-			if( test > 0.0000001 || test < -0.0000001)
-			{
-				ve1 = (A  - D) / (m + obj->m);
-				ve2 = (A - ve1 * m) / (obj->m);
-			}
-		}
-		
-		if((-velo ^ ve1) > 0)
-			velo = plan->GetInvertMat() * ve1 * res;
-		if((-obj->velo ^ norm) < 0)
-			obj->velo = plan->GetInvertMat() * ve2 * res;
-
-		velo = plan->GetInvertMat() * ve1;
-		obj->velo = plan->GetInvertMat() * ve2;
-
-		len = sqrt(len);
-		len = ((rad + obj->rad) - len)/2; 
-		
-		 Position = Position - norm * len;
-		 obj->Position = obj->Position + norm * len;
-
-		//Rotated(obj->velo,eq);
-		//obj->Rotated(velo,eq);
-
-		if((norm ^ F) > 0)
-		{
-			F = - (norm * (obj->F & norm)) + F;
-			obj->F = (norm * (F & norm) + obj->F);
-		}
-		else
-		{
-			F = (norm * (obj->F & norm)) + F;
-			obj->F = -(norm * (F & norm) + obj->F);
-		}
-		delete plan;
-	}
-}
-
-double Tr_Sphere:: GetRad()
-{
-	return rad;
-}
-
-void Tr_Sphere:: operator=(Tr_Sphere * count)
-{
-	Position = count->Position;
-	accel = count->accel;
-	F = count->F;
-	m = count->m;
-	velo = count->velo;
-}
 
 //Camera::
 
@@ -543,26 +443,26 @@ void ContainerObjects::MoveSphere(int n,double t_sec)
 
 ContainerObjects::ContainerObjects()
 {
-	obj = NULL;
+	obj = new Sphere*[1];
 	number = 0;
 }
 
 void ContainerObjects::CreateSphere(Sphere * count)
-{
-	number +=1;
+{	
+	obj[number] = count;
+	number += 1;
 	Sphere ** copy = new Sphere*[number];
-	for(int i = 0; i< number;i++)
+	for(int i = 0;i<number;i++)
 	{
 		copy[i] = obj[i];
 	}
 	delete obj;
-	obj = new Sphere*[number];
-	for(int i = 0; i<number;i++)
+	obj = new Sphere*[number+1];
+	for(int i = 0; i < number;i++)
 	{
 		obj[i] = copy[i];
 	}
 	delete copy;
-	obj[number] = count;
 }
 
 Sphere* ContainerObjects::GetSphere(int n)
@@ -577,37 +477,36 @@ CollisionInfoOfSphere* ContainerObjects::inspection()
 {
 	CollisionInfoOfSphere * col = new CollisionInfoOfSphere[50];
 	int current = 0;
-	int max = 100;
+	int max = 49;
 	for(int i = 0;i<number;i++)
 	{
 		for(int e = i+1; e<number;e++)
 		{
 			if(obj[i]->Test(obj[e]))
 			{
-				current +=1;
+				col[current].sp1 = obj[i];
+				col[current].sp2 = obj[e];
+				current += 1;
 				if(	current >= max)
 				{
-				/*	CollisionInfo * copy = new CollisionInfo[max];
-					for(int i = 0;i<max;i++)
+					CollisionInfoOfSphere * copy = new CollisionInfoOfSphere[number];
+					for(int i = 0;i<number;i++)
 					{
 						copy[i] = col[i];
 					}
-					delete col;
-					max +=10;
-					col = new CollisionInfo[max];
-					for(int i = 0;i<max;i++)
+					delete obj;
+					col = new CollisionInfoOfSphere[number+1];
+					for(int i = 0; i < number;i++)
 					{
 						col[i] = copy[i];
 					}
-					delete copy;*/
+					delete copy;
 				}
-				col[current].sp1 = obj[i];
-				col[current].sp2 = obj[e];
 			}
 		}
 	}
 	col[0].num = current;
-	return NULL;
+	return col;
 }
 void ContainerObjects::calculation(CollisionInfoOfSphere * col,int n)
 {

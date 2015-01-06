@@ -105,6 +105,7 @@ public:
 	Line * li;
 	Vector * tmp_p; // Проекции точек, определяющих ВЫПУКЛЫЙ контур.
 	int li_num;
+
 	Plane();
 	void PlaneSetEquation(double eq[4]);
 	Matrix GetBathis ();
@@ -115,42 +116,12 @@ public:
 	Plane(double eq [4]);
 	Matrix GetInvertMat();
 
-	void SetTmp(double * t[3]);
+	void SetTmp(Vector t);
 	void triangulation();
 	bool cubeinspection(Vector tmp)
 	{
 		return ( tmp.GetX() > tes[0] || tmp.GetX() < tes[1] || tmp.GetY() > tes[2] || tmp.GetY() < tes[3] || tmp.GetZ() > tes[4] || tmp.GetZ() < tes[5]);
 	}
-	//Test inspection ( Sphere * obj)
-	//{
-	//	Vector pos = obj->Posiion;
-	//	if(pos.GetX() < tes[0] || pos.GetX() > tes[1] || pos.GetY() < tes[2]  || pos.GetY() > tes[3] || pos.GetZ() < tes[4]|| pos.GetZ() > tes[5])
-	//	{
-	//		bool test = 1;
-	//		for(int i = 0; i< num; i ++)
-	//		{
-	//			if(((Vector(tmp[0].GetX() - pos.GetX(),tmp[0].GetY() - pos.GetY(),tmp[0].GetZ() - pos.GetZ()) * vec[i]).length2() / vec[i].length2()) < obj->GetRad() * obj->GetRad()) // расстояние от объекта до прямой
-	//			{
-
-	//			}
-	//		}
-
-
-	//		double x = (pos.GetX() * (equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * pos.GetY() + pos.GetZ() * equa[2] + equa[3])) /  ( equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]);
-	//		double y = (equa[1] *  (x - pos.GetX() ) ) / (equa[0]) + pos.GetY();
-	//		double z = (equa[2] *  (x - pos.GetX() ) ) / (equa[0]) + pos.GetZ();
-	//		Vector p = Mat * Vector(x,y,z);
-	//		test = 1;
-	//		for(int i = 0;i<num;i++)
-	//		{
-	//			if((nor[i] ^ Vector(p.GetX() - tmp_p[i].GetX(), p.GetY() - tmp_p[i].GetY(), 0)) < 0)
-	//				test = 0;
-	//		}
-	//		if(test == 1)
-	//			return 1;
-	//		else
-	//			return 0;
-	//}
 
 	Matrix GetMat();
 	Vector GetN();

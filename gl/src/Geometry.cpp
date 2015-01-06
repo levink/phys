@@ -267,9 +267,7 @@
 		equa[1] = 0;
 		equa[2] = 0;
 		equa[3] = 0; 
-		tmp[0] = NULL;
-		tmp[1] = NULL;
-		tmp[2] = NULL;
+		tmp = new Vector[1];
 		num = 0;
 		Mat = Matrix();
 		tr[0] = NULL;
@@ -281,14 +279,30 @@
 		tes[3] = 0;
 		tes[4] = 0;
 		tes[5] = 0;
+		li = &Line();
+		li_num = 0;
 	}
 
 	void Plane::PlaneSetEquation(double eq[4])
 	{
+		tmp = new Vector[1];
+		num = 0;
+		Mat = Matrix();
+		tr[0] = NULL;
+		tr[1] = NULL;
+		tr[2] = NULL;
+		tes[0] = 0;
+		tes[1] = 0;
+		tes[2] = 0;
+		tes[3] = 0;
+		tes[4] = 0;
+		tes[5] = 0;
 		equa[0] = eq[0];
 		equa[1] = eq[1];
 		equa[2] = eq[2];
 		equa[3] = eq[3];
+		li = &Line();
+		li_num = 0;
 	}
 
 	Matrix Plane::GetBathis ()
@@ -438,6 +452,20 @@
 
 	Plane::Plane(double eq [4])
 	{
+		tmp = new Vector[1];
+		num = 0;
+		Mat = Matrix();
+		tr[0] = NULL;
+		tr[1] = NULL;
+		tr[2] = NULL;
+		tes[0] = 0;
+		tes[1] = 0;
+		tes[2] = 0;
+		tes[3] = 0;
+		tes[4] = 0;
+		tes[5] = 0;
+		li = &Line();
+		li_num = 0;
 		for(int i=0;i<4;i++)
 		{
 			equa[i] = eq[i];
@@ -459,6 +487,7 @@
 		Matrix rebound = Matrix(redoun);*/
 
 		Mat = invert /** rebound * Mat*/;
+
 	}
 
 	Matrix Plane::GetInvertMat()                            
@@ -496,22 +525,23 @@
 	{
 		return equa[3];
 	}
-	void Plane::SetTmp(double * t[3])
+	void Plane::SetTmp(Vector t)
 	{
-		Vector * cop;
-		cop = new Vector[num];
-		for(int i =0;i<num;i++)
+		
+		tmp[num] = t;
+		num += 1;
+		Vector * copy = new Vector[num];
+		for(int i = 0;i<num;i++)
 		{
-			cop[i] = tmp[i];
-			
+			copy[i] = tmp[i];
 		}
 		delete tmp;
 		tmp = new Vector[num+1];
-		for(int i =0;i<num;i++)
+		for(int i = 0; i < num;i++)
 		{
-			tmp[i] = cop[i];
+			tmp[i] = copy[i];
 		}
-		delete cop;
+		delete copy;
 	}
 	void Plane::triangulation() // триангуляция !!!!!!!работает только для четырёхугольников! + определение ограничивающего куба + определение контура
 	{
@@ -520,7 +550,7 @@
 			t_p = GetInvertMat() 
 		}*/
 
-		tr[0] = new int[2];
+	/*	tr[0] = new int[2];
 		tr[1] = new int[2];
 		tr[2] = new int[2];
 		tr[0][0] = 0;
@@ -528,8 +558,16 @@
 		tr[2][0] = 2;
 		tr[0][1] = 0;
 		tr[1][1] = 2;
-		tr[2][1] = 3;
+		tr[2][1] = 3;*/
 
+		int current = 0;
+		int maximum = num;
+
+		tr[0] = new int[num];
+		tr[1] = new int[num];
+		tr[2] = new int[num];
+
+		li_num = num;
 		li = new Line[num];
 		li[0].vec = Vector(tmp[1].GetX() - tmp[0].GetX(),tmp[1].GetY() - tmp[0].GetY(),tmp[1].GetZ() - tmp[0].GetZ());
 		li[1].vec = Vector(tmp[2].GetX() - tmp[1].GetX(),tmp[2].GetY() - tmp[1].GetY(),tmp[2].GetZ() - tmp[1].GetZ());
@@ -550,6 +588,87 @@
 		}
 		int n = 0;
 		Vector testing = Vector();
+		//for(int i = 0;i<num;i++)
+		//{
+		//	n = i + 1;
+		//	if(n > num)
+		//	{
+		//		n  = n - (num+1);
+		//	}
+		//	int e = n + 1;
+		//	if(e > num)
+		//	{
+		//		e  = e - (num+1);
+		//	}
+		//	Vector normal[3];
+		//	Vector edge = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),0, tmp_p[n].GetZ() - tmp_p[i].GetZ());
+		//	normal[0] = Vector(edge.GetX(), 0, -edge.GetZ()); // Всё правильно, не надо пугаться 
+		//	if((normal[0] & edge) < 0)
+		//	{
+		//		normal[0] = Vector(-edge.GetX(), 0, edge.GetZ());
+		//	}
+		//	edge = Vector(tmp_p[e].GetX() - tmp_p[n].GetX(),0, tmp_p[e].GetZ() - tmp_p[n].GetZ());
+		//	normal[1] = Vector(edge.GetX(), 0, -edge.GetZ());
+		//	if((normal[1] & edge) < 0)
+		//	{
+		//		normal[1] = Vector(-edge.GetX(), 0, edge.GetZ());
+		//	}
+		//	edge = Vector(tmp_p[i].GetX() - tmp_p[e].GetX(),0, tmp_p[i].GetZ() - tmp_p[e].GetZ());
+		//	normal[2] = Vector(edge.GetX(), 0, -edge.GetZ());
+		//	if((normal[2] & edge) < 0)
+		//	{
+		//		normal[2] = Vector(-edge.GetX(), 0, edge.GetZ());
+		//	}
+		//	bool flag = 1;
+		//	for(int c = 0;c<num;c++)
+		//	{
+		//		if(c!=i)
+		//		{
+		//			testing = Vector(tmp_p[c].GetX() - tmp_p[i].GetX(),0, tmp_p[c].GetZ() - tmp_p[i].GetZ());
+		//			if((normal[0] & testing) > 0 && (normal[1] & testing) > 0 && (normal[2] & testing) > 0)
+		//			{
+		//				flag = 0;
+		//				break;
+		//			}
+		//		}
+		//	}
+		//	if(flag)
+		//	{
+		//		tr[0][current] = i;
+		//		tr[1][current] = n;
+		//		tr[2][current] = e;
+		//		current += 1;
+		//		if(current >= maximum)
+		//		{
+		//			int * cop1 = new int[current + 10];
+		//			int * cop2 = new int[current + 10];
+		//			int * cop3 = new int[current + 10];
+		//			for(int i = 0;i<num;i++)
+		//			{
+		//				cop1[i] = tr[0][i];
+		//				cop2[i] = tr[1][i];
+		//				cop3[i] = tr[2][i];
+		//			}
+		//			delete tr[0];
+		//			delete tr[1];
+		//			delete tr[2];
+		//			tr[0] = new int[current + 10];
+		//			tr[1] = new int[current + 10];
+		//			tr[2] = new int[current + 10];
+		//			for(int i = 0; i < num;i++)
+		//			{
+		//				tr[0][i] = cop1[i];
+		//				tr[1][i] = cop2[i];
+		//				tr[2][i] = cop3[i];
+		//			}
+		//			delete cop1;
+		//			delete cop2;
+		//			delete cop3;
+		//			maximum += 10;
+		//		}
+		//	}
+		//}
+
 		for(int i = 0;i<num;i++) // Поиск нормалей к прямым в СК, связанной с плоскостью. Необходимо для определения столкновения.
 		{
 			n = i + 2;
@@ -557,24 +676,87 @@
 			{
 				n  = n - (num+1);
 			}
-			testing = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),tmp_p[n].GetY() - tmp_p[i].GetY(), 0);
+			testing = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),0, tmp_p[n].GetZ() - tmp_p[i].GetZ());
 
-			if(ve[i].GetY() == 0)
+			li[i].norm = Vector(ve[i].GetZ(),0,-ve[i].GetX());
+			if((li[i].norm & testing )< 0) // +оптимизировал Возможно, надо оптимизировать поиск знака угла.
 			{
-				li[i].norm = Vector(0,1,0);
-				if((li[i].norm & testing )< 0) // +оптимизировал Возможно, надо оптимизировать поиск знака угла.
+				li[i].norm =  Vector(-ve[i].GetZ(),0,ve[i].GetX());
+			} // конец кода поиска
+
+			int e  = 0;
+			e = i + 1; // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ
+			if(n > num)
+			{
+				n  = n - (num+1);
+			}
+			Vector normal[3];
+			Vector edge = Vector(tmp_p[e].GetX() - tmp_p[i].GetX(),0, tmp_p[e].GetZ() - tmp_p[i].GetZ());
+			normal[0] = Vector(edge.GetX(), 0, -edge.GetZ()); // Всё правильно, не надо пугаться 
+			if((normal[0] & edge) < 0)
+			{
+				normal[0] = Vector(-edge.GetX(), 0, edge.GetZ());
+			}
+			edge = Vector(tmp_p[n].GetX() - tmp_p[e].GetX(),0, tmp_p[n].GetZ() - tmp_p[e].GetZ());
+			normal[1] = Vector(edge.GetX(), 0, -edge.GetZ());
+			if((normal[1] & edge) < 0)
+			{
+				normal[1] = Vector(-edge.GetX(), 0, edge.GetZ());
+			}
+			edge = Vector(tmp_p[i].GetX() - tmp_p[n].GetX(),0, tmp_p[i].GetZ() - tmp_p[n].GetZ());
+			normal[2] = Vector(edge.GetX(), 0, -edge.GetZ());
+			if((normal[2] & edge) < 0)
+			{
+				normal[2] = Vector(-edge.GetX(), 0, edge.GetZ());
+			}
+			bool flag = 1;
+			for(int c = 0;c<num;c++)
+			{
+				if(c!=i)
 				{
-					li[i].norm = Vector(0,-1,0);
+					testing = Vector(tmp_p[c].GetX() - tmp_p[i].GetX(),0, tmp_p[c].GetZ() - tmp_p[i].GetZ());
+					if((normal[0] & testing) > 0 && (normal[1] & testing) > 0 && (normal[2] & testing) > 0)
+					{
+						flag = 0;
+						break;
+					}
 				}
 			}
-			else
+			if(flag)
 			{
-				li[i].norm = Vector(1,-(ve[i].GetX()/ve[i].GetY()),0);
-				if((li[i].norm & testing) < 0) // +оптимизировал 
+				tr[0][current] = i;
+				tr[1][current] = e;
+				tr[2][current] = n;
+				current += 1;
+				if(current >= maximum)
 				{
-					li[i].norm = Vector(-1,-(ve[i].GetX()/ve[i].GetY()),0);
+					int * cop1 = new int[current + 10];
+					int * cop2 = new int[current + 10];
+					int * cop3 = new int[current + 10];
+					for(int i = 0;i<num;i++)
+					{
+						cop1[i] = tr[0][i];
+						cop2[i] = tr[1][i];
+						cop3[i] = tr[2][i];
+					}
+					delete tr[0];
+					delete tr[1];
+					delete tr[2];
+					tr[0] = new int[current + 10];
+					tr[1] = new int[current + 10];
+					tr[2] = new int[current + 10];
+					for(int i = 0; i < num;i++)
+					{
+						tr[0][i] = cop1[i];
+						tr[1][i] = cop2[i];
+						tr[2][i] = cop3[i];
+					}
+					delete cop1;
+					delete cop2;
+					delete cop3;
+					maximum += 10;
 				}
-			}
+			} // конец триангуляции, конец света, конец добра и зла, чёрная дыра без массы и тому подобные прелести ( Конец шуту и королю, и глупости, и уму. Исполняли Никитины, Автора стихов не помню)
 		}
 		delete ve;
 		// Конец поиска.

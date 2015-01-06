@@ -8,10 +8,13 @@
 
 struct CollisionInfo
 {
-	Plane* pl;
-	Line* li;
-	Vector * tmp;
+	Plane pl;
+	Line li;
+	Vector tmp;
 	Sphere * sp;
+	bool pl_t;
+	bool li_t;
+	bool tmp_t;
 	int num;
 };
 
@@ -20,7 +23,6 @@ class World
 {
 private:
 	Plane * Plan;
-	double * rese[6]; // 0 - Max_x, 1 - Min_x, 2 - Max_y, 3 - Min_y, 4 - Max_z, 5 - Min_z
 	int k;
 public: 
 	
@@ -33,15 +35,20 @@ public:
 	{
 		return k;
 	}
+	Plane GetPl(int i)
+	{
+		if(i<=k)
+			return Plan[i];
+		return Plane();
+	}
 	bool TestEqua(Camera * obj,int i);
 	void Test(Camera * obj,double resil);
 	bool TestEqua(Sphere * obj,int i);
 	void Test(Sphere * obj,double resil, double t);
-	bool TestEqua(Tr_Sphere * obj,int i);
-	void Test(Tr_Sphere * obj,double resil);
 
-	CollisionInfo* inspections();
+	CollisionInfo* inspections(ContainerObjects con);
 	void Calculation(CollisionInfo * col, int n, double t_sec);
+	void Calculation(CollisionInfo * col, double t_sec);
 
 	double GetYatXZ(double X,double Y,int nomber_plane);
 };

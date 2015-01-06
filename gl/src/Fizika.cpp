@@ -4,7 +4,8 @@ Fizika::Fizika()
 	n = 0.1;
 	p = 1.2041;
 	_g = 9.8;
-	//World wor = World();
+	wor = World();
+	con_obj = ContainerObjects();
 }
 
 void Fizika::MoveObject(Camera * obj, double t_sec)
@@ -53,35 +54,6 @@ void Fizika::MoveObject(Sphere * obj, double t_sec)
 	obj->F = Ft;
 
 	wor.Test(obj,1,t_sec); // 0.975
-
-	double l = obj->GetRad() * 2 * PI;
-	obj->Angl  = ( (obj->w * t_sec) / l) * 360 + obj->Angl;
-	if(obj->Angl.GetX() > 360 || obj->Angl.GetX() < -360)
-		obj->Angl.SetX(0);
-	if(obj->Angl.GetY() > 360 || obj->Angl.GetY() < -360)
-		obj->Angl.SetY(0);
-	if(obj->Angl.GetZ() > 360 || obj->Angl.GetZ() < -360)
-		obj->Angl.SetZ(0);
-}
-
-void Fizika::MoveObject(Tr_Sphere * obj, double t_sec)
-{
-	//считаем новые координаты объекта на основе его времени жизни и наших "физических" законов
-	const double PI = 3.1415916;
-
-	Vector Ft = Vector(0,-obj->m * _g,0); //+ F1 + F2 + ...
-	Vector Ftr = - (obj->velo * p / 2) *  n * 3.14;
-	Vector F = Ft + Ftr /*+ obj ->F*/;	// + F1 + F2 + ...;
-	Vector a = F / obj->m;
-	Vector v = obj->velo + a*t_sec; 
-	Vector x = obj->Position + obj->velo*t_sec + obj->accel*t_sec*t_sec/2; 
-
-	obj->accel = a;
-	obj->velo = v;
-	obj->Position = x;
-	obj->F = F;
-
-	wor.Test(obj,0.8);
 
 	double l = obj->GetRad() * 2 * PI;
 	obj->Angl  = ( (obj->w * t_sec) / l) * 360 + obj->Angl;

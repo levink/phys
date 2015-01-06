@@ -23,7 +23,7 @@ double lightAngle = 0;
 double lightHeight = 8;
 
 
-double camAng1 = 0;
+double camAng1 = 90;
 double camAng2 = 0;
 double camHeight = 0;
 
@@ -213,7 +213,7 @@ void display(void)
 	glTranslated(0,-5,-30 + camHeight);
 	glRotated(camAng2, 1,0,0);
 	glRotated(camAng1, 0,1,0);
-	glTranslated(-10,0,10);
+	//glTranslated(-10,0,10);
 	//glTranslated(-0,0,-10);
 	
 
@@ -237,7 +237,7 @@ void display(void)
 	glEnable(GL_LIGHTING);
 	glPopMatrix();	
 	glTranslated(10,0,-10);
-	glRotated(lightAngle,0,1,0);
+	glRotated(lightAngle,0,0.5,0);
 	glLightfv(GL_LIGHT0, GL_POSITION, pos);
 	glEnable(GL_LIGHT0);
 	glPopMatrix();
@@ -248,7 +248,7 @@ void display(void)
 	//glLineWidth(5.0);
 	////floor
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
-	glBegin(GL_QUADS);
+	//glBegin(GL_QUADS);
 	glNormal3d(0,1,0);
 	int x = 20;
 	int z = -20;
@@ -292,9 +292,25 @@ void display(void)
 
 	Vector velo1 = Vector(1,-1,0);
 	velo1 = -(Plane(v).GetMat() * velo1);*/
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red);
+	Draw(Vector(5,0,0));
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
+	Draw(Vector(0,5,0));
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
+	Draw(Vector(0,0,5));
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	World* tmp = NULL;
 	tmp = GetWorld(phy);
-	for(int t=0;t<tmp->GetK();t++)
+	for(int i = 0;i<tmp->GetK();i++)
+	{
+		glBegin(GL_QUADS);
+		for(int e = 0;e<tmp->GetPl(i).num;e++)
+		{
+			glVertex3d(tmp->GetPl(i).tmp[e].GetX(), tmp->GetPl(i).tmp[e].GetY(),tmp->GetPl(i).tmp[e].GetZ());
+		}
+		glEnd();
+	}
+	/*for(int t=0;t<tmp->GetK();t++)
 	{
 		for(int i=0;i < x; i++)
 			for(int j=0;j > z; j--)
@@ -315,7 +331,7 @@ void display(void)
 			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+10,j);
 		}
 
-	glEnd();
+	glEnd();*/
 
 	//plane
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
@@ -330,7 +346,7 @@ void display(void)
 	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-30,0),-30);
 	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-0,0),-0);*/
 	glEnd();
-	glTranslated(0,0,-40);
+	//glTranslated(0,0,-40);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	//DWORD dt = GetTickCount()-t1;
@@ -338,25 +354,26 @@ void display(void)
 	if(needStep) 
 	{
 		needStep = false;
-		DWORD dt = 25/*GetTickCount()-t1*/; 
+		DWORD dt = 25;/*GetTickCount()-t1*/; 
+		double tim = dt/1000.0;
 		
 		CollisionInfoOfSphere * col_of_sp = phy->con_obj.inspection();
 		phy->con_obj.all_calculation(col_of_sp);
 
-		CollisionInfo * col = phy->wor.inspections();
-
-		
 		for(int i=0;i<phy->con_obj.GetNumber();i++)
 		{
-			phy->con_obj.MoveSphere(i,dt);
+			phy->con_obj.MoveSphere(i,tim);
 		}
+		CollisionInfo * col = phy->wor.inspections(phy->con_obj);
+		phy->wor.Calculation(col,tim);
+		delete col;
 	}
 	for(int i=0;i<num;i++)
 	{
 		glPushMatrix();
-		//glTranslated(obj[i]->Position.GetX(),obj[i]->Position.GetY(), obj[i]->Position.GetZ());
-		//glRotated(obj[i]->Angl.GetX(),0,0,1);
-		//glRotated(obj[i]->Angl.GetZ(),1,0,0);
+		glTranslated(phy->con_obj.GetSphere(i)->Position.GetX(),phy->con_obj.GetSphere(i)->Position.GetY(), phy->con_obj.GetSphere(i)->Position.GetZ());
+		glRotated(phy->con_obj.GetSphere(i)->Angl.GetX(),0,0,1);
+		glRotated(phy->con_obj.GetSphere(i)->Angl.GetZ(),1,0,0);
 		glutSolidSphere(1,5,5);
 		glPopMatrix();
 		
@@ -433,19 +450,21 @@ int main(int argc, char **argv)
 	glutReshapeFunc(reshape);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
+	//phy = &Fizika();
+	phy = new Fizika();
 	/*Sphere * tmp = new Sphere();
 	tmp->Position = Vector(14,17,25);
 	tmp->velo = Vector(0,-3,0);
 	obj[num] = tmp;
 	num++;*/
-	/*Sphere * tmp1 = new Sphere();
-	tmp1->Position = Vector(5,12,25);
-	obj[num] = tmp1;
-	num++;*/
-	Sphere * tmp2 = new Sphere();
-	tmp2->Position = Vector(4,9,25);
-	//obj[num] = tmp2;
+	Sphere * tmp1 = new Sphere();
+	tmp1->Position = Vector(-16,12,0); // 5,12,0
+	phy->con_obj.CreateSphere(tmp1);
 	num++;
+	/*Sphere * tmp2 = new Sphere();
+	tmp2->Position = Vector(4,9,25);
+	phy->con_obj.CreateSphere(tmp2);
+	num++;*/
 	
 	//Sphere * tmp = new Sphere();
 	//tmp->Position = Vector(	12-2.78,17-1.3,25); // |
@@ -464,12 +483,10 @@ int main(int argc, char **argv)
 	int d = 1;
 	
 	maxx = 10;
-	phy = new Fizika();
 	t1 = GetTickCount();
 
 	glutMainLoop();
 	
-	//delete obj;
-	//delete phy;
+	delete phy;
 	return 0;
 }

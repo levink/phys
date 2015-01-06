@@ -16,7 +16,6 @@ public:
 	friend World* GetWorld(Fizika* obj);
 	void MoveObject(Camera * obj, double t);
 	void MoveObject(Sphere * obj, double t);
-	void MoveObject(Tr_Sphere * obj, double t);
 };
 
 #endif
