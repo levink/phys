@@ -543,7 +543,7 @@
 		}
 		delete copy;
 	}
-	void Plane::triangulation() // триангуляция !!!!!!!работает только для четырёхугольников! + определение ограничивающего куба + определение контура
+	void Plane::triangulation() // триангуляция !!!!!!!(не работает вообще 06.01.2015)работает только для четырёхугольников! + определение ограничивающего куба + определение нормалей к контуру
 	{
 		/*for(int i = 0;i<num;i++)
 		{
@@ -566,6 +566,10 @@
 		tr[0] = new int[num];
 		tr[1] = new int[num];
 		tr[2] = new int[num];
+		int cur_rej = 0;
+		int max_rej = 4;
+		int * rejected = new int[4];
+		int signal = num;
 
 		li_num = num;
 		li = new Line[num];
@@ -668,46 +672,101 @@
 		//		}
 		//	}
 		//}
-
-		for(int i = 0;i<num;i++) // Поиск нормалей к прямым в СК, связанной с плоскостью. Необходимо для определения столкновения.
+		bool no_tr = 1;
+		int  i = 0;
+		while(signal > 3) // Поиск нормалей к прямым в СК, связанной с плоскостью. Необходимо для определения столкновения. Хотя не уверен, нужен ли этот код.
 		{
-			n = i + 2;
-			if(n > num)
+			if(no_tr)
 			{
-				n  = n - (num+1);
-			}
-			testing = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),0, tmp_p[n].GetZ() - tmp_p[i].GetZ());
+				n = i + 2;
+				if(n >= num)
+				{
+					n  = n - (num+1);
+				}
+				testing = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),0, tmp_p[n].GetZ() - tmp_p[i].GetZ());
 
-			li[i].norm = Vector(ve[i].GetZ(),0,-ve[i].GetX());
-			if((li[i].norm & testing )< 0) // +оптимизировал Возможно, надо оптимизировать поиск знака угла.
-			{
-				li[i].norm =  Vector(-ve[i].GetZ(),0,ve[i].GetX());
-			} // конец кода поиска
+				li[i].norm = Vector(ve[i].GetZ(),0,-ve[i].GetX());
+				if((li[i].norm & testing )< 0) // +оптимизировал Возможно, надо оптимизировать поиск знака угла.
+				{
+					li[i].norm =  Vector(-ve[i].GetZ(),0,ve[i].GetX());
+				} // конец кода поиска
+			}
 
 			int e  = 0;
-			e = i + 1; // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ
-			if(n > num)
+			bool et = true;
+			e = i + 1; // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ эту запись а не код
+			while(et) // написать аналогичную конструкцию и для i , и для n!!!!!!!!!!!!!!!!!!!!
 			{
-				n  = n - (num+1);
+				bool erej = true;
+				if(e >= num)
+				{
+					e  = e - (num+1);
+				}
+				for(int i = 0;i<cur_rej;i++)
+				{
+					if(rejected[i] == e)
+					{
+						erej = false;
+						break;
+					}
+				}
+				if(!erej)
+				{
+					e++;
+					erej = true;
+				}
+				else
+				{
+					et = false;
+				}
+			}
+			n = i - 1;
+			if( n <= 0)
+			{
+				n = num + n;
 			}
 			Vector normal[3];
 			Vector edge = Vector(tmp_p[e].GetX() - tmp_p[i].GetX(),0, tmp_p[e].GetZ() - tmp_p[i].GetZ());
-			normal[0] = Vector(edge.GetX(), 0, -edge.GetZ()); // Всё правильно, не надо пугаться 
-			if((normal[0] & edge) < 0)
+			normal[0] = Vector(edge.GetZ(), 0, -edge.GetX()); // Всё правильно, не надо пугаться 
+			testing = Vector(tmp_p[n].GetX() - tmp_p[e].GetX(), 0, tmp_p[n].GetZ() - tmp_p[e].GetZ());
+			if((normal[0] & testing) <= 0)
 			{
-				normal[0] = Vector(-edge.GetX(), 0, edge.GetZ());
+				if((normal[0] & testing) == 0)
+				{
+					Vector tes = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),0, tmp_p[n].GetZ() - tmp_p[i].GetZ());
+					if((normal[0] & tes) < 0)
+						normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
+				}
+				else
+					normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
 			}
+			testing = - edge;
 			edge = Vector(tmp_p[n].GetX() - tmp_p[e].GetX(),0, tmp_p[n].GetZ() - tmp_p[e].GetZ());
-			normal[1] = Vector(edge.GetX(), 0, -edge.GetZ());
-			if((normal[1] & edge) < 0)
+			normal[1] = Vector(edge.GetZ(), 0, -edge.GetX());
+			if((normal[1] & testing) <= 0)
 			{
-				normal[1] = Vector(-edge.GetX(), 0, edge.GetZ());
+				if((normal[1] & testing) == 0)
+				{
+					Vector tes = Vector(tmp_p[i].GetX() - tmp_p[n].GetX(),0, tmp_p[i].GetZ() - tmp_p[n].GetZ());
+					if((normal[i] & tes) < 0)
+						normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
+				}
+				else
+					normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
 			}
+			testing = - edge;
 			edge = Vector(tmp_p[i].GetX() - tmp_p[n].GetX(),0, tmp_p[i].GetZ() - tmp_p[n].GetZ());
-			normal[2] = Vector(edge.GetX(), 0, -edge.GetZ());
-			if((normal[2] & edge) < 0)
+			normal[2] = Vector(edge.GetZ(), 0, -edge.GetX());
+			if((normal[2] & testing) <= 0)
 			{
-				normal[2] = Vector(-edge.GetX(), 0, edge.GetZ());
+				if((normal[2] & testing) == 0)
+				{
+					Vector tes = Vector(tmp_p[e].GetX() - tmp_p[i].GetX(),0, tmp_p[e].GetZ() - tmp_p[i].GetZ());
+					if((normal[2] & tes) < 0)
+						normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
+				}
+				else
+					normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
 			}
 			bool flag = 1;
 			for(int c = 0;c<num;c++)
@@ -728,11 +787,30 @@
 				tr[1][current] = e;
 				tr[2][current] = n;
 				current += 1;
+				signal--;
+				rejected[cur_rej] = i;
+				cur_rej += 1;
+				if(cur_rej >=max_rej)
+				{
+					int * copy = new int[cur_rej];
+					for(int i = 0;i<cur_rej;i++)
+					{
+						copy[i] = rejected[i];
+					}
+					delete rejected;
+					rejected = new int [cur_rej + 4];
+					for(int i = 0 ;i<cur_rej;i++)
+					{
+						rejected[i] = copy[i];
+					}
+					delete copy;
+					max_rej +=4;
+				}
 				if(current >= maximum)
 				{
-					int * cop1 = new int[current + 10];
-					int * cop2 = new int[current + 10];
-					int * cop3 = new int[current + 10];
+					int * cop1 = new int[current];
+					int * cop2 = new int[current];
+					int * cop3 = new int[current];
 					for(int i = 0;i<num;i++)
 					{
 						cop1[i] = tr[0][i];
@@ -757,6 +835,12 @@
 					maximum += 10;
 				}
 			} // конец триангуляции, конец света, конец добра и зла, чёрная дыра без массы и тому подобные прелести ( Конец шуту и королю, и глупости, и уму. Исполняли Никитины, Автора стихов не помню)
+			i++;
+			if(i >= num)
+			{
+				i = 0;
+				no_tr = 0;
+			}
 		}
 		delete ve;
 		// Конец поиска.
