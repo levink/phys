@@ -273,6 +273,10 @@
 		tr[0] = NULL;
 		tr[1] = NULL;
 		tr[2] = NULL;
+		nor[0] = NULL;
+		nor[1] = NULL;
+		nor[2] = NULL;
+		tr_num = 0;
 		tes[0] = 0;
 		tes[1] = 0;
 		tes[2] = 0;
@@ -527,7 +531,25 @@
 	}
 	void Plane::SetTmp(Vector t)
 	{
-		
+		double test = equa[0] * t.GetX() + equa[1] * t.GetY() + equa[2] * t.GetZ() + equa[3];
+		if(test >=0.000000001 && test <=-0.000000001)
+		{
+			if(equa[0] != 0)
+			{
+				double x = (t.GetX() * ( equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * t.GetY() + equa[2] * t.GetZ() + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
+				t = Vector(x,(equa[1] * (x - t.GetX()))/equa[0] + t.GetY(),(equa[2] * (x - t.GetX()))/equa[0] + t.GetZ());
+			}
+			if(equa[1] != 0)
+			{
+				double y = (t.GetY() * ( equa[0] * equa[0] + equa[2] * equa[2]) - equa[1] * (equa[0] * t.GetX() + equa[2] * t.GetZ() + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
+				t = Vector((equa[0] * (y - t.GetY()))/equa[1] + t.GetX(),y,(equa[2] * (y - t.GetY()))/equa[1] + t.GetZ());
+			}
+			if(equa[2] != 0)
+			{
+				double z = (t.GetZ() * ( equa[0] * equa[0] + equa[1] * equa[1]) - equa[2] * (equa[0] * t.GetX() + equa[1] * t.GetY() + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
+				t = Vector((equa[0] * (z - t.GetZ()))/equa[2] + t.GetX(),(equa[1] * (z - t.GetZ()))/equa[2] + t.GetY(),z);
+			}
+		}
 		tmp[num] = t;
 		num += 1;
 		Vector * copy = new Vector[num];
@@ -545,27 +567,15 @@
 	}
 	void Plane::triangulation() // триангуляция !!!!!!!(не работает вообще 06.01.2015)работает только для четырёхугольников! + определение ограничивающего куба + определение нормалей к контуру
 	{
-		/*for(int i = 0;i<num;i++)
-		{
-			t_p = GetInvertMat() 
-		}*/
-
-	/*	tr[0] = new int[2];
-		tr[1] = new int[2];
-		tr[2] = new int[2];
-		tr[0][0] = 0;
-		tr[1][0] = 1;
-		tr[2][0] = 2;
-		tr[0][1] = 0;
-		tr[1][1] = 2;
-		tr[2][1] = 3;*/
-
 		int current = 0;
 		int maximum = num;
-
+		tr_num = 0;
 		tr[0] = new int[num];
 		tr[1] = new int[num];
 		tr[2] = new int[num];
+		nor[0] = new Vector[num];
+		nor[1] = new Vector[num];
+		nor[2] = new Vector[num];
 		int cur_rej = 0;
 		int max_rej = 4;
 		int * rejected = new int[4];
@@ -573,157 +583,141 @@
 
 		li_num = num;
 		li = new Line[num];
-		li[0].vec = Vector(tmp[1].GetX() - tmp[0].GetX(),tmp[1].GetY() - tmp[0].GetY(),tmp[1].GetZ() - tmp[0].GetZ());
-		li[1].vec = Vector(tmp[2].GetX() - tmp[1].GetX(),tmp[2].GetY() - tmp[1].GetY(),tmp[2].GetZ() - tmp[1].GetZ());
-		li[2].vec = Vector(tmp[3].GetX() - tmp[2].GetX(),tmp[3].GetY() - tmp[2].GetY(),tmp[3].GetZ() - tmp[2].GetZ());
-		li[3].vec = Vector(tmp[0].GetX() - tmp[3].GetX(),tmp[0].GetY() - tmp[3].GetY(),tmp[0].GetZ() - tmp[3].GetZ());
+		int n = 0;
+		for(int i =0;i<num;i++)
+		{
+			n = i + 1;
+			if(n > num)
+				n  = n - (num+1);
+			li[i].vec = Vector(tmp[n].GetX() - tmp[i].GetX(),tmp[n].GetY() - tmp[i].GetY(),tmp[n].GetZ() - tmp[i].GetZ());
+			li[i].tmp = tmp[i];
+			if(tmp[i].GetX() > tmp[n].GetX())
+			{
+				li[i].limit[0] = tmp[i].GetX();
+				li[i].limit[1] = tmp[n].GetX();
+			}	
+			else
+			{	
+				li[i].limit[0] = tmp[n].GetX();
+				li[i].limit[1] = tmp[n].GetX();
+			}
+			if(tmp[i].GetY() > tmp[n].GetY())
+			{
+				li[i].limit[2] = tmp[i].GetY();
+				li[i].limit[3] = tmp[n].GetY();
+			}	
+			else
+			{	
+				li[i].limit[2] = tmp[n].GetY();
+				li[i].limit[3] = tmp[n].GetY();
+			}
+			if(tmp[i].GetZ() > tmp[n].GetZ())
+			{
+				li[i].limit[4] = tmp[i].GetZ();
+				li[i].limit[5] = tmp[n].GetZ();
+			}						 
+			else					 
+			{						 
+				li[i].limit[4] = tmp[n].GetZ();
+				li[i].limit[5] = tmp[n].GetZ();
+			}
+			
+		}
 
-		li[0].tmp = tmp[0];
-		li[1].tmp = tmp[1];
-		li[2].tmp = tmp[2];
-		li[3].tmp = tmp[3];
-
-		Vector * ve = new Vector[num];
 		tmp_p = new Vector[num];
 		for(int i = 0;i<num;i++)
 		{
-			ve[i] = Mat * li[i].vec;
 			tmp_p[i] = Mat * tmp[i];
 		}
-		int n = 0;
+
 		Vector testing = Vector();
-		//for(int i = 0;i<num;i++)
-		//{
-		//	n = i + 1;
-		//	if(n > num)
-		//	{
-		//		n  = n - (num+1);
-		//	}
-		//	int e = n + 1;
-		//	if(e > num)
-		//	{
-		//		e  = e - (num+1);
-		//	}
-		//	Vector normal[3];
-		//	Vector edge = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),0, tmp_p[n].GetZ() - tmp_p[i].GetZ());
-		//	normal[0] = Vector(edge.GetX(), 0, -edge.GetZ()); // Всё правильно, не надо пугаться 
-		//	if((normal[0] & edge) < 0)
-		//	{
-		//		normal[0] = Vector(-edge.GetX(), 0, edge.GetZ());
-		//	}
-		//	edge = Vector(tmp_p[e].GetX() - tmp_p[n].GetX(),0, tmp_p[e].GetZ() - tmp_p[n].GetZ());
-		//	normal[1] = Vector(edge.GetX(), 0, -edge.GetZ());
-		//	if((normal[1] & edge) < 0)
-		//	{
-		//		normal[1] = Vector(-edge.GetX(), 0, edge.GetZ());
-		//	}
-		//	edge = Vector(tmp_p[i].GetX() - tmp_p[e].GetX(),0, tmp_p[i].GetZ() - tmp_p[e].GetZ());
-		//	normal[2] = Vector(edge.GetX(), 0, -edge.GetZ());
-		//	if((normal[2] & edge) < 0)
-		//	{
-		//		normal[2] = Vector(-edge.GetX(), 0, edge.GetZ());
-		//	}
-		//	bool flag = 1;
-		//	for(int c = 0;c<num;c++)
-		//	{
-		//		if(c!=i)
-		//		{
-		//			testing = Vector(tmp_p[c].GetX() - tmp_p[i].GetX(),0, tmp_p[c].GetZ() - tmp_p[i].GetZ());
-		//			if((normal[0] & testing) > 0 && (normal[1] & testing) > 0 && (normal[2] & testing) > 0)
-		//			{
-		//				flag = 0;
-		//				break;
-		//			}
-		//		}
-		//	}
-		//	if(flag)
-		//	{
-		//		tr[0][current] = i;
-		//		tr[1][current] = n;
-		//		tr[2][current] = e;
-		//		current += 1;
-		//		if(current >= maximum)
-		//		{
-		//			int * cop1 = new int[current + 10];
-		//			int * cop2 = new int[current + 10];
-		//			int * cop3 = new int[current + 10];
-		//			for(int i = 0;i<num;i++)
-		//			{
-		//				cop1[i] = tr[0][i];
-		//				cop2[i] = tr[1][i];
-		//				cop3[i] = tr[2][i];
-		//			}
-		//			delete tr[0];
-		//			delete tr[1];
-		//			delete tr[2];
-		//			tr[0] = new int[current + 10];
-		//			tr[1] = new int[current + 10];
-		//			tr[2] = new int[current + 10];
-		//			for(int i = 0; i < num;i++)
-		//			{
-		//				tr[0][i] = cop1[i];
-		//				tr[1][i] = cop2[i];
-		//				tr[2][i] = cop3[i];
-		//			}
-		//			delete cop1;
-		//			delete cop2;
-		//			delete cop3;
-		//			maximum += 10;
-		//		}
-		//	}
-		//}
-		bool no_tr = 1;
+		n = 0;
 		int  i = 0;
-		while(signal > 3) // Поиск нормалей к прямым в СК, связанной с плоскостью. Необходимо для определения столкновения. Хотя не уверен, нужен ли этот код.
+		int e  = 0;
+		while(signal >= 3) // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ. Эту запись, а не код
 		{
-			if(no_tr)
-			{
-				n = i + 2;
-				if(n >= num)
-				{
-					n  = n - (num+1);
-				}
-				testing = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),0, tmp_p[n].GetZ() - tmp_p[i].GetZ());
-
-				li[i].norm = Vector(ve[i].GetZ(),0,-ve[i].GetX());
-				if((li[i].norm & testing )< 0) // +оптимизировал Возможно, надо оптимизировать поиск знака угла.
-				{
-					li[i].norm =  Vector(-ve[i].GetZ(),0,ve[i].GetX());
-				} // конец кода поиска
-			}
-
-			int e  = 0;
 			bool et = true;
-			e = i + 1; // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ эту запись а не код
-			while(et) // написать аналогичную конструкцию и для i , и для n!!!!!!!!!!!!!!!!!!!!
+			bool nt = true;
+			bool it = true;
+			e = i + 1; 
+			n = i - 1; 
+			while(et || nt || it)
 			{
-				bool erej = true;
-				if(e >= num)
+				if(et)
 				{
-					e  = e - (num+1);
-				}
-				for(int i = 0;i<cur_rej;i++)
-				{
-					if(rejected[i] == e)
+					bool erej = true;
+					if(e >= num)
 					{
-						erej = false;
-						break;
+						e  = e - (num+1);
+					}
+					for(int i = 0;i<cur_rej;i++)
+					{
+						if(rejected[i] == e)
+						{
+							erej = false;
+							break;
+						}
+					}
+					if(!erej)
+					{
+						e++;
+						erej = true;
+					}
+					else
+					{
+						et = false;
 					}
 				}
-				if(!erej)
+				if(nt)
 				{
-					e++;
-					erej = true;
+					bool nrej = true;
+					if(n < 0)
+					{
+						n = num + n;
+					}
+					for(int i = 0;i<cur_rej;i++)
+					{
+						if(rejected[i] == n)
+						{
+							nrej = false;
+							break;
+						}
+					}
+					if(!nrej)
+					{
+						n--;
+						nrej = true;
+					}
+					else
+					{
+						nt = false;
+					}
 				}
-				else
+				if(it)
 				{
-					et = false;
+					bool irej = true;
+					if(i >= num)
+					{
+						i = 0;
+					}
+					for(int c = 0;c<cur_rej;c++)
+					{
+						if(rejected[c] == i)
+						{
+							irej = false;
+							break;
+						}
+					}
+					if(!irej)
+					{
+						i++;
+						irej = true;
+					}
+					else
+					{
+						it = false;
+					}
 				}
-			}
-			n = i - 1;
-			if( n <= 0)
-			{
-				n = num + n;
 			}
 			Vector normal[3];
 			Vector edge = Vector(tmp_p[e].GetX() - tmp_p[i].GetX(),0, tmp_p[e].GetZ() - tmp_p[i].GetZ());
@@ -786,8 +780,12 @@
 				tr[0][current] = i;
 				tr[1][current] = e;
 				tr[2][current] = n;
+				nor[0][current] = normal[0];
+				nor[1][current] = normal[1];
+				nor[2][current] = normal[2];
+				tr_num += 1;
 				current += 1;
-				signal--;
+				signal -= 1;
 				rejected[cur_rej] = i;
 				cur_rej += 1;
 				if(cur_rej >=max_rej)
@@ -811,38 +809,50 @@
 					int * cop1 = new int[current];
 					int * cop2 = new int[current];
 					int * cop3 = new int[current];
+					Vector * co_n1 = new Vector[current];
+					Vector * co_n2 = new Vector[current];
+					Vector * co_n3 = new Vector[current];
 					for(int i = 0;i<num;i++)
 					{
 						cop1[i] = tr[0][i];
 						cop2[i] = tr[1][i];
 						cop3[i] = tr[2][i];
+						co_n1[i] = nor[0][i];
+						co_n2[i] = nor[1][i];
+						co_n3[i] = nor[2][i];
 					}
 					delete tr[0];
 					delete tr[1];
 					delete tr[2];
+					delete nor[0];
+					delete nor[1];
+					delete nor[2];
 					tr[0] = new int[current + 10];
 					tr[1] = new int[current + 10];
 					tr[2] = new int[current + 10];
+					nor[0] = new Vector[current + 10];
+					nor[1] = new Vector[current + 10];
+					nor[2] = new Vector[current + 10];
 					for(int i = 0; i < num;i++)
 					{
 						tr[0][i] = cop1[i];
 						tr[1][i] = cop2[i];
 						tr[2][i] = cop3[i];
+						nor[0][i] = co_n1[i];
+						nor[1][i] = co_n2[i];
+						nor[2][i] = co_n3[i];
 					}
 					delete cop1;
 					delete cop2;
 					delete cop3;
+					delete co_n1;
+					delete co_n2;
+					delete co_n3;
 					maximum += 10;
 				}
 			} // конец триангуляции, конец света, конец добра и зла, чёрная дыра без массы и тому подобные прелести ( Конец шуту и королю, и глупости, и уму. Исполняли Никитины, Автора стихов не помню)
 			i++;
-			if(i >= num)
-			{
-				i = 0;
-				no_tr = 0;
-			}
 		}
-		delete ve;
 		// Конец поиска.
 		//Определение ограничивающего куба.
 		double max = tmp[num].GetX();
@@ -912,15 +922,31 @@
 		vec = v;
 		tmp = t;
 	}
-	Vector Line::projection(Vector t)
+	Vector Line::projection(Vector t) // не работает для случаев vec.GetY() == 0
 	{
+		double x,y,z;
 		double p[3] = {vec.GetX(),vec.GetY(),vec.GetZ()};
-		double _p1 = 1/p[1];
-		double D = - vec & t;
-		double A = (p[0] * p[0] + p[2] * p[2] ) * _p1;
-		double y = (t.GetY() * A - t.GetX() * p[0] - t.GetZ() * p[2] - D) / ( A + p[1]);
-		double x = (y - t.GetY()) * p[0] * _p1 + t.GetX();
-		double z = (y - t.GetY()) * p[2] * _p1 + t.GetZ();
+		bool flag = true;
+		if(p[0] != 0)
+		{
+			x = (p[0] * ( p[0] * t.GetX() + p[1] * ( t.GetY() + tmp.GetY() * (p[1] - 1)) + p[2]*(t.GetZ() + tmp.GetZ() * ( p[2] - 1)))) / (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+			y = tmp.GetY() - (p[1] * (tmp.GetX() - x)) / (p[0]); 
+			z = tmp.GetZ() - (p[2] * (tmp.GetX() - x)) / (p[0]);
+			flag = false;
+		}
+		if(p[1] != 0 && flag)
+		{
+			y = (p[1] * (p[1] * t.GetY() + p[0] * (t.GetX() + tmp.GetX() * (p[0] - 1)) + p[2]*(t.GetZ() + tmp.GetZ() * (p[2] - 1)))) / (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+			x = tmp.GetX() - (p[0] * (tmp.GetY() - y )) / (p[1]);
+			z = tmp.GetZ() - (p[2] * (tmp.GetY() - y )) / (p[1]);
+			flag = false;
+		}
+		if(p[2] != 0 && flag)
+		{
+			z = (p[2] * (p[2] * t.GetZ() + p[0] * (t.GetX() + tmp.GetX() * (p[0] - 1)) + p[1]*(t.GetY() + tmp.GetY() * (p[1] - 1)))) / (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+			x = tmp.GetX() - (p[0] * (tmp.GetZ() - z)) / (p[2]);
+			y = tmp.GetY() - (p[1] * (tmp.GetZ() - z)) / (p[2]);
+		}
 		return Vector(x,y,z);
 	}
 	Vector Line::lineXYZ(double x)

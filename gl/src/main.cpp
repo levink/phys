@@ -247,8 +247,6 @@ void display(void)
 	glEnd();*/
 	//glLineWidth(5.0);
 	////floor
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
-	//glBegin(GL_QUADS);
 	glNormal3d(0,1,0);
 	int x = 20;
 	int z = -20;
@@ -299,39 +297,41 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	Draw(Vector(0,0,5));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
-	World* tmp = NULL;
-	tmp = GetWorld(phy);
-	for(int i = 0;i<tmp->GetK();i++)
+	World* point = NULL; // раньше было tmp
+	point = GetWorld(phy);
+	for(int i = 0;i<point->GetK();i++)
 	{
 		glBegin(GL_QUADS);
-		for(int e = 0;e<tmp->GetPl(i).num;e++)
+		for(int e = 0;e<point->GetPl(i).num;e++)
 		{
-			glVertex3d(tmp->GetPl(i).tmp[e].GetX(), tmp->GetPl(i).tmp[e].GetY(),tmp->GetPl(i).tmp[e].GetZ());
+			glVertex3d(point->GetPl(i).tmp[e].GetX(), point->GetPl(i).tmp[e].GetY(),point->GetPl(i).tmp[e].GetZ());
 		}
 		glEnd();
 	}
-	/*for(int t=0;t<tmp->GetK();t++)
-	{
-		for(int i=0;i < x; i++)
-			for(int j=0;j > z; j--)
-			{
-				glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,t),j);
-				glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,t),j);
-			}
-	}
+	//glBegin(GL_QUADS);
+	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
+	//for(int t=0;t<tmp->GetK();t++)
+	//{
+	//	for(int i=0;i < x; i++)
+	//		for(int j=0;j > z; j--)
+	//		{
+	//			glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,t),j);
+	//			glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,t),j-1);
+	//			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,t),j-1);
+	//			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,t),j);
+	//		}
+	//}
 
-	for(int i=0;i < x; i++)
-		for(int j=0;j > z; j--)
-		{
-			glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,1)+10,j);
-			glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,1)+10,j-1);
-			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,1)+10,j-1);
-			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+10,j);
-		}
+	//for(int i=0;i < x; i++)
+	//	for(int j=0;j > z; j--)
+	//	{
+	//		glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,1)+10,j);
+	//		glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,1)+10,j-1);
+	//		glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,1)+10,j-1);
+	//		glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+10,j);
+	//	}
 
-	glEnd();*/
+	//glEnd();
 
 	//plane
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
@@ -350,7 +350,7 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	//DWORD dt = GetTickCount()-t1;
-	needStep = 1; // удалить
+	//needStep = 1; // удалить
 	if(needStep) 
 	{
 		needStep = false;
@@ -458,7 +458,7 @@ int main(int argc, char **argv)
 	obj[num] = tmp;
 	num++;*/
 	Sphere * tmp1 = new Sphere();
-	tmp1->Position = Vector(-16,12,0); // 5,12,0
+	tmp1->Position = Vector(11,12,0); // 5,12,0
 	phy->con_obj.CreateSphere(tmp1);
 	num++;
 	/*Sphere * tmp2 = new Sphere();

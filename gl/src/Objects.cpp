@@ -245,14 +245,14 @@ void Sphere::operator=(Sphere * count)
 bool Sphere::inspections(Plane pl)
 {
 	if(!pl.cubeinspection(Position))
-		return 0;
+		return false;
 	else
 	{
 		double eqa = pow(Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD(),2);
 		double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
 
 		if(lon == 0 )
-			return 0;
+			return false;
 		if((eqa/lon ) <= rad * rad)
 		{
 			Vector progect;
@@ -271,25 +271,25 @@ bool Sphere::inspections(Plane pl)
 				double z = (Position.GetZ() * ( pl.GetA() * pl.GetA() + pl.GetB() * pl.GetB()) - pl.GetC() * (pl.GetA() * Position.GetX() + pl.GetB() * Position.GetY() + pl.GetD())) / pl.GetN().length2();
 				progect = Vector((pl.GetA() * (z - Position.GetZ()))/pl.GetC() + Position.GetX(),(pl.GetB() * (z - Position.GetZ()))/pl.GetC() + Position.GetY(),z);
 			}
-			bool test = ((Vector(progect.GetX() - pl.tmp_p[0].GetX(),progect.GetY() - pl.tmp_p[0].GetY(),progect.GetZ() - pl.tmp_p[0].GetZ()) & pl.li[0].norm) > 0);
 			
-			bool flag = 1;
-
-			for(int i = 1;i<pl.li_num;i++)
+			bool flag = true;
+			for(int i = 0; i< pl.tr_num; i++)
 			{
-				if( ((Vector(progect.GetX() - pl.tmp_p[i].GetX(),progect.GetY() - pl.tmp_p[i].GetY(),progect.GetZ() - pl.tmp_p[i].GetZ()) & pl.li[i].norm) > 0 )!= test)
+				if(((Vector(progect.GetX() - pl.tmp_p[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) <= 0) ||
+					((Vector(progect.GetX() - pl.tmp_p[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) <= 0) ||
+					((Vector(progect.GetX() - pl.tmp_p[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) <= 0) )
 				{
-					flag = 0;
-					return 0;
+					flag = false;
+					return false;
 				}
 			}
-			if(flag == 1)
-				return 1;
+			if(flag)
+				return true;
 			else
-				return 0;
+				return false;
 		}
 		else
-			return 0;
+			return false;
 	}
 }
 void Sphere::calculation(Plane pl,double resil, double t)
@@ -326,7 +326,22 @@ void Sphere::calculation(Plane pl,double resil, double t)
 }
 bool Sphere::inspections(Line li)
 {
-	return (((Vector(li.tmp.GetX() - Position.GetX(),li.tmp.GetY() - Position.GetY(),li.tmp.GetZ() - Position.GetZ()) * li.vec).length2() / li.vec.length2()) < rad * rad);
+	Vector pro = li.projection(Position);
+	bool a = pro.GetX() - rad < li.limit[0] && pro.GetX() + rad > li.limit[1]; // Ўар пролетает мимо так как в тесте участвует только точка. 
+	bool b = pro.GetY() - rad < li.limit[2] && pro.GetY() + rad > li.limit[3]; // ѕроверить поиск максимумов и минимумов координат пр€мой, похоже там ошибка.
+	bool c = pro.GetY() - rad < li.limit[4] && pro.GetY() + rad > li.limit[5];
+	if(pro.GetX() < li.limit[0] && pro.GetX() > li.limit[1] && pro.GetY() < li.limit[2] && pro.GetY() > li.limit[3] && pro.GetZ() < li.limit[4] && pro.GetZ() > li.limit[5])
+	{
+		if(((Vector(li.tmp.GetX() - Position.GetX(),li.tmp.GetY() - Position.GetY(),li.tmp.GetZ() - Position.GetZ()) * li.vec).length2() / li.vec.length2()) < rad * rad)
+		{
+			return true;
+		}
+		else
+			return false;
+		//return (((Vector(li.tmp.GetX() - Position.GetX(),li.tmp.GetY() - Position.GetY(),li.tmp.GetZ() - Position.GetZ()) * li.vec).length2() / li.vec.length2()) < rad * rad);
+	}
+	else
+		return false;
 }
 void Sphere::calculation(Line li, double resil, double t)
 {

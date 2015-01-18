@@ -7,7 +7,7 @@ World::World(/*bool test*/)
 	{
 		k = 2;
 		Plan = new Plane [k];
-		double eq1[4]  ={-5,5,0,30};
+		double eq1[4]  ={-5,5,0,85};
 		double eq2[4] = {0,1,0,-3};
 		
 		Plan[0] = Plane(eq1);
@@ -22,6 +22,7 @@ World::World(/*bool test*/)
 		Plan[1].SetTmp(Vector(11,3,11));
 		Plan[0].triangulation();
 		Plan[1].triangulation();
+		
 	}
 
 World::World(double A, double B, double C, double D, double reserve[6])
@@ -190,7 +191,6 @@ CollisionInfo * World::inspections(ContainerObjects con)
 						
 					}
 					test = 0;
-					return 0;
 				}
 			}
 			for(int c = 0;c<Plan[e].li_num && test;c++)
@@ -230,7 +230,6 @@ CollisionInfo * World::inspections(ContainerObjects con)
 						
 					}
 					test = 0;
-					return 0;
 				}
 			}
 			if(sp->inspections(Plan[e]) && test)
@@ -241,7 +240,6 @@ CollisionInfo * World::inspections(ContainerObjects con)
 				current += 1;
 				if(	current >= max)
 				{
-				
 					CollisionInfo * copy = new CollisionInfo[current];
 					for(int i = 0;i<current;i++)
 					{
