@@ -7,7 +7,7 @@ World::World(/*bool test*/)
 	{
 		k = 2;
 		Plan = new Plane [k];
-		double eq1[4]  ={-5,5,0,85};
+		double eq1[4]  ={0,5,-5,30};
 		double eq2[4] = {0,1,0,-3};
 		
 		Plan[0] = Plane(eq1);
@@ -22,7 +22,14 @@ World::World(/*bool test*/)
 		Plan[1].SetTmp(Vector(11,3,11));
 		Plan[0].triangulation();
 		Plan[1].triangulation();
-		
+		/*k = 1; // Красивый треугольник.
+		Plan = new Plane[k];
+		double eq1[4] = {0,1,0,-3};
+		Plan[0] = Plane(eq1);
+		Plan[0].SetTmp(Vector(10,3,-5));
+		Plan[0].SetTmp(Vector(-6,3,-5));
+		Plan[0].SetTmp(Vector(2,3,11));
+		Plan[0].triangulation();*/
 	}
 
 World::World(double A, double B, double C, double D, double reserve[6])

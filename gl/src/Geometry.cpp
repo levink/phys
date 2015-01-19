@@ -268,6 +268,7 @@
 		equa[2] = 0;
 		equa[3] = 0; 
 		tmp = new Vector[1];
+		tmp_p = new Vector[1];
 		num = 0;
 		Mat = Matrix();
 		tr[0] = NULL;
@@ -290,6 +291,7 @@
 	void Plane::PlaneSetEquation(double eq[4])
 	{
 		tmp = new Vector[1];
+		tmp_p = new Vector[1];
 		num = 0;
 		Mat = Matrix();
 		tr[0] = NULL;
@@ -415,6 +417,7 @@
 		equa[2] = Ctmp[0][0]*(Ctmp[1][1] - Ctmp[1][2]) + Ctmp[0][1]*(Ctmp[1][2] - Ctmp[1][0]) + Ctmp[0][2]*(Ctmp[1][0] - Ctmp[1][1]);
 
 		double longg  = sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
+		double eq[4] = {equa[0],equa[1],equa[2],equa[3]};
 		equa[0] = equa[0] / longg;
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
@@ -427,7 +430,10 @@
 			{0,-1,0},
 			{0,0,1}, };
 		Matrix rebound = Matrix(redoun);*/
-
+		equa[0] = eq[0];
+		equa[1] = eq[1];
+		equa[2] = eq[2];
+		equa[3] = eq[3];
 		Mat = invert /** rebound * Mat*/;
 	}
 
@@ -438,6 +444,7 @@
 		equa[2] = x1.GetX() * (x2.GetY() - x2.GetZ()) + x1.GetY() * (x2.GetZ() - x2.GetX()) + x1.GetZ() * (x2.GetX() - x2.GetY());
 
 		double longg  = sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
+		double eq[4] = {equa[0],equa[1],equa[2],equa[3]};
 		equa[0] = equa[0] / longg;
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
@@ -450,13 +457,17 @@
 			{0,-1,0},
 			{0,0,1}, };
 		Matrix rebound = Matrix(redoun);*/
-
+		equa[0] = eq[0];
+		equa[1] = eq[1];
+		equa[2] = eq[2];
+		equa[3] = eq[3];
 		Mat = invert /** rebound * Mat*/;
 	}
 
 	Plane::Plane(double eq [4])
 	{
 		tmp = new Vector[1];
+		tmp_p = new Vector[1];
 		num = 0;
 		Mat = Matrix();
 		tr[0] = NULL;
@@ -475,7 +486,7 @@
 			equa[i] = eq[i];
 		}
 		double length = sqrt(eq[0] * eq[0] + eq[1] * eq[1] + eq[2] * eq[2]); 
-
+		double equation[4] = {equa[0],equa[1],equa[2],equa[3]};
 		equa[0] = equa[0] / length;
 		equa[1] = equa[1] / length;
 		equa[2] = equa[2] / length;
@@ -489,7 +500,10 @@
 			{0,-1,0},
 			{0,0,1}, };
 		Matrix rebound = Matrix(redoun);*/
-
+		equa[0] = equation[0];
+		equa[1] = equation[1];
+		equa[2] = equation[2];
+		equa[3] = equation[3];
 		Mat = invert /** rebound * Mat*/;
 
 	}
@@ -550,20 +564,28 @@
 				t = Vector((equa[0] * (z - t.GetZ()))/equa[2] + t.GetX(),(equa[1] * (z - t.GetZ()))/equa[2] + t.GetY(),z);
 			}
 		}
-		tmp[num] = t;
+		else
+			tmp_p[num] = t;
+		tmp[num] = tmp_p[num];
 		num += 1;
 		Vector * copy = new Vector[num];
+		Vector * copy_p = new Vector[num];
 		for(int i = 0;i<num;i++)
 		{
 			copy[i] = tmp[i];
+			copy_p[i] = tmp_p[i];
 		}
 		delete tmp;
+		delete tmp_p;
 		tmp = new Vector[num+1];
+		tmp_p = new Vector[num+1];
 		for(int i = 0; i < num;i++)
 		{
 			tmp[i] = copy[i];
+			tmp_p[i] = copy_p[i];
 		}
 		delete copy;
+		delete copy_p;
 	}
 	void Plane::triangulation() // триангул€ци€ !!!!!!!(не работает вообще 06.01.2015)работает только дл€ четырЄхугольников! + определение ограничивающего куба + определение нормалей к контуру
 	{
@@ -587,8 +609,8 @@
 		for(int i =0;i<num;i++)
 		{
 			n = i + 1;
-			if(n > num)
-				n  = n - (num+1);
+			if(n >= num)
+				n  = n - (num);
 			li[i].vec = Vector(tmp[n].GetX() - tmp[i].GetX(),tmp[n].GetY() - tmp[i].GetY(),tmp[n].GetZ() - tmp[i].GetZ());
 			li[i].tmp = tmp[i];
 			if(tmp[i].GetX() > tmp[n].GetX())
@@ -599,7 +621,7 @@
 			else
 			{	
 				li[i].limit[0] = tmp[n].GetX();
-				li[i].limit[1] = tmp[n].GetX();
+				li[i].limit[1] = tmp[i].GetX();
 			}
 			if(tmp[i].GetY() > tmp[n].GetY())
 			{
@@ -609,7 +631,7 @@
 			else
 			{	
 				li[i].limit[2] = tmp[n].GetY();
-				li[i].limit[3] = tmp[n].GetY();
+				li[i].limit[3] = tmp[i].GetY();
 			}
 			if(tmp[i].GetZ() > tmp[n].GetZ())
 			{
@@ -619,15 +641,9 @@
 			else					 
 			{						 
 				li[i].limit[4] = tmp[n].GetZ();
-				li[i].limit[5] = tmp[n].GetZ();
+				li[i].limit[5] = tmp[i].GetZ();
 			}
 			
-		}
-
-		tmp_p = new Vector[num];
-		for(int i = 0;i<num;i++)
-		{
-			tmp_p[i] = Mat * tmp[i];
 		}
 
 		Vector testing = Vector();
@@ -648,7 +664,7 @@
 					bool erej = true;
 					if(e >= num)
 					{
-						e  = e - (num+1);
+						e  = e - (num);
 					}
 					for(int i = 0;i<cur_rej;i++)
 					{
@@ -853,62 +869,51 @@
 			} // конец триангул€ции, конец света, конец добра и зла, чЄрна€ дыра без массы и тому подобные прелести (  онец шуту и королю, и глупости, и уму. »сполн€ли Ќикитины, јвтора стихов не помню)
 			i++;
 		}
+		delete rejected;
 		//  онец поиска.
 		//ќпределение ограничивающего куба.
-		double max = tmp[num].GetX();
+		double maxX = tmp[num].GetX();
+		double maxY = tmp[num].GetY();
+		double maxZ = tmp[num].GetZ();
 		for(int i = 0;i<num;i++) 
 		{
-			if(tmp[i].GetX() < max)
+			if(tmp[i].GetX() > maxX)
 			{
-				max = tmp[i].GetX();
+				maxX = tmp[i].GetX();
+			}
+			if(tmp[i].GetY() > maxY)
+			{
+				maxY = tmp[i].GetY();
+			}
+			if(tmp[i].GetZ() > maxZ)
+			{
+				maxZ = tmp[i].GetZ();
 			}
 		}
-		tes[0] = max - 2;
-		max = tmp[num].GetX();
-		for(int i = 0;i<num;i++)
+		tes[0] = maxX + 2;
+		tes[2] = maxY + 2;
+		tes[4] = maxZ + 2;
+		maxX = tmp[num].GetX();
+		maxY = tmp[num].GetY();
+		maxZ = tmp[num].GetZ();
+		for(int i = 0;i<num;i++) 
 		{
-			if(tmp[i].GetX() > max)
+			if(tmp[i].GetX() < maxX)
 			{
-				max = tmp[i].GetX();
+				maxX = tmp[i].GetX();
+			}
+			if(tmp[i].GetY() < maxY)
+			{
+				maxY = tmp[i].GetY();
+			}
+			if(tmp[i].GetZ() < maxZ)
+			{
+				maxZ = tmp[i].GetZ();
 			}
 		}
-		tes[1] = max + 2;
-		max = tmp[num].GetY();
-		for(int i = 0;i<num;i++)
-		{
-			if(tmp[i].GetY() < max)
-			{
-				max = tmp[i].GetY();
-			}
-		}
-		tes[2] = max - 2;
-		max = tmp[num].GetY();
-		for(int i = 0;i<num;i++)
-		{
-			if(tmp[i].GetY() > max)
-			{
-				max = tmp[i].GetY();
-			}
-		}
-		tes[3] = max + 2;
-		max = tmp[num].GetY();
-		for(int i = 0;i<num;i++)
-		{
-			if(tmp[i].GetZ() < max)
-			{
-				max = tmp[i].GetZ();
-			}
-		}
-		tes[4] = max - 2;
-		max = tmp[num].GetZ();
-		for(int i = 0;i<num;i++)
-		{
-			if(tmp[i].GetZ() > max)
-			{
-				max = tmp[i].GetZ();
-			}
-		}
-		tes[5] = max + 2;
+		tes[1] = maxX - 2;
+		tes[3] = maxY - 2;
+		tes[5] = maxZ - 2;
 		// онец определени€ куба.
 	}
 

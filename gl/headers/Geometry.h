@@ -119,7 +119,10 @@ public:
 	void triangulation();
 	bool cubeinspection(Vector tmp)
 	{
-		return ( tmp.GetX() > tes[0] || tmp.GetX() < tes[1] || tmp.GetY() > tes[2] || tmp.GetY() < tes[3] || tmp.GetZ() > tes[4] || tmp.GetZ() < tes[5]);
+		bool a = tmp.GetX() < tes[0] && tmp.GetX() > tes[1];
+		bool b = tmp.GetY() < tes[2] && tmp.GetY() > tes[3];
+		bool c = tmp.GetZ() < tes[4] && tmp.GetZ() > tes[5];
+		return ( a && b & c);
 	}
 
 	Matrix GetMat();

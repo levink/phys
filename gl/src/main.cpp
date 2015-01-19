@@ -297,41 +297,44 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	Draw(Vector(0,0,5));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
-	World* point = NULL; // раньше было tmp
-	point = GetWorld(phy);
-	for(int i = 0;i<point->GetK();i++)
+	World* tmp = NULL; // раньше было tmp
+	tmp = GetWorld(phy);
+	for(int i = 0;i<tmp->GetK();i++)
 	{
-		glBegin(GL_QUADS);
-		for(int e = 0;e<point->GetPl(i).num;e++)
+		glBegin(GL_TRIANGLES);
+		Plane pl = tmp->GetPl(i);
+		for(int e = 0;e<pl.tr_num;e++)
 		{
-			glVertex3d(point->GetPl(i).tmp[e].GetX(), point->GetPl(i).tmp[e].GetY(),point->GetPl(i).tmp[e].GetZ());
+			glVertex3d(pl.tmp[pl.tr[0][e]].GetX(), pl.tmp[pl.tr[0][e]].GetY(),pl.tmp[pl.tr[0][e]].GetZ());
+			glVertex3d(pl.tmp[pl.tr[1][e]].GetX(), pl.tmp[pl.tr[1][e]].GetY(),pl.tmp[pl.tr[1][e]].GetZ());
+			glVertex3d(pl.tmp[pl.tr[2][e]].GetX(), pl.tmp[pl.tr[2][e]].GetY(),pl.tmp[pl.tr[2][e]].GetZ());
 		}
 		glEnd();
 	}
-	//glBegin(GL_QUADS);
-	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
-	//for(int t=0;t<tmp->GetK();t++)
-	//{
-	//	for(int i=0;i < x; i++)
-	//		for(int j=0;j > z; j--)
-	//		{
-	//			glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,t),j);
-	//			glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,t),j-1);
-	//			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,t),j-1);
-	//			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,t),j);
-	//		}
-	//}
+	glBegin(GL_QUADS);
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
+	for(int t=0;t<tmp->GetK();t++)
+	{
+		for(int i=0;i < x; i++)
+			for(int j=50;j > z; j--)
+			{
+				glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,t),j);
+				glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,t),j-1);
+				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,t),j-1);
+				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,t),j);
+			}
+	}
 
-	//for(int i=0;i < x; i++)
-	//	for(int j=0;j > z; j--)
-	//	{
-	//		glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,1)+10,j);
-	//		glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,1)+10,j-1);
-	//		glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,1)+10,j-1);
-	//		glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+10,j);
-	//	}
+	for(int i=0;i < x; i++)
+		for(int j=0;j > z; j--)
+		{
+			glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,1)+10,j);
+			glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,1)+10,j-1);
+			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,1)+10,j-1);
+			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+10,j);
+		}
 
-	//glEnd();
+	glEnd();
 
 	//plane
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
@@ -458,7 +461,7 @@ int main(int argc, char **argv)
 	obj[num] = tmp;
 	num++;*/
 	Sphere * tmp1 = new Sphere();
-	tmp1->Position = Vector(11,12,0); // 5,12,0
+	tmp1->Position = Vector(-5,16,20); // 5,12,0 - Стандартное значение. 2,12,-5.3 - Красивый треугольник.
 	phy->con_obj.CreateSphere(tmp1);
 	num++;
 	/*Sphere * tmp2 = new Sphere();

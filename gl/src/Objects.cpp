@@ -272,15 +272,15 @@ bool Sphere::inspections(Plane pl)
 				progect = Vector((pl.GetA() * (z - Position.GetZ()))/pl.GetC() + Position.GetX(),(pl.GetB() * (z - Position.GetZ()))/pl.GetC() + Position.GetY(),z);
 			}
 			
-			bool flag = true;
+			bool flag = false;
 			for(int i = 0; i< pl.tr_num; i++)
 			{
-				if(((Vector(progect.GetX() - pl.tmp_p[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) <= 0) ||
-					((Vector(progect.GetX() - pl.tmp_p[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) <= 0) ||
-					((Vector(progect.GetX() - pl.tmp_p[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) <= 0) )
+				if(((Vector(progect.GetX() - pl.tmp_p[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) >= 0) ||
+					((Vector(progect.GetX() - pl.tmp_p[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) >= 0) ||
+					((Vector(progect.GetX() - pl.tmp_p[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) >= 0) )
 				{
-					flag = false;
-					return false;
+					flag = true;
+					return true;
 				}
 			}
 			if(flag)
@@ -327,10 +327,10 @@ void Sphere::calculation(Plane pl,double resil, double t)
 bool Sphere::inspections(Line li)
 {
 	Vector pro = li.projection(Position);
-	bool a = pro.GetX() - rad < li.limit[0] && pro.GetX() + rad > li.limit[1]; // Ўар пролетает мимо так как в тесте участвует только точка. 
-	bool b = pro.GetY() - rad < li.limit[2] && pro.GetY() + rad > li.limit[3]; // ѕроверить поиск максимумов и минимумов координат пр€мой, похоже там ошибка.
-	bool c = pro.GetY() - rad < li.limit[4] && pro.GetY() + rad > li.limit[5];
-	if(pro.GetX() < li.limit[0] && pro.GetX() > li.limit[1] && pro.GetY() < li.limit[2] && pro.GetY() > li.limit[3] && pro.GetZ() < li.limit[4] && pro.GetZ() > li.limit[5])
+	bool a = pro.GetX() < li.limit[0] + rad && pro.GetX() > li.limit[1] - rad; // Ўар пролетает мимо так как в тесте участвует только точка. 
+	bool b = pro.GetY() < li.limit[2] + rad && pro.GetY() > li.limit[3] - rad; // ѕроверить поиск максимумов и минимумов координат пр€мой, похоже там ошибка.
+	bool c = pro.GetZ() < li.limit[4] + rad && pro.GetZ() > li.limit[5] - rad;
+	if(a && b && c)
 	{
 		if(((Vector(li.tmp.GetX() - Position.GetX(),li.tmp.GetY() - Position.GetY(),li.tmp.GetZ() - Position.GetZ()) * li.vec).length2() / li.vec.length2()) < rad * rad)
 		{
