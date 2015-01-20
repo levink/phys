@@ -102,7 +102,7 @@ public:
 	Vector * tmp; // Точки, определяющие ВЫПУКЛЫЙ контур.
 	int num; // Количество вершин.
 	Line * li;
-	Vector * tmp_p; // Проекции точек, определяющих ВЫПУКЛЫЙ контур.
+	 // Проекции точек, определяющих ВЫПУКЛЫЙ контур.
 	int li_num;
 
 	Plane();
@@ -115,7 +115,8 @@ public:
 	Plane(double eq [4]);
 	Matrix GetInvertMat();
 
-	void SetTmp(Vector t);
+	Vector project(Vector* point);
+	void SetPoints(Vector * t, int l);
 	void triangulation();
 	bool cubeinspection(Vector tmp)
 	{

@@ -255,29 +255,15 @@ bool Sphere::inspections(Plane pl)
 			return false;
 		if((eqa/lon ) <= rad * rad)
 		{
-			Vector progect;
-			if(pl.GetA() != 0)
-			{
-				double x = (Position.GetX() * ( pl.GetB() * pl.GetB() + pl.GetC() * pl.GetC()) - pl.GetA() * (pl.GetB() * Position.GetY() + pl.GetC() * Position.GetZ() + pl.GetD())) / pl.GetN().length2();
-				progect = Vector(x,(pl.GetB() * (x - Position.GetX()))/pl.GetA() + Position.GetY(),(pl.GetC() * (x - Position.GetX()))/pl.GetA() + Position.GetZ());
-			}
-			if(pl.GetB() != 0)
-			{
-				double y = (Position.GetY() * ( pl.GetA() * pl.GetA() + pl.GetC() * pl.GetC()) - pl.GetB() * (pl.GetA() * Position.GetX() + pl.GetC() * Position.GetZ() + pl.GetD())) / pl.GetN().length2();
-				progect = Vector((pl.GetA() * (y - Position.GetY()))/pl.GetB() + Position.GetX(),y,(pl.GetC() * (y - Position.GetY()))/pl.GetB() + Position.GetZ());
-			}
-			if(pl.GetC() != 0)
-			{
-				double z = (Position.GetZ() * ( pl.GetA() * pl.GetA() + pl.GetB() * pl.GetB()) - pl.GetC() * (pl.GetA() * Position.GetX() + pl.GetB() * Position.GetY() + pl.GetD())) / pl.GetN().length2();
-				progect = Vector((pl.GetA() * (z - Position.GetZ()))/pl.GetC() + Position.GetX(),(pl.GetB() * (z - Position.GetZ()))/pl.GetC() + Position.GetY(),z);
-			}
+			Vector progect = pl.project(&Position);
+			
 			
 			bool flag = false;
 			for(int i = 0; i< pl.tr_num; i++)
 			{
-				if(((Vector(progect.GetX() - pl.tmp_p[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) >= 0) ||
-					((Vector(progect.GetX() - pl.tmp_p[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) >= 0) ||
-					((Vector(progect.GetX() - pl.tmp_p[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp_p[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp_p[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) >= 0) )
+				if(((Vector(progect.GetX() - pl.tmp[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) >= 0) ||
+					((Vector(progect.GetX() - pl.tmp[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) >= 0) ||
+					((Vector(progect.GetX() - pl.tmp[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) >= 0) )
 				{
 					flag = true;
 					return true;
@@ -296,11 +282,12 @@ void Sphere::calculation(Plane pl,double resil, double t)
 {
 	Vector normal = pl.GetN();
 	Rotated(velo,normal);
+	Vector ve = velo;
 	//double velo = obj->velo.length();
 	//obj->velo = Vector_norm(Plan[i].GetMat() * obj->velo);
 	//obj->velo = obj->velo * velo * resil;
 	//obj->F = obj->F + Vector_norm(Plan[i].GetN()) * obj->F.length()/** obj->velo.length()*sqrt(K * obj->m)*/;
-	if(velo < 4.3)
+	if(velo < 0.1)
 		velo = Vector(0,0,0);
 
 	Vector n = Vector_norm(normal);
@@ -310,12 +297,14 @@ void Sphere::calculation(Plane pl,double resil, double t)
 	Vector F_obj = F;
 	Vector N_velo = - ((vy * 2 * m)/(t));
 	F = - ((vy * 2 * m)/(t)) - n * Fy + F;
-	
+	if((normal & ve) >= 0)
+		F = -F;
+
 	cout << "Velo to Plane : {" << velo.GetX() << ", " << velo.GetY() << ", " << velo.GetZ() << "}.\n\n";
 	double eqa =abs( Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD());
 	double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
 	eqa = eqa/(sqrt(lon));
-	if((velo ^ normal) < 0 )   
+	if((ve ^ normal) < 0 )   
 		Position = Position  + normal * (rad - eqa);
 	else
 		Position = Position + normal * (eqa - rad);
@@ -434,56 +423,45 @@ void ContainerObjects::MoveOutSphere(Sphere * sp, double t_sec)
 
 void ContainerObjects::MoveSphere(int n,double t_sec)
 {
-	Vector Ft = Vector(0,-obj[n]->m * obj[n]->_g,0); 
+	Vector Ft = Vector(0,-obj[n].m * obj[n]._g,0); 
 	//Vector Ftr = - (obj->velo /*> obj->velo*/ * p / 2) *  n * 3.14;
-	Vector F = obj[n]->F /*+ Ftr*/;	// + F1 + F2 + ...;
-	Vector a = obj[n]->F / obj[n]->m;
-	Vector v = obj[n]->velo + a*t_sec; 
-	Vector x = obj[n]->Position + obj[n]->velo*t_sec + (a*t_sec*t_sec)/2; 
+	Vector F = obj[n].F /*+ Ftr*/;	// + F1 + F2 + ...;
+	Vector a = obj[n].F / obj[n].m;
+	Vector v = obj[n].velo + a*t_sec; 
+	Vector x = obj[n].Position + obj[n].velo*t_sec + (a*t_sec*t_sec)/2; 
 
-	obj[n]->accel = a;
-	obj[n]->velo = v;
-	obj[n]->Position = x;
-	obj[n]->F = Ft;
+	obj[n].accel = a;
+	obj[n].velo = v;
+	obj[n].Position = x;
+	obj[n].F = Ft;
 
-	double l = obj[n]->GetRad() * 2 * PI;
-	obj[n]->Angl  = ( (obj[n]->w * t_sec) / l) * 360 + obj[n]->Angl;
-	if(obj[n]->Angl.GetX() > 360 || obj[n]->Angl.GetX() < -360)
-		obj[n]->Angl.SetX(0);
-	if(obj[n]->Angl.GetY() > 360 || obj[n]->Angl.GetY() < -360)
-		obj[n]->Angl.SetY(0);
-	if(obj[n]->Angl.GetZ() > 360 || obj[n]->Angl.GetZ() < -360)
-		obj[n]->Angl.SetZ(0);
+	double l = obj[n].GetRad() * 2 * PI;
+	obj[n].Angl  = ( (obj[n].w * t_sec) / l) * 360 + obj[n].Angl;
+	if(obj[n].Angl.GetX() > 360 || obj[n].Angl.GetX() < -360)
+		obj[n].Angl.SetX(0);
+	if(obj[n].Angl.GetY() > 360 || obj[n].Angl.GetY() < -360)
+		obj[n].Angl.SetY(0);
+	if(obj[n].Angl.GetZ() > 360 || obj[n].Angl.GetZ() < -360)
+		obj[n].Angl.SetZ(0);
 }
 
 ContainerObjects::ContainerObjects()
 {
-	obj = new Sphere*[1];
+	//obj = new Sphere*[1];
+	//obj.insert(obj.end(), Sphere());
 	number = 0;
 }
 
-void ContainerObjects::CreateSphere(Sphere * count)
+void ContainerObjects::AddSphere(Sphere* elem)
 {	
-	obj[number] = count;
-	number += 1;
-	Sphere ** copy = new Sphere*[number];
-	for(int i = 0;i<number;i++)
-	{
-		copy[i] = obj[i];
-	}
-	delete obj;
-	obj = new Sphere*[number+1];
-	for(int i = 0; i < number;i++)
-	{
-		obj[i] = copy[i];
-	}
-	delete copy;
+	obj.insert(obj.end(), *elem);
+	number++;
 }
 
 Sphere* ContainerObjects::GetSphere(int n)
 {
 	if(n<=number)
-		return obj[n];
+		return &obj[n];
 	else
 		return &Sphere();
 }
@@ -497,10 +475,10 @@ CollisionInfoOfSphere* ContainerObjects::inspection()
 	{
 		for(int e = i+1; e<number;e++)
 		{
-			if(obj[i]->Test(obj[e]))
+			if(obj[i].Test(&obj[e]))
 			{
-				col[current].sp1 = obj[i];
-				col[current].sp2 = obj[e];
+				col[current].sp1 = &obj[i];
+				col[current].sp2 = &obj[e];
 				current += 1;
 				if(	current >= max)
 				{
@@ -509,7 +487,7 @@ CollisionInfoOfSphere* ContainerObjects::inspection()
 					{
 						copy[i] = col[i];
 					}
-					delete obj;
+					delete col;
 					col = new CollisionInfoOfSphere[number+1];
 					for(int i = 0; i < number;i++)
 					{

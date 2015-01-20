@@ -267,8 +267,7 @@
 		equa[1] = 0;
 		equa[2] = 0;
 		equa[3] = 0; 
-		tmp = new Vector[1];
-		tmp_p = new Vector[1];
+		tmp = NULL;
 		num = 0;
 		Mat = Matrix();
 		tr[0] = NULL;
@@ -290,8 +289,7 @@
 
 	void Plane::PlaneSetEquation(double eq[4])
 	{
-		tmp = new Vector[1];
-		tmp_p = new Vector[1];
+		tmp = NULL;
 		num = 0;
 		Mat = Matrix();
 		tr[0] = NULL;
@@ -466,8 +464,7 @@
 
 	Plane::Plane(double eq [4])
 	{
-		tmp = new Vector[1];
-		tmp_p = new Vector[1];
+		tmp = NULL;
 		num = 0;
 		Mat = Matrix();
 		tr[0] = NULL;
@@ -543,49 +540,42 @@
 	{
 		return equa[3];
 	}
-	void Plane::SetTmp(Vector t)
+	Vector Plane::project(Vector* point)
 	{
-		double test = equa[0] * t.GetX() + equa[1] * t.GetY() + equa[2] * t.GetZ() + equa[3];
-		if(test >=0.000000001 && test <=-0.000000001)
+		double test = equa[0] * point->GetX() + equa[1] * point->GetY() + equa[2] * point->GetZ() + equa[3];
+		if(test >=0.0000001 || test <=-0.0000001)
 		{
+			double _x = point->GetX();
+			double _y = point->GetY();
+			double _z = point->GetZ();
 			if(equa[0] != 0)
 			{
-				double x = (t.GetX() * ( equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * t.GetY() + equa[2] * t.GetZ() + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
-				t = Vector(x,(equa[1] * (x - t.GetX()))/equa[0] + t.GetY(),(equa[2] * (x - t.GetX()))/equa[0] + t.GetZ());
+				double x = (_x * ( equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * _y + equa[2] * _z + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
+				return(Vector(x,(equa[1] * (x - _x))/equa[0] + _y,(equa[2] * (x - _x))/equa[0] + _z));
 			}
 			if(equa[1] != 0)
 			{
-				double y = (t.GetY() * ( equa[0] * equa[0] + equa[2] * equa[2]) - equa[1] * (equa[0] * t.GetX() + equa[2] * t.GetZ() + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
-				t = Vector((equa[0] * (y - t.GetY()))/equa[1] + t.GetX(),y,(equa[2] * (y - t.GetY()))/equa[1] + t.GetZ());
+				double y = (_y * ( equa[0] * equa[0] + equa[2] * equa[2]) - equa[1] * (equa[0] * _x + equa[2] * _z + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
+				return(Vector((equa[0] * (y - _y))/equa[1] + _x,y,(equa[2] * (y - _y))/equa[1] + _z));
 			}
 			if(equa[2] != 0)
 			{
-				double z = (t.GetZ() * ( equa[0] * equa[0] + equa[1] * equa[1]) - equa[2] * (equa[0] * t.GetX() + equa[1] * t.GetY() + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
-				t = Vector((equa[0] * (z - t.GetZ()))/equa[2] + t.GetX(),(equa[1] * (z - t.GetZ()))/equa[2] + t.GetY(),z);
+				double z = (_z * ( equa[0] * equa[0] + equa[1] * equa[1]) - equa[2] * (equa[0] * _x + equa[1] * _y + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
+				return(Vector((equa[0] * (z - _z))/equa[2] + _x,(equa[1] * (z - _z))/equa[2] + _y,z));
 			}
 		}
-		else
-			tmp_p[num] = t;
-		tmp[num] = tmp_p[num];
-		num += 1;
-		Vector * copy = new Vector[num];
-		Vector * copy_p = new Vector[num];
-		for(int i = 0;i<num;i++)
+		return (*point);
+	}
+	void Plane::SetPoints(Vector * point, int l)
+	{
+		num = l;
+		if(tmp!=NULL)	delete[] tmp;
+		tmp = new Vector[num];
+		for(int i= 0;i<num;i++)
 		{
-			copy[i] = tmp[i];
-			copy_p[i] = tmp_p[i];
+			tmp[i] = project(&point[i]);
 		}
-		delete tmp;
-		delete tmp_p;
-		tmp = new Vector[num+1];
-		tmp_p = new Vector[num+1];
-		for(int i = 0; i < num;i++)
-		{
-			tmp[i] = copy[i];
-			tmp_p[i] = copy_p[i];
-		}
-		delete copy;
-		delete copy_p;
+		this->triangulation();
 	}
 	void Plane::triangulation() // триангуляция !!!!!!!(не работает вообще 06.01.2015)работает только для четырёхугольников! + определение ограничивающего куба + определение нормалей к контуру
 	{
@@ -736,14 +726,14 @@
 				}
 			}
 			Vector normal[3];
-			Vector edge = Vector(tmp_p[e].GetX() - tmp_p[i].GetX(),0, tmp_p[e].GetZ() - tmp_p[i].GetZ());
+			Vector edge = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
 			normal[0] = Vector(edge.GetZ(), 0, -edge.GetX()); // Всё правильно, не надо пугаться 
-			testing = Vector(tmp_p[n].GetX() - tmp_p[e].GetX(), 0, tmp_p[n].GetZ() - tmp_p[e].GetZ());
+			testing = Vector(tmp[n].GetX() - tmp[e].GetX(), 0, tmp[n].GetZ() - tmp[e].GetZ());
 			if((normal[0] & testing) <= 0)
 			{
 				if((normal[0] & testing) == 0)
 				{
-					Vector tes = Vector(tmp_p[n].GetX() - tmp_p[i].GetX(),0, tmp_p[n].GetZ() - tmp_p[i].GetZ());
+					Vector tes = Vector(tmp[n].GetX() - tmp[i].GetX(),0, tmp[n].GetZ() - tmp[i].GetZ());
 					if((normal[0] & tes) < 0)
 						normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
 				}
@@ -751,13 +741,13 @@
 					normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
 			}
 			testing = - edge;
-			edge = Vector(tmp_p[n].GetX() - tmp_p[e].GetX(),0, tmp_p[n].GetZ() - tmp_p[e].GetZ());
+			edge = Vector(tmp[n].GetX() - tmp[e].GetX(),0, tmp[n].GetZ() - tmp[e].GetZ());
 			normal[1] = Vector(edge.GetZ(), 0, -edge.GetX());
 			if((normal[1] & testing) <= 0)
 			{
 				if((normal[1] & testing) == 0)
 				{
-					Vector tes = Vector(tmp_p[i].GetX() - tmp_p[n].GetX(),0, tmp_p[i].GetZ() - tmp_p[n].GetZ());
+					Vector tes = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
 					if((normal[i] & tes) < 0)
 						normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
 				}
@@ -765,13 +755,13 @@
 					normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
 			}
 			testing = - edge;
-			edge = Vector(tmp_p[i].GetX() - tmp_p[n].GetX(),0, tmp_p[i].GetZ() - tmp_p[n].GetZ());
+			edge = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
 			normal[2] = Vector(edge.GetZ(), 0, -edge.GetX());
 			if((normal[2] & testing) <= 0)
 			{
 				if((normal[2] & testing) == 0)
 				{
-					Vector tes = Vector(tmp_p[e].GetX() - tmp_p[i].GetX(),0, tmp_p[e].GetZ() - tmp_p[i].GetZ());
+					Vector tes = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
 					if((normal[2] & tes) < 0)
 						normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
 				}
@@ -783,7 +773,7 @@
 			{
 				if(c!=i)
 				{
-					testing = Vector(tmp_p[c].GetX() - tmp_p[i].GetX(),0, tmp_p[c].GetZ() - tmp_p[i].GetZ());
+					testing = Vector(tmp[c].GetX() - tmp[i].GetX(),0, tmp[c].GetZ() - tmp[i].GetZ());
 					if((normal[0] & testing) > 0 && (normal[1] & testing) > 0 && (normal[2] & testing) > 0)
 					{
 						flag = 0;

@@ -5,31 +5,31 @@ using namespace std;
 
 World::World(/*bool test*/)
 	{
-		k = 2;
+		/*k = 2;
 		Plan = new Plane [k];
 		double eq1[4]  ={0,5,-5,30};
 		double eq2[4] = {0,1,0,-3};
 		
 		Plan[0] = Plane(eq1);
 		Plan[1] = Plane(eq2);
-		Plan[0].SetTmp(Vector(-10,23,31));
-		Plan[0].SetTmp(Vector(-10,3,9));
-		Plan[0].SetTmp(Vector(11,3,9));
-		Plan[0].SetTmp(Vector(11,23,31));
-		Plan[1].SetTmp(Vector(-10,3,11));
-		Plan[1].SetTmp(Vector(-10,3,-10));
-		Plan[1].SetTmp(Vector(11,3,-10));
-		Plan[1].SetTmp(Vector(11,3,11));
-		Plan[0].triangulation();
-		Plan[1].triangulation();
-		/*k = 1; // Красивый треугольник.
+		Vector a[8] = {Vector(-10,23,31),
+					   Vector(-10,3,9),
+					   Vector(11,3,9),
+					   Vector(11,23,31),
+					   Vector(-10,3,11),
+					   Vector(-10,3,-10),
+					   Vector(11,3,-10),
+					   Vector(11,3,11) };
+		Plan[0].SetPoints(a,4);
+		Plan[1].SetPoints(a+4,4);*/
+		k = 1; // Красивый треугольник.
 		Plan = new Plane[k];
 		double eq1[4] = {0,1,0,-3};
 		Plan[0] = Plane(eq1);
-		Plan[0].SetTmp(Vector(10,3,-5));
-		Plan[0].SetTmp(Vector(-6,3,-5));
-		Plan[0].SetTmp(Vector(2,3,11));
-		Plan[0].triangulation();*/
+		Vector b[3] = {Vector(10,0,-5),
+					   Vector(-6,0,-5),
+					   Vector(2,0,11)};
+		Plan[0].SetPoints(b,3);
 	}
 
 World::World(double A, double B, double C, double D, double reserve[6])

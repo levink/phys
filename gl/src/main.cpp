@@ -41,7 +41,7 @@ double IFPS = 0;
 #define Angle 2
 #define Matr 0.5
 
-int num = 0;
+//int num = 0;
 int maxx = 0;
 
 Fizika * phy;
@@ -108,7 +108,7 @@ void keyboard1(unsigned char key, int x, int y)
 
 void mouseClick(int button, int state, int x, int y)
 {
-	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && num < 100)
+	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN /*&& num < 100*/)
 	{
 		double x1;
 		double y1;
@@ -118,11 +118,10 @@ void mouseClick(int button, int state, int x, int y)
 
 		Vector pos = Vector(x1,y1,25);
 
-		Sphere * tmp = new Sphere();
-		tmp->Position = pos;
-		phy->con_obj.CreateSphere(tmp);
+		Sphere tmp = Sphere();
+		tmp.Position = pos;
+		phy->con_obj.AddSphere(&tmp);
 
-		delete tmp;
 	}
 	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
 	{
@@ -311,7 +310,7 @@ void display(void)
 		}
 		glEnd();
 	}
-	glBegin(GL_QUADS);
+	/*glBegin(GL_QUADS);
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
 	for(int t=0;t<tmp->GetK();t++)
 	{
@@ -334,7 +333,7 @@ void display(void)
 			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+10,j);
 		}
 
-	glEnd();
+	glEnd();*/
 
 	//plane
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
@@ -371,7 +370,8 @@ void display(void)
 		phy->wor.Calculation(col,tim);
 		delete col;
 	}
-	for(int i=0;i<num;i++)
+	int number = phy->con_obj.GetNumber();
+	for(int i=0;i<number;i++)
 	{
 		glPushMatrix();
 		glTranslated(phy->con_obj.GetSphere(i)->Position.GetX(),phy->con_obj.GetSphere(i)->Position.GetY(), phy->con_obj.GetSphere(i)->Position.GetZ());
@@ -461,9 +461,9 @@ int main(int argc, char **argv)
 	obj[num] = tmp;
 	num++;*/
 	Sphere * tmp1 = new Sphere();
-	tmp1->Position = Vector(-5,16,20); // 5,12,0 - Стандартное значение. 2,12,-5.3 - Красивый треугольник.
-	phy->con_obj.CreateSphere(tmp1);
-	num++;
+	tmp1->Position = Vector(5,12,0); // 5,12,0 - Стандартное значение. 2,12,-5.3 - Красивый треугольник.
+	phy->con_obj.AddSphere(tmp1);
+	//num++;
 	/*Sphere * tmp2 = new Sphere();
 	tmp2->Position = Vector(4,9,25);
 	phy->con_obj.CreateSphere(tmp2);
