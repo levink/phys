@@ -352,7 +352,7 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	//DWORD dt = GetTickCount()-t1;
-	//needStep = 1; // удалить
+	needStep = 1; // удалить
 	if(needStep) 
 	{
 		needStep = false;
@@ -366,17 +366,18 @@ void display(void)
 		{
 			phy->con_obj.MoveSphere(i,tim);
 		}
-		CollisionInfo * col = phy->wor.inspections(phy->con_obj);
+		CollisionInfo * col = NULL;
+		col = phy->wor.inspections(phy->con_obj);
 		phy->wor.Calculation(col,tim);
-		delete col;
+		delete[] col;
 	}
 	int number = phy->con_obj.GetNumber();
 	for(int i=0;i<number;i++)
 	{
 		glPushMatrix();
-		glTranslated(phy->con_obj.GetSphere(i)->Position.GetX(),phy->con_obj.GetSphere(i)->Position.GetY(), phy->con_obj.GetSphere(i)->Position.GetZ());
-		glRotated(phy->con_obj.GetSphere(i)->Angl.GetX(),0,0,1);
-		glRotated(phy->con_obj.GetSphere(i)->Angl.GetZ(),1,0,0);
+		glTranslated(phy->con_obj.GetSphere(i).Position.GetX(),phy->con_obj.GetSphere(i).Position.GetY(), phy->con_obj.GetSphere(i).Position.GetZ());
+		glRotated(phy->con_obj.GetSphere(i).Angl.GetX(),0,0,1);
+		glRotated(phy->con_obj.GetSphere(i).Angl.GetZ(),1,0,0);
 		glutSolidSphere(1,5,5);
 		glPopMatrix();
 		

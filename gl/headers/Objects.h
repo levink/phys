@@ -88,7 +88,7 @@ public:
 	void MoveSphere(int n, double t_sec);
 	ContainerObjects();
 	void AddSphere(Sphere * count);
-	Sphere* GetSphere(int n);
+	Sphere GetSphere(int n);
 	CollisionInfoOfSphere* inspection();
 	void calculation(CollisionInfoOfSphere * col,int n);
 	void all_calculation(CollisionInfoOfSphere * col);

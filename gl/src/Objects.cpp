@@ -458,12 +458,15 @@ void ContainerObjects::AddSphere(Sphere* elem)
 	number++;
 }
 
-Sphere* ContainerObjects::GetSphere(int n)
+Sphere ContainerObjects::GetSphere(int n)
 {
 	if(n<=number)
-		return &obj[n];
+		return obj[n];
 	else
-		return &Sphere();
+	{
+		return Sphere();
+	}
+	
 }
 
 CollisionInfoOfSphere* ContainerObjects::inspection()
