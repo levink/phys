@@ -316,8 +316,8 @@ void Sphere::calculation(Plane pl,double resil, double t)
 bool Sphere::inspections(Line li)
 {
 	Vector pro = li.projection(Position);
-	bool a = pro.GetX() < li.limit[0] + rad && pro.GetX() > li.limit[1] - rad; // Ўар пролетает мимо так как в тесте участвует только точка. 
-	bool b = pro.GetY() < li.limit[2] + rad && pro.GetY() > li.limit[3] - rad; // ѕроверить поиск максимумов и минимумов координат пр€мой, похоже там ошибка.
+	bool a = pro.GetX() < li.limit[0] + rad && pro.GetX() > li.limit[1] - rad; 
+	bool b = pro.GetY() < li.limit[2] + rad && pro.GetY() > li.limit[3] - rad; 
 	bool c = pro.GetZ() < li.limit[4] + rad && pro.GetZ() > li.limit[5] - rad;
 	if(a && b && c)
 	{

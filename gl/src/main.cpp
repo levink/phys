@@ -461,8 +461,21 @@ int main(int argc, char **argv)
 	obj[num] = tmp;
 	num++;*/
 	Sphere tmp1 =Sphere();
-	tmp1.Position = Vector(-5,16,20); // 5,12,0 - Стандартное значение. 2,12,-5.3 - Красивый треугольник.
-	phy->con_obj.AddSphere(tmp1);
+	for(int i = 0;i<4;i++) // девятнадцатый шар почему-то залипает в плоскости(19)
+	{
+		tmp1.Position = Vector(3.6762,16 + i*10,6.2121); // 5,12,0 - Стандартное значение. 2,12,-5.3 - Красивый треугольник.
+		phy->con_obj.AddSphere(tmp1);
+		tmp1.Position = Vector(-3.6762,14 + i*10,6.2121);
+		phy->con_obj.AddSphere(tmp1);
+		tmp1.Position = Vector(-7.1403,12 + i*10,0);
+		phy->con_obj.AddSphere(tmp1);
+		tmp1.Position = Vector(-3.6762,10 + i*10,-6.2121);
+		phy->con_obj.AddSphere(tmp1);
+		tmp1.Position = Vector(3.6762,8 + i*10,-6.2121);
+		phy->con_obj.AddSphere(tmp1);
+		tmp1.Position = Vector(7.1403,6 + i*10,0);
+		phy->con_obj.AddSphere(tmp1);
+	}
 	//num++;
 	/*Sphere * tmp2 = new Sphere();
 	tmp2->Position = Vector(4,9,25);

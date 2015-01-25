@@ -5,7 +5,18 @@ using namespace std;
 
 World::World(/*bool test*/)
 	{
-		k = 2;
+		k = 1;
+		Plan = new Plane[k];
+		double eq[4] = {0,1,0,-3};
+		Plan[0] = Plane(eq);
+		Vector a[] = {	Vector(0,0,-8),
+						Vector(6.9282,0,-4),
+						Vector(6.9282,0,4),
+						Vector(0,0,8),
+						Vector(-6.9282,0,4),
+						Vector(-6.9282,0,-4), };
+		Plan[0].SetPoints(a,6);
+		/*k = 2;
 		Plan = new Plane [k];
 		double eq1[4]  ={0,5,-5,30};
 		double eq2[4] = {0,1,0,-3};
@@ -21,7 +32,7 @@ World::World(/*bool test*/)
 						Vector(11,3,-10),
 						Vector(11,3,11)	};		
 		Plan[0].SetPoints(a,4);
-		Plan[1].SetPoints(a+4,4);
+		Plan[1].SetPoints(a+4,4);*/
 		/*k = 1; // Красивый треугольник.
 		Plan = new Plane[k];
 		double eq1[4] = {0,1,0,-3};
