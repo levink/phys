@@ -257,7 +257,6 @@ bool Sphere::inspections(Plane pl)
 		{
 			Vector progect = pl.project(&Position);
 			
-			
 			bool flag = false;
 			for(int i = 0; i< pl.tr_num; i++)
 			{
@@ -297,6 +296,7 @@ void Sphere::calculation(Plane pl,double resil, double t)
 	Vector F_obj = F;
 	Vector N_velo = - ((vy * 2 * m)/(t));
 	F = - ((vy * 2 * m)/(t)) - n * Fy + F;
+
 	if((normal & ve) >= 0)
 		F = -F;
 
@@ -424,7 +424,7 @@ void ContainerObjects::MoveOutSphere(Sphere * sp, double t_sec)
 void ContainerObjects::MoveSphere(int n,double t_sec)
 {
 	Vector Ft = Vector(0,-obj[n].m * obj[n]._g,0); 
-	//Vector Ftr = - (obj->velo /*> obj->velo*/ * p / 2) *  n * 3.14;
+	//Vector Ftr = - (obj.velo /*> obj.velo*/ * p / 2) *  n * 3.14;
 	Vector F = obj[n].F /*+ Ftr*/;	// + F1 + F2 + ...;
 	Vector a = obj[n].F / obj[n].m;
 	Vector v = obj[n].velo + a*t_sec; 
@@ -447,26 +447,38 @@ void ContainerObjects::MoveSphere(int n,double t_sec)
 
 ContainerObjects::ContainerObjects()
 {
-	//obj = new Sphere*[1];
-	//obj.insert(obj.end(), Sphere());
+	obj = new Sphere[1];
 	number = 0;
 }
 
-void ContainerObjects::AddSphere(Sphere* elem)
-{	
-	obj.insert(obj.end(), *elem);
-	number++;
+void ContainerObjects::AddSphere(Sphere count)
+{
+	//obj[number] = new Sphere();
+	obj[number] = count;
+	number += 1;
+	Sphere * copy = new Sphere[number];
+	for(int i = 0;i<number;i++)
+	{
+		copy[i] = obj[i];
+	}
+	delete obj;
+	obj = new Sphere[number+1];
+	for(int i = 0; i < number;i++)
+	{
+		obj[i] = copy[i];
+	}
+	delete copy;
 }
 
-Sphere ContainerObjects::GetSphere(int n)
+Sphere* ContainerObjects::GetSphere(int n)
 {
 	if(n<=number)
-		return obj[n];
+		return &obj[n];
 	else
 	{
-		return Sphere();
+		Sphere * tmp = &Sphere();
+		return tmp;
 	}
-	
 }
 
 CollisionInfoOfSphere* ContainerObjects::inspection()
@@ -490,7 +502,7 @@ CollisionInfoOfSphere* ContainerObjects::inspection()
 					{
 						copy[i] = col[i];
 					}
-					delete col;
+					delete obj;
 					col = new CollisionInfoOfSphere[number+1];
 					for(int i = 0; i < number;i++)
 					{

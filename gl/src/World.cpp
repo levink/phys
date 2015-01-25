@@ -5,31 +5,32 @@ using namespace std;
 
 World::World(/*bool test*/)
 	{
-		/*k = 2;
+		k = 2;
 		Plan = new Plane [k];
 		double eq1[4]  ={0,5,-5,30};
 		double eq2[4] = {0,1,0,-3};
 		
 		Plan[0] = Plane(eq1);
 		Plan[1] = Plane(eq2);
-		Vector a[8] = {Vector(-10,23,31),
-					   Vector(-10,3,9),
-					   Vector(11,3,9),
-					   Vector(11,23,31),
-					   Vector(-10,3,11),
-					   Vector(-10,3,-10),
-					   Vector(11,3,-10),
-					   Vector(11,3,11) };
+		Vector a[] ={	Vector(-10,23,31),
+						Vector(-10,3,9),
+						Vector(11,3,9),
+						Vector(11,23,31),
+						Vector(-10,3,11),
+						Vector(-10,3,-10),
+						Vector(11,3,-10),
+						Vector(11,3,11)	};		
 		Plan[0].SetPoints(a,4);
-		Plan[1].SetPoints(a+4,4);*/
-		k = 1; // Красивый треугольник.
+		Plan[1].SetPoints(a+4,4);
+		/*k = 1; // Красивый треугольник.
 		Plan = new Plane[k];
 		double eq1[4] = {0,1,0,-3};
 		Plan[0] = Plane(eq1);
-		Vector b[3] = {Vector(10,0,-5),
-					   Vector(-6,0,-5),
-					   Vector(2,0,11)};
-		Plan[0].SetPoints(b,3);
+		Vector a = { Vector(10,3,-5),
+					 Vector(-6,3,-5),
+					 Vector(2,3,11)};
+		Plan[0].SetTmp(a,3);
+		*/
 	}
 
 World::World(double A, double B, double C, double D, double reserve[6])
@@ -141,144 +142,142 @@ double World::GetYatXZ(double X,double Z,int nomber_plane)
 
 CollisionInfo * World::inspections(ContainerObjects con)
 {
-	CollisionInfo * collis = new CollisionInfo[100];
+	CollisionInfo *  col = new CollisionInfo[100];
 	for(int i = 0;i<100;i++)
 	{
-		collis[i].tmp = Vector();
-		collis[i].li = Line();
-		collis[i].pl = Plane();
-		collis[i].sp = NULL;
-		collis[i].pl_t = 0;
-		collis[i].li_t = 0;
-		collis[i].tmp_t = 0;
-	}
+		col[i].tmp = Vector();
+		col[i].li = Line();
+		col[i].pl = Plane();
+		col[i].sp = NULL;
+		col[i].pl_t = 0;
+		col[i].li_t = 0;
+		col[i].tmp_t = 0;
 
+	}
 	int current = 0;
 	int max = 100;
 	bool test = 1;
-
-	int number_con = con.GetNumber();
-	for(int i = 0;i<number_con;i++)
+	for(int i = 0;i<con.GetNumber();i++)
 	{
-		Sphere * sp = &con.GetSphere(i);
+		Sphere * sp = con.GetSphere(i);
 		for(int e = 0;e <k;e++)
 		{
-			Plane* pl = &Plan[e];
-			for(int c = 0;false && c< pl->num; c++)
+			//Plane pl = Plan[e];
+			for(int c = 0;c<Plan[e].num;c++)
 			{
-				if(sp->inspections(pl->tmp[c]))
+				if(sp->inspections(Plan[e].tmp[c]))
 				{
-					//с точкой
-					collis[current].tmp = Plan[e].tmp[c];
-					collis[current].sp = &con.GetSphere(i);
-					collis[current].tmp_t = true;
+					col[current].tmp = Plan[e].tmp[c];
+					col[current].sp = sp;
+					col[current].tmp_t = true;
 					current += 1;
 					if(	current >= max)
 					{
 						CollisionInfo * copy = new CollisionInfo[current];
 						for(int i = 0;i<current;i++)
 						{
-							copy[i] = collis[i];
+							copy[i] = col[i];
 						}
-						delete collis;
-						collis = new CollisionInfo[current+100];
+						delete col;
+						col = new CollisionInfo[current+100];
 						for(int i = 0;i<current+100;i++)
 						{
-							collis[i].tmp = Vector();
-							collis[i].li = Line();
-							collis[i].pl = Plane();
-							collis[i].sp = NULL;
-							collis[i].pl_t = 0;
-							collis[i].li_t = 0;
-							collis[i].tmp_t = 0;
+							col[i].tmp = Vector();
+							col[i].li = Line();
+							col[i].pl = Plane();
+							col[i].sp = NULL;
+							col[i].pl_t = 0;
+							col[i].li_t = 0;
+							col[i].tmp_t = 0;
 						}
 						for(int i = 0; i < current;i++)
 						{
-							collis[i] = copy[i];
-						}
-						delete copy;
-						max +=100;
-					}
-					test = false;
-				}
-			}
-
-			for(int c = 0; false && c<pl->li_num && test;c++)
-			{
-				if(sp->inspections(pl->li[c]) && test)
-				{
-					//пересечение с линией
-					collis[current].li = Plan[e].li[c];
-					collis[current].sp = &con.GetSphere(i);
-					collis[current].li_t = true;
-					current += 1;
-					if(current >= max)
-					{
-						CollisionInfo * copy = new CollisionInfo[current];
-						for(int i = 0;i<current;i++)
-						{
-							copy[i] = collis[i];
-						}
-						delete collis;
-						collis = new CollisionInfo[current+100];
-						for(int i = 0;i<current + 100;i++)
-						{
-							collis[i].tmp = Vector();
-							collis[i].li = Line();
-							collis[i].pl = Plane();
-							collis[i].sp = NULL;
-							collis[i].pl_t = 0;
-							collis[i].li_t = 0;
-							collis[i].tmp_t = 0;
-						}
-						for(int i = 0; i < current;i++)
-						{
-							collis[i] = copy[i];
+							col[i] = copy[i];
 						}
 						delete copy;
 						max +=100;
 						
 					}
-					test = false;
+					test = 0;
+				}
+			}
+			for(int c = 0;c<Plan[e].li_num && test;c++)
+			{
+				if(sp->inspections(Plan[e].li[c]) && test)
+				{
+					col[current].li = Plan[e].li[c];
+					col[current].sp = sp;
+					col[current].li_t = true;
+					current += 1;
+					if(	current >= max)
+					{
+					
+						CollisionInfo * copy = new CollisionInfo[current];
+						for(int i = 0;i<current;i++)
+						{
+							copy[i] = col[i];
+						}
+						delete col;
+						col = new CollisionInfo[current+100];
+						for(int i = 0;i<current + 100;i++)
+						{
+							col[i].tmp = Vector();
+							col[i].li = Line();
+							col[i].pl = Plane();
+							col[i].sp = NULL;
+							col[i].pl_t = 0;
+							col[i].li_t = 0;
+							col[i].tmp_t = 0;
+						}
+						for(int i = 0; i < current;i++)
+						{
+							col[i] = copy[i];
+						}
+						delete copy;
+						max +=100;
+						
+					}
+					test = 0;
 				}
 			}
 			if(sp->inspections(Plan[e]) && test)
 			{
-				collis[current].pl = Plan[e];
-				collis[current].sp = &con.GetSphere(i);
-				collis[current].pl_t = true;
+				col[current].pl = Plan[e];
+				col[current].sp = sp;
+				col[current].pl_t = true;
 				current += 1;
-			/*	if(	current >= max)
+				if(	current >= max)
 				{
 					CollisionInfo * copy = new CollisionInfo[current];
 					for(int i = 0;i<current;i++)
 					{
-						copy[i] = collis[i];
+						copy[i] = col[i];
 					}
-					delete collis;
-					collis = new CollisionInfo[current+100];
+					delete col;
+					col = new CollisionInfo[current+100];
 					for(int i = 0;i<current + 100;i++)
 					{
-						collis[i].tmp = Vector();
-						collis[i].li = Line();
-						collis[i].pl = Plane();
-						collis[i].sp = NULL;
-						collis[i].pl_t = 0;
-						collis[i].li_t = 0;
-						collis[i].tmp_t = 0;
+						col[i].tmp = Vector();
+						col[i].li = Line();
+						col[i].pl = Plane();
+						col[i].sp = NULL;
+						col[i].pl_t = 0;
+						col[i].li_t = 0;
+						col[i].tmp_t = 0;
 					}
 					for(int i = 0; i < current;i++)
 					{
-						collis[i] = copy[i];
+						col[i] = copy[i];
 					}
 					delete copy;
 					max +=100;
-				}*/
+					
+				}
 			}
 		}
 	}
-		collis[0].num = current;
-		return collis;
+		col[0].num = current;
+		return col;
 }
 
 const double res = 1;
@@ -318,13 +317,7 @@ void World::Calculation(CollisionInfo * col, double t_sec)
 			}
 			if(col[i].pl_t)
 			{
-				Sphere s = Sphere();
-				s.calculation(col[i].pl,res,t_sec);
-
-				//col[i].sp->calculation(col[i].pl,res,t_sec);
-
-				Sphere* s1 = col[i].sp;
-				s1->calculation(col[i].pl,res,t_sec);
+				col[i].sp->calculation(col[i].pl,res,t_sec);
 			}
 		}
 	}

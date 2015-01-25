@@ -541,7 +541,7 @@
 		return equa[3];
 	}
 	Vector Plane::project(Vector* point)
-	{
+ 	{
 		double test = equa[0] * point->GetX() + equa[1] * point->GetY() + equa[2] * point->GetZ() + equa[3];
 		if(test >=0.0000001 || test <=-0.0000001)
 		{
@@ -550,16 +550,19 @@
 			double _z = point->GetZ();
 			if(equa[0] != 0)
 			{
+
 				double x = (_x * ( equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * _y + equa[2] * _z + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
 				return(Vector(x,(equa[1] * (x - _x))/equa[0] + _y,(equa[2] * (x - _x))/equa[0] + _z));
 			}
 			if(equa[1] != 0)
 			{
+
 				double y = (_y * ( equa[0] * equa[0] + equa[2] * equa[2]) - equa[1] * (equa[0] * _x + equa[2] * _z + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
 				return(Vector((equa[0] * (y - _y))/equa[1] + _x,y,(equa[2] * (y - _y))/equa[1] + _z));
 			}
 			if(equa[2] != 0)
 			{
+
 				double z = (_z * ( equa[0] * equa[0] + equa[1] * equa[1]) - equa[2] * (equa[0] * _x + equa[1] * _y + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
 				return(Vector((equa[0] * (z - _z))/equa[2] + _x,(equa[1] * (z - _z))/equa[2] + _y,z));
 			}
@@ -576,7 +579,7 @@
 			tmp[i] = project(&point[i]);
 		}
 		this->triangulation();
-	}
+ 	}
 	void Plane::triangulation() // триангуляция !!!!!!!(не работает вообще 06.01.2015)работает только для четырёхугольников! + определение ограничивающего куба + определение нормалей к контуру
 	{
 		int current = 0;

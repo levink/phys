@@ -6,9 +6,8 @@
 #ifndef __WORLD_H
 #define __WORLD_H
 
-class CollisionInfo
+struct CollisionInfo
 {
-public:
 	Plane pl;
 	Line li;
 	Vector tmp;

@@ -42,7 +42,7 @@ double IFPS = 0;
 #define Matr 0.5
 
 //int num = 0;
-int maxx = 0;
+//int maxx = 0;
 
 Fizika * phy;
 
@@ -120,8 +120,7 @@ void mouseClick(int button, int state, int x, int y)
 
 		Sphere tmp = Sphere();
 		tmp.Position = pos;
-		phy->con_obj.AddSphere(&tmp);
-
+		phy->con_obj.AddSphere(tmp);
 	}
 	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
 	{
@@ -296,7 +295,7 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	Draw(Vector(0,0,5));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
-	World* tmp = NULL; // раньше было tmp
+	World* tmp = NULL; 
 	tmp = GetWorld(phy);
 	for(int i = 0;i<tmp->GetK();i++)
 	{
@@ -352,7 +351,7 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	//DWORD dt = GetTickCount()-t1;
-	needStep = 1; // удалить
+	//needStep = 1; // удалить
 	if(needStep) 
 	{
 		needStep = false;
@@ -362,22 +361,22 @@ void display(void)
 		CollisionInfoOfSphere * col_of_sp = phy->con_obj.inspection();
 		phy->con_obj.all_calculation(col_of_sp);
 
-		for(int i=0;i<phy->con_obj.GetNumber();i++)
+		int num_con = phy->con_obj.GetNumber();
+		for(int i=0;i<num_con;i++)
 		{
 			phy->con_obj.MoveSphere(i,tim);
 		}
-		CollisionInfo * col = NULL;
-		col = phy->wor.inspections(phy->con_obj);
+		CollisionInfo * col = phy->wor.inspections(phy->con_obj);
 		phy->wor.Calculation(col,tim);
-		delete[] col;
+		delete col;
 	}
-	int number = phy->con_obj.GetNumber();
-	for(int i=0;i<number;i++)
+	int num_obj = phy->con_obj.GetNumber();
+	for(int i=0;i<num_obj;i++)
 	{
 		glPushMatrix();
-		glTranslated(phy->con_obj.GetSphere(i).Position.GetX(),phy->con_obj.GetSphere(i).Position.GetY(), phy->con_obj.GetSphere(i).Position.GetZ());
-		glRotated(phy->con_obj.GetSphere(i).Angl.GetX(),0,0,1);
-		glRotated(phy->con_obj.GetSphere(i).Angl.GetZ(),1,0,0);
+		glTranslated(phy->con_obj.GetSphere(i)->Position.GetX(),phy->con_obj.GetSphere(i)->Position.GetY(), phy->con_obj.GetSphere(i)->Position.GetZ());
+		glRotated(phy->con_obj.GetSphere(i)->Angl.GetX(),0,0,1);
+		glRotated(phy->con_obj.GetSphere(i)->Angl.GetZ(),1,0,0);
 		glutSolidSphere(1,5,5);
 		glPopMatrix();
 		
@@ -461,8 +460,8 @@ int main(int argc, char **argv)
 	tmp->velo = Vector(0,-3,0);
 	obj[num] = tmp;
 	num++;*/
-	Sphere * tmp1 = new Sphere();
-	tmp1->Position = Vector(5,12,0); // 5,12,0 - Стандартное значение. 2,12,-5.3 - Красивый треугольник.
+	Sphere tmp1 =Sphere();
+	tmp1.Position = Vector(-5,16,20); // 5,12,0 - Стандартное значение. 2,12,-5.3 - Красивый треугольник.
 	phy->con_obj.AddSphere(tmp1);
 	//num++;
 	/*Sphere * tmp2 = new Sphere();
@@ -486,7 +485,7 @@ int main(int argc, char **argv)
 
 	int d = 1;
 	
-	maxx = 10;
+	//maxx = 10;
 	t1 = GetTickCount();
 
 	glutMainLoop();

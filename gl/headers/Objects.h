@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include "Geometry.h"
 
 using namespace std;
@@ -80,15 +79,14 @@ struct CollisionInfoOfSphere
 class ContainerObjects
 {
 private:
-	//Sphere ** obj;
-	vector<Sphere> obj;
+	Sphere * obj;
 	int number;
 public:
 	void MoveOutSphere(Sphere * sp, double t_sec); 
 	void MoveSphere(int n, double t_sec);
 	ContainerObjects();
-	void AddSphere(Sphere * count);
-	Sphere GetSphere(int n);
+	void AddSphere(Sphere count);
+	Sphere* GetSphere(int n);
 	CollisionInfoOfSphere* inspection();
 	void calculation(CollisionInfoOfSphere * col,int n);
 	void all_calculation(CollisionInfoOfSphere * col);
