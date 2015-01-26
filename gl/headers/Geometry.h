@@ -89,25 +89,57 @@ public:
 	Line(Vector v, Vector t);
 	Vector projection(Vector t);
 	Vector lineXYZ(double x);
+	Line& operator=(Line li)
+	{
+		vec = li.vec;
+		tmp = li.tmp;
+		limit[0] = li.limit[0];
+		limit[1] = li.limit[1];
+		limit[2] = li.limit[2];
+		limit[3] = li.limit[3];
+		limit[4] = li.limit[4];
+		limit[5] = li.limit[5];
+	}
 };
 
 class Plane
 {
 public:
+	double normal[4]; // Нормаль к плоскости.
+	Matrix Mat; // Матрица перевода в СК, связанную с плоскостью.
+	double tes [6]; // Ограничивающий куб. MaxX->MinX->MaxY->MinY->MaxZ->MinZ
+	vector<int> tr[3]; // Треугольники. Содержит номера вершин, принадлежащих треугольникам. Необходимо для проверки столкновения и правильной отрисовки плоскостей.
+	int tr_num;
 	int val;
 	vector<Vector> tmp;
-	vector<Vector> li;
+	vector<Line> li;
+	vector<Vector> norm[3];
 
-	Plane(int v){
-		val = v;
-		tmp.insert(tmp.begin(), Vector(1, 1, 1));
+	Plane();
+	Plane(double normal[4]);
 
-		li.insert(li.begin(), Vector(2, 2, 2));
-		li.insert(li.begin(), Vector(2, 2, 2));
-	}
-	void Test()
+	Vector project(Vector* point);
+	void SetPoints(vector<Vector> points);
+	void triangulation();
+	bool cubeinspection(Vector tmp)
 	{
-		val = val + 1;
+		bool a = tmp.GetX() < tes[0] && tmp.GetX() > tes[1];
+		bool b = tmp.GetY() < tes[2] && tmp.GetY() > tes[3];
+		bool c = tmp.GetZ() < tes[4] && tmp.GetZ() > tes[5];
+		return ( a && b & c);
+	}
+	
+	Matrix GetMat();
+	Vector GetN();
+	double GetA();
+	double GetB();
+	double GetC();
+	double GetD();
+	
+	Plane& Plane::operator=(const Plane item)
+	{
+		throw exception("Not implemented");
+		return *this;
 	}
 };
 

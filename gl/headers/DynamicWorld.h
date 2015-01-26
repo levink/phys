@@ -22,9 +22,9 @@ public:
 	void MoveOutSphere(Sphere * sp, double t_sec); 
 	void MoveSphere(int n, double t_sec);
 
-	CollisionInfoOfSphere* inspection();
-	void calculation(CollisionInfoOfSphere * col,int n);
-	void all_calculation(CollisionInfoOfSphere * col);
+	vector<CollisionInfoOfSphere> inspection();
+	void calculation(vector<CollisionInfoOfSphere> col,int n);
+	void all_calculation(vector<CollisionInfoOfSphere> col);
 };
 
 #endif

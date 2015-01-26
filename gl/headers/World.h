@@ -30,12 +30,13 @@ public:
 
 class StaticWorld
 {
-	vector<Plane> items;
+	vector<Plane> Plan;
 public: 
 	StaticWorld();
-	
+	vector<Collision> collision;
+
 	Plane* Get(int num){
-		return &items[num];
+		return &Plan[num];
 	}
 
 	bool TestEqua(Camera * obj,int i);
@@ -49,7 +50,7 @@ public:
 
 	int Count()
 	{
-		return items.size();
+		return Plan.size();
 	}
 
 	double GetYatXZ(double X,double Y,int nomber_plane);

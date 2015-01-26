@@ -12,8 +12,8 @@ private:
 	double _g;
 public:
 	
-	vector<Collision> collision;
-	vector<int> test;
+	//vector<Collision> collision;
+	//vector<int> test;
 	
 	StaticWorld& planes;
 	DynamicWorld& balls;

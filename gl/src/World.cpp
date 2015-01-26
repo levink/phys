@@ -6,18 +6,16 @@ using namespace std;
 
 StaticWorld::StaticWorld()
 {
-	//double normal[4] = {0,1,0,-3};
-	/*vector<Vector> controlPoints;
-	vector<Vector>::iterator it = controlPoints.begin();
-	it = controlPoints.insert(it, Vector(10,0,-5));
-	it = controlPoints.insert(it, Vector(-6,0,-5));
-	it = controlPoints.insert(it, Vector(2,0,11));*/
-	//Plane firstTriangle = Plane(normal);
-	//firstTriangle.SetPoints(controlPoints);
-
-
-	Plane firstTriangle(10); //for debug only
-	items.insert(items.end(), firstTriangle);
+	double eq[4] = {0,1,0,-3}; // немного не правильный шестиугольник
+	Plan[0] = Plane(eq);
+	vector<Vector> a;
+	a.insert(a.end(),Vector(0,0,-8));
+	a.insert(a.end(),Vector(6.9282,0,-4));
+	a.insert(a.end(),Vector(6.9282,0,4));
+	a.insert(a.end(),Vector(0,0,8));
+	a.insert(a.end(),Vector(-6.9282,0,4));
+	a.insert(a.end(),Vector(-6.9282,0,-4));
+	Plan[0].SetPoints(a);
 }
 
 bool StaticWorld::TestEqua(Camera * obj,int i)
@@ -107,65 +105,58 @@ void StaticWorld::Test(Sphere * obj,double resil, double t)
 
 double StaticWorld::GetYatXZ(double X,double Z,int nomber_plane)
 {
-	throw exception("Not tested");
-	/*if(Plan[nomber_plane].GetB() == 0) 
+	if(Plan[nomber_plane].GetB() == 0) 
 		return 0;
-	return -( ( X * Plan[nomber_plane].GetA() + Z * Plan[nomber_plane].GetC() + Plan[nomber_plane].GetD() ) / Plan[nomber_plane].GetB() );*/
-	return 1.0;
+	return -( ( X * Plan[nomber_plane].GetA() + Z * Plan[nomber_plane].GetC() + Plan[nomber_plane].GetD() ) / Plan[nomber_plane].GetB() );
 }
 
 void StaticWorld::inspections(DynamicWorld con, vector<Collision>& v)
 {
-
-
-	//int sphereCount = con.Count();
-	//for(int i = 0;i<sphereCount;i++)
-	//{
-	//	//в таком варианте сфера может одновременно столкнуться только с одним объектом
-	//	Collision tmp = Collision();
-	//	tmp.sp = &con.Get(i);
-	//	bool found = false;
-
-	//	for(int j = 0; !found && j < items.size(); j++)
-	//	{	
-	//		//Пересечение с углами
-	//		Plane &pl = items[j];
-	//		for(int c = 0;c < pl.tmp.size(); c++)
-	//		{
-	//			if(tmp.sp->inspections(pl.tmp[c]))
-	//			{
-	//				tmp.type = CollisionType::WITH_POINT;
-	//				tmp.point = &pl.tmp[c];
-	//				found = true;
-	//			}
-	//		}
-	//		
-	//		//Пересечение с гранями
-	//		int edges = pl.li.size();
-	//		for(int c = 0; !found && c < edges; c++)
-	//		{
-	//			if(tmp.sp->inspections(pl.li[c]))
-	//			{
-	//				tmp.type = CollisionType::WITH_LINE;
-	//				//tmp.line = &pl.li[c];
-	//				found = true;
-	//			}
-	//		}
-	//		
-	//		//Пересечение с плоскостью
-	//		if(!found && tmp.sp->inspections(pl))
-	//		{
-	//			tmp.type = CollisionType::WITH_PLANE;
-	//			tmp.plane = &pl;
-	//			found = true;
-	//		}
-	//	}
-
-	//	if (found)
-	//	{
-	//		v.insert(v.end(), tmp);
-	//	}
-	//}
+	int sphereCount = con.Count();
+	for(int i = 0;i<sphereCount;i++)
+	{
+		bool found = false;
+		Sphere *sp = con.Get(i);
+		int planeCount = Plan.size();
+		for(int j = 0; !found && j < planeCount; j++)
+		{	
+			//Пересечение с углами
+			Plane &pl = Plan[j];
+			for(int c = 0;c < pl.tmp.size(); c++)
+			{
+				if(sp->inspections(pl.tmp[c]))
+				{
+					collision[i].type = CollisionType::WITH_POINT;
+					collision[i].sp = con.Get(i);
+					found = true;
+				}
+			}
+			
+			//Пересечение с гранями
+			int edges = pl.li.size();
+			for(int c = 0; !found && c < edges; c++)
+			{
+				if(sp->inspections(pl.li[c]))
+				{
+					tmp.type = CollisionType::WITH_LINE;
+					tmp.line = &pl.li[c];
+					found = true;
+				}
+			}
+			
+			//Пересечение с плоскостью
+			if(!found && tmp.sp->inspections(pl))
+			{
+				tmp.type = CollisionType::WITH_PLANE;
+				tmp.plane = &pl;
+				found = true;
+			}
+			if (found)
+			{
+				v.insert(v.end(), tmp);
+			}
+		}
+	}
 }
 
 void StaticWorld::Calculation(vector<Collision>& v, double t_sec)

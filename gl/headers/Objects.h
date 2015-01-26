@@ -16,48 +16,36 @@ public:
 	Vector w;
 	Vector Angl;
 	BaseObject();
-	BaseObject(Vector pos);
 };
 
-class Sphere
+class Sphere: public BaseObject
 {
 private: 
 	double rad;
-	Vector Position;
 	
 public:
 	double _g;
+	Sphere();
 	Sphere(Vector position){
+		Sphere();
 		Position = position;
-		rad = 1;
-		_g = 9.8;	
 	}
-	void Test(){
-		rad = rad + 1;
-	}
+	double GetRad();
 
 	Sphere& operator=(const Sphere *);
 	
-	void Test2(Plane  pl, double resil, double t)
-	{
-		pl.Test();
-	}
-	
-	//void Rotated(Vector ve1, Vector nor);
+	void Rotated(Vector ve1, Vector nor);
 	//void Test_Sphere(Sphere * obj, bool motion);
-	//bool Test(Sphere * obj);
-	//void HandlerCollision(Sphere * obj);
-	//double GetRad();
-	//
-	
+	bool Test(Sphere * obj);
+	void HandlerCollision(Sphere * obj);
 
-	//bool inspections(Plane pl);
-	//bool inspections(Line li);
-	//bool inspections(Vector tmp);
+	bool inspections(Plane pl);
+	bool inspections(Line li);
+	bool inspections(Vector tmp);
 
-	//void calculation(Plane  pl, double resil, double t);
-	//void calculation(Line  li, double resil, double t);
-	//void calculation(Vector  tmp, double resil, double t); 
+	void calculation(Plane  pl, double resil, double t);
+	void calculation(Line  li, double resil, double t);
+	void calculation(Vector  tmp, double resil, double t); 
 };
 
 class Polyg: public BaseObject
@@ -92,7 +80,6 @@ struct CollisionInfoOfSphere
 {
 	Sphere * sp1;
 	Sphere * sp2;
-	int num;
 };
 
 

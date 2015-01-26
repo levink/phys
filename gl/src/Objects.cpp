@@ -10,58 +10,43 @@ BaseObject::BaseObject()
 	Angl = Vector(0,0,0);
 	m = 10;
 }
-BaseObject::BaseObject(Vector pos)
-{
-	Position = pos;
-	velo = Vector(0,0,0);
-	accel = Vector(0,0,0);
-	F = Vector(0,0,0);
-	Angl = Vector(0,0,0);
-	m = 10;
-}
 
 //Sphere::
 
-//Sphere::Sphere(Vector pos): BaseObject(pos)
-//{
-//	rad = 1;
-//	_g = 9.8;
-//}
 
+void Sphere::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строится перпендикуляр
+{
+	double A = ve1.GetY() * velo.GetZ() - velo.GetY() * ve1.GetZ();
+	double B = -(ve1.GetX() * velo.GetZ() - ve1.GetZ() * velo.GetX());
+	double C = ve1.GetX() * velo.GetY() - ve1.GetY() * velo.GetX();
+	double D = - Position.GetX() * A + Position.GetY() * B - Position.GetZ() * C;
+	/*if(C == 0)
+		C = 1;
+	if(ve1.GetY() == 0)
+		ve1.SetY(1);
+	if(ve1.GetZ() == 0)
+		ve1.SetZ(1);
+	if(B == (C * ve1.GetY()) / ve1.GetZ() )
+		B +=1;
+	double _y = -D / ( B - ( ( C * ve1.GetY() ) / ve1.GetZ() ) );
+	double _z = - ( ve1.GetY() * _y ) / ve1.GetZ();
 
-//void Sphere::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строится перпендикуляр
-//{
-//	double A = ve1.GetY() * velo.GetZ() - velo.GetY() * ve1.GetZ();
-//	double B = -(ve1.GetX() * velo.GetZ() - ve1.GetZ() * velo.GetX());
-//	double C = ve1.GetX() * velo.GetY() - ve1.GetY() * velo.GetX();
-//	double D = - Position.GetX() * A + Position.GetY() * B - Position.GetZ() * C;
-//	/*if(C == 0)
-//		C = 1;
-//	if(ve1.GetY() == 0)
-//		ve1.SetY(1);
-//	if(ve1.GetZ() == 0)
-//		ve1.SetZ(1);
-//	if(B == (C * ve1.GetY()) / ve1.GetZ() )
-//		B +=1;
-//	double _y = -D / ( B - ( ( C * ve1.GetY() ) / ve1.GetZ() ) );
-//	double _z = - ( ve1.GetY() * _y ) / ve1.GetZ();
-//
-//	Vector normal = Vector(0,_y,_z);*/
-//
-//	if(B==0)
-//		B = 0.0001;
-//	if(nor.GetY() * C + nor.GetZ() * B == 0)
-//		C+=1;
-//	double _z = - (nor.GetX() + nor.GetY() * (A + D)) / (nor.GetY() * C + nor.GetZ() * B);
-//	double _y = (A + _z * C + D) / B; 
-//	double _x = 1;
-//	Vector normal = Vector_norm(Vector(_x,_y,_z));
-//	
-//	if(normal.length() != 0)
-//		w = normal * ( velo & normal ) / normal.length() ;
-//		//w = ( normal * ( velo & normal ) / velo.length() ) * 0.2 ;
-//}
-//
+	Vector normal = Vector(0,_y,_z);*/
+
+	if(B==0)
+		B = 0.0001;
+	if(nor.GetY() * C + nor.GetZ() * B == 0)
+		C+=1;
+	double _z = - (nor.GetX() + nor.GetY() * (A + D)) / (nor.GetY() * C + nor.GetZ() * B);
+	double _y = (A + _z * C + D) / B; 
+	double _x = 1;
+	Vector normal = Vector_norm(Vector(_x,_y,_z));
+	
+	if(normal.length() != 0)
+		w = normal * ( velo & normal ) / normal.length() ;
+		//w = ( normal * ( velo & normal ) / velo.length() ) * 0.2 ;
+}
+
 //void Sphere::Test_Sphere(Sphere * obj, bool motion)
 //{
 //	throw exception("Not implemented");
@@ -153,252 +138,241 @@ BaseObject::BaseObject(Vector pos)
 //	//}
 //}
 //
-//bool Sphere::Test(Sphere * obj)
-//{
-//	return ((obj->Position - Position).length2() < (rad + obj->rad)* (rad + obj->rad) * 1.001);
-//}
-//void Sphere::HandlerCollision(Sphere * obj)
-//{
-//	throw exception("Not implemented");
-//	return;
-//
-//	//double x = obj->Position.GetX() - Position.GetX();
-//	//double y = obj->Position.GetY() - Position.GetY();
-//	//double z = obj->Position.GetZ() - Position.GetZ();
-//
-//	//double eq[3]  = {x,y,z};
-//	//Vector norm = Vector(eq);
-//	//norm = Vector_norm(norm);
-//	//double e[3] = {0,0,0};
-//
-//	//Plane * plan  = new Plane();
-//	//plan->PlaneSetEquation(eq);	
-//
-//	//Vector ve2 = Vector();
-//	//Vector ve1 = Vector();
-//	//
-//	//velo = plan->GetBathis() * velo;
-//	//obj->velo = plan->GetBathis() * obj->velo;
-//
-//	//Vector D = (velo - obj->velo) * obj->m;
-//	//Vector A = velo * m + obj->velo * obj->m;
-//	//if(D.length2() == 0)
-//	//{
-//	//	ve1 = (A) / (m + obj->m);
-//	//	ve2 = (A - ve1 * m) / (obj->m);
-//	//}
-//	//else
-//	//{
-//	//	ve1 = (A + D) / (m + obj->m);
-//	//	ve2 = (A - ve1 * m) / (obj->m);
-//	//	Vector t_1 = velo > velo * m + obj->velo > obj->velo * obj->m;
-//	//	Vector t_2 = ve1 > ve1 * m + ve2 > ve2 * obj->m; 
-//	//	double test = t_1.length2() - t_2.length2();
-//	//	if( test > 0.0000001 || test < -0.0000001)
-//	//	{
-//	//		ve1 = (A  - D) / (m + obj->m);
-//	//		ve2 = (A - ve1 * m) / (obj->m);
-//	//	}
-//	//}
-//
-//	//if(ve1 < 0.01)
-//	//	ve1 = e;
-//	//if(ve2 < 0.01)
-//	//	ve2 = e;
-//	//velo = ve1;
-//	//obj->velo = ve2;
-//
-//	//velo = plan->GetInvertMat() * velo;
-//	//obj->velo = plan->GetInvertMat() * obj->velo;
-//
-//	////if((velo ^ norm) > 0)
-//	////	velo = plan->GetMat() * /*velo*/ve1 * res;
-//	////else
-//	////		velo = -/*velo*/norm * (ve1 * res).length();
-//	////if( (obj->velo ^ norm) < 0)
-//	////	obj->velo = plan->GetMat() * /*obj->velo*/ve2 * res;
-//	////else
-//	////	obj->velo = /*obj->velo*/norm * (ve2 * res).length();
-//	//double len = (obj->Position - Position).length2();
-//	//len = sqrt(len);
-//	//len = ((rad + obj->GetRad()) - len)/2; 
-//	//
-//	// Position= Position - norm * len;
-//	// obj->Position = obj->Position + norm * len;
-//
-//	//Rotated(obj->velo,eq);
-//	//obj->Rotated(velo,eq);
-//
-//	//if((norm & F) > 0)
-//	//{
-//	//	F = - (norm * (obj->F & norm)) + F;
-//	//	obj->F = (norm * (F & norm) + obj->F);
-//	//}
-//	//else
-//	//{
-//	//	F = (norm * (obj->F & norm)) + F;
-//	//	obj->F = -(norm * (F & norm) + obj->F);
-//	//}
-//	//delete plan;
-//}
-//
-//double Sphere::GetRad()
-//{
-//	return rad;
-//}
-//
-//
-//Sphere& Sphere::operator=(const Sphere * item)
-//{
-//	Position = item->Position;
-//	accel = item->accel;
-//	F = item->F;
-//	m = item->m;
-//	velo = item->velo;
-//	return *this;
-//}
-//
-//bool Sphere::inspections(Plane pl)
-//{
-//	return true; //for debug!
-//
-//	//if(!pl.cubeinspection(Position))
-//	//	return false;
-//	//else
-//	//{
-//	//	double eqa = pow(Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD(),2);
-//	//	double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
-//
-//	//	if(lon == 0 )
-//	//		return false;
-//	//	if((eqa/lon ) <= rad * rad)
-//	//	{
-//	//		Vector progect = pl.project(&Position);
-//	//		
-//	//		bool flag = false;
-//	//		/*for(int i = 0; i< pl.tr_num; i++)
-//	//		{
-//	//			if(((Vector(progect.GetX() - pl.tmp[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) >= 0) ||
-//	//				((Vector(progect.GetX() - pl.tmp[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) >= 0) ||
-//	//				((Vector(progect.GetX() - pl.tmp[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) >= 0) )
-//	//			{
-//	//				flag = true;
-//	//				return true;
-//	//			}
-//	//		}*/
-//	//		if(flag)
-//	//			return true;
-//	//		else
-//	//			return false;
-//	//	}
-//	//	else
-//	//		return false;
-//	//}
-//}
-//
-//void Sphere::calculation(Plane pl, double resil, double t)
-//{
-//	Vector normal = pl.tmp[0]; //for debug
-//	return;
-//
-//	//Vector normal = pl.GetN();
-//	//Rotated(velo,normal);
-//	//Vector ve = velo;
-//	////double velo = obj->velo.length();
-//	////obj->velo = Vector_norm(Plan[i].GetMat() * obj->velo);
-//	////obj->velo = obj->velo * velo * resil;
-//	////obj->F = obj->F + Vector_norm(Plan[i].GetN()) * obj->F.length()/** obj->velo.length()*sqrt(K * obj->m)*/;
-//	//if(velo < 0.1)
-//	//	velo = Vector(0,0,0);
-//
-//	//Vector n = Vector_norm(normal);
-//	//Vector vy = n * (((velo * resil) & normal) /normal.length());
-//	//double Fy =  (((F * resil) & normal) /normal.length());
-//	//Vector N_standart =  - n * Fy;
-//	//Vector F_obj = F;
-//	//Vector N_velo = - ((vy * 2 * m)/(t));
-//	//F = - ((vy * 2 * m)/(t)) - n * Fy + F;
-//	//if((normal & ve) >= 0)
-//	//	F = -F;
-//
-//	//cout << "Velo to Plane : {" << velo.GetX() << ", " << velo.GetY() << ", " << velo.GetZ() << "}.\n\n";
-//	//double eqa =abs(Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD());
-//	//double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
-//	//eqa = eqa/(sqrt(lon));
-//	//if((ve ^ normal) < 0 )   
-//	//	Position = Position  + normal * (rad - eqa);
-//	//else
-//	//	Position = Position + normal * (eqa - rad);
-//
-//	//accel = F/m;
-//	//velo = velo +  accel*t;
-//	//F = Vector(0,-m * _g,0);
-//}
-//bool Sphere::inspections(Line li)
-//{
-//	Vector pro = li.projection(Position);
-//	bool a = pro.GetX() < li.limit[0] + rad && pro.GetX() > li.limit[1] - rad; // Шар пролетает мимо так как в тесте участвует только точка. 
-//	bool b = pro.GetY() < li.limit[2] + rad && pro.GetY() > li.limit[3] - rad; // Проверить поиск максимумов и минимумов координат прямой, похоже там ошибка.
-//	bool c = pro.GetZ() < li.limit[4] + rad && pro.GetZ() > li.limit[5] - rad;
-//	if(a && b && c)
-//	{
-//		if(((Vector(li.tmp.GetX() - Position.GetX(),li.tmp.GetY() - Position.GetY(),li.tmp.GetZ() - Position.GetZ()) * li.vec).length2() / li.vec.length2()) < rad * rad)
-//		{
-//			return true;
-//		}
-//		else
-//			return false;
-//		//return (((Vector(li.tmp.GetX() - Position.GetX(),li.tmp.GetY() - Position.GetY(),li.tmp.GetZ() - Position.GetZ()) * li.vec).length2() / li.vec.length2()) < rad * rad);
-//	}
-//	else
-//		return false;
-//}
-//void Sphere::calculation(Line li, double resil, double t)
-//{
-//	Vector pro = li.projection(Position);
-//	Vector normal = Vector(Position.GetX() - pro.GetX(),Position.GetY() - pro.GetY(),Position.GetZ() - pro.GetZ());
-//	Vector vec_n = Vector_norm(normal);
-//	Vector vy = vec_n * (((velo * resil) & normal) /normal.length());
-//	double Fy =  (((F * resil) & normal) /normal.length());
-//	F = - ((vy * 2 * m) / t) + vec_n * Fy + F;
-//
-//	double eqa = abs(Position.GetX()*normal.GetX() + Position.GetY()*normal.GetY() + Position.GetZ()* normal.GetZ() - (li.tmp.GetX() * normal.GetX() + li.tmp.GetY() * normal.GetY() + li.tmp.GetZ() * normal.GetZ()));
-//	double lon = pow(normal.GetX(),2) + pow(normal.GetY(),2) + pow(normal.GetZ(),2);
-//	eqa = eqa/(sqrt(lon) );
-//	if((velo ^ normal) < 0 )   
-//		Position = Position  + normal * (rad - eqa);
-//	else
-//		Position = Position + normal * (eqa - rad);
-//
-//	Position = F/m;
-//	velo = velo +  accel*t;
-//	F = Vector(0,-m * _g,0);
-//	
-//}
-//bool Sphere::inspections(Vector tmp)
-//{
-//	return ((Vector(tmp.GetX() - Position.GetX(),tmp.GetY() - Position.GetY(),tmp.GetZ() - Position.GetZ()).length2()) < rad * rad);
-//}
-//void Sphere::calculation(Vector tmp, double resil, double t)
-//{
-//	Vector normal = Vector(Position.GetX() - tmp.GetX(), Position.GetX() - tmp.GetY(), Position.GetX() - tmp.GetZ());
-//	Vector vec_n = Vector_norm(normal);
-//	Vector vy = vec_n * (((velo * resil) & normal) /normal.length());
-//	double Fy =  (((F * resil) & normal) /normal.length());
-//	F = - ((vy * 2 * m) / t) + vec_n * Fy + F;
-//
-//	double eqa = abs(Position.GetX()*normal.GetX() + Position.GetY()*normal.GetY() + Position.GetZ()* normal.GetZ() - (tmp.GetX() * normal.GetX() + tmp.GetY() * normal.GetY() + tmp.GetZ() * normal.GetZ()));
-//	double lon = pow(normal.GetX(),2) + pow(normal.GetY(),2) + pow(normal.GetZ(),2);
-//	eqa = eqa/(sqrt(lon) );
-//	if((velo ^ normal) < 0 )   
-//		Position = Position  + normal * (rad - eqa);
-//	else
-//		Position = Position + normal * (eqa - rad);
-//
-//	accel = F/m;
-//	velo = velo +  accel*t;
-//	F = Vector(0,-m * _g,0);
-//}
+bool Sphere::Test(Sphere * obj)
+{
+	return ((obj->Position - Position).length2() < (rad + obj->rad)* (rad + obj->rad) * 1.001);
+}
+void Sphere::HandlerCollision(Sphere * obj)
+{
+	throw exception("Not implemented");
+	return;
+
+	double x = obj->Position.GetX() - Position.GetX();
+	double y = obj->Position.GetY() - Position.GetY();
+	double z = obj->Position.GetZ() - Position.GetZ();
+
+	double eq[3]  = {x,y,z};
+	Vector norm = Vector(eq);
+	norm = Vector_norm(norm);
+	double e[3] = {0,0,0};
+
+	Vector ve2 = Vector();
+	Vector ve1 = Vector();
+
+	Vector D = (velo - obj->velo) * obj->m;
+	Vector A = velo * m + obj->velo * obj->m;
+	if(D.length2() == 0)
+	{
+		ve1 = (A) / (m + obj->m);
+		ve2 = (A - ve1 * m) / (obj->m);
+	}
+	else
+	{
+		ve1 = (A + D) / (m + obj->m);
+		ve2 = (A - ve1 * m) / (obj->m);
+		Vector t_1 = velo > velo * m + obj->velo > obj->velo * obj->m;
+		Vector t_2 = ve1 > ve1 * m + ve2 > ve2 * obj->m; 
+		double test = t_1.length2() - t_2.length2();
+		if( test > 0.0000001 || test < -0.0000001)
+		{
+			ve1 = (A  - D) / (m + obj->m);
+			ve2 = (A - ve1 * m) / (obj->m);
+		}
+	}
+
+	if(ve1 < 0.01)
+		ve1 = e;
+	if(ve2 < 0.01)
+		ve2 = e;
+	velo = ve1;
+	obj->velo = ve2;
+
+	/*velo = plan->GetInvertMat() * velo;
+	obj->velo = plan->GetInvertMat() * obj->velo;*/
+
+	//if((velo ^ norm) > 0)
+	//	velo = plan->GetMat() * /*velo*/ve1 * res;
+	//else
+	//		velo = -/*velo*/norm * (ve1 * res).length();
+	//if( (obj->velo ^ norm) < 0)
+	//	obj->velo = plan->GetMat() * /*obj->velo*/ve2 * res;
+	//else
+	//	obj->velo = /*obj->velo*/norm * (ve2 * res).length();
+	double len = (obj->Position - Position).length2();
+	len = sqrt(len);
+	len = ((rad + obj->GetRad()) - len)/2; 
+	
+	 Position= Position - norm * len;
+	 obj->Position = obj->Position + norm * len;
+
+	Rotated(obj->velo,eq);
+	obj->Rotated(velo,eq);
+
+	if((norm & F) > 0)
+	{
+		F = - (norm * (obj->F & norm)) + F;
+		obj->F = (norm * (F & norm) + obj->F);
+	}
+	else
+	{
+		F = (norm * (obj->F & norm)) + F;
+		obj->F = -(norm * (F & norm) + obj->F);
+	}
+}
+
+double Sphere::GetRad()
+{
+	return rad;
+}
+
+
+Sphere& Sphere::operator=(const Sphere * item)
+{
+	Position = item->Position;
+	accel = item->accel;
+	F = item->F;
+	m = item->m;
+	velo = item->velo;
+	return *this;
+}
+
+bool Sphere::inspections(Plane pl)
+{
+	if(!pl.cubeinspection(Position))
+		return false;
+	else
+	{
+		double eqa = pow(Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD(),2);
+		double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
+
+		if(lon == 0 )
+			return false;
+		if((eqa/lon ) <= rad * rad)
+		{
+			Vector progect = pl.project(&Position);
+			
+			bool flag = false;
+			int t_n = pl.tr_num; // <- error in this line.
+			for(int i = 0; i< t_n; i++)
+			{
+				if(((Vector(progect.GetX() - pl.tmp[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[0][i]].GetZ()) & pl.norm[i][0]) >= 0) ||
+					((Vector(progect.GetX() - pl.tmp[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[1][i]].GetZ()) & pl.norm[i][1]) >= 0) ||
+					((Vector(progect.GetX() - pl.tmp[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[2][i]].GetZ()) & pl.norm[i][2]) >= 0) )
+				{
+					flag = true;
+					return true;
+				}
+			}
+			if(flag)
+				return true;
+			else
+				return false;
+		}
+		else
+			return false;
+	}
+}
+
+void Sphere::calculation(Plane pl, double resil, double t)
+{
+	Vector normal = pl.GetN();
+	Rotated(velo,normal);
+	Vector ve = velo;
+	//double velo = obj->velo.length();
+	//obj->velo = Vector_norm(Plan[i].GetMat() * obj->velo);
+	//obj->velo = obj->velo * velo * resil;
+	//obj->F = obj->F + Vector_norm(Plan[i].GetN()) * obj->F.length()/** obj->velo.length()*sqrt(K * obj->m)*/;
+	if(velo < 0.1)
+		velo = Vector(0,0,0);
+
+	Vector n = Vector_norm(normal);
+	Vector vy = n * (((velo * resil) & normal) /normal.length());
+	double Fy =  (((F * resil) & normal) /normal.length());
+	Vector N_standart =  - n * Fy;
+	Vector F_obj = F;
+	Vector N_velo = - ((vy * 2 * m)/(t));
+	F = - ((vy * 2 * m)/(t)) - n * Fy + F;
+	if((normal & ve) >= 0)
+		F = -F;
+
+	cout << "Velo to Plane : {" << velo.GetX() << ", " << velo.GetY() << ", " << velo.GetZ() << "}.\n\n";
+	double eqa =abs(Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD());
+	double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
+	eqa = eqa/(sqrt(lon));
+	if((ve ^ normal) < 0 )   
+		Position = Position  + normal * (rad - eqa);
+	else
+		Position = Position + normal * (eqa - rad);
+
+	accel = F/m;
+	velo = velo +  accel*t;
+	F = Vector(0,-m * _g,0);
+}
+bool Sphere::inspections(Line li)
+{
+	Vector pro = li.projection(Position);
+	bool a = pro.GetX() < li.limit[0] + rad && pro.GetX() > li.limit[1] - rad; // Шар пролетает мимо так как в тесте участвует только точка. 
+	bool b = pro.GetY() < li.limit[2] + rad && pro.GetY() > li.limit[3] - rad; // Проверить поиск максимумов и минимумов координат прямой, похоже там ошибка.
+	bool c = pro.GetZ() < li.limit[4] + rad && pro.GetZ() > li.limit[5] - rad;
+	if(a && b && c)
+	{
+		if(((Vector(li.tmp.GetX() - Position.GetX(),li.tmp.GetY() - Position.GetY(),li.tmp.GetZ() - Position.GetZ()) * li.vec).length2() / li.vec.length2()) < rad * rad)
+		{
+			return true;
+		}
+		else
+			return false;
+		return (((Vector(li.tmp.GetX() - Position.GetX(),li.tmp.GetY() - Position.GetY(),li.tmp.GetZ() - Position.GetZ()) * li.vec).length2() / li.vec.length2()) < rad * rad);
+	}
+	else
+		return false;
+}
+void Sphere::calculation(Line li, double resil, double t)
+{
+	Vector pro = li.projection(Position);
+	Vector normal = Vector(Position.GetX() - pro.GetX(),Position.GetY() - pro.GetY(),Position.GetZ() - pro.GetZ());
+	Vector vec_n = Vector_norm(normal);
+	Vector vy = vec_n * (((velo * resil) & normal) /normal.length());
+	double Fy =  (((F * resil) & normal) /normal.length());
+	F = - ((vy * 2 * m) / t) + vec_n * Fy + F;
+
+	double eqa = abs(Position.GetX()*normal.GetX() + Position.GetY()*normal.GetY() + Position.GetZ()* normal.GetZ() - (li.tmp.GetX() * normal.GetX() + li.tmp.GetY() * normal.GetY() + li.tmp.GetZ() * normal.GetZ()));
+	double lon = pow(normal.GetX(),2) + pow(normal.GetY(),2) + pow(normal.GetZ(),2);
+	eqa = eqa/(sqrt(lon) );
+	if((velo ^ normal) < 0 )   
+		Position = Position  + normal * (rad - eqa);
+	else
+		Position = Position + normal * (eqa - rad);
+
+	Position = F/m;
+	velo = velo +  accel*t;
+	F = Vector(0,-m * _g,0);
+	
+}
+bool Sphere::inspections(Vector tmp)
+{
+	return ((Vector(tmp.GetX() - Position.GetX(),tmp.GetY() - Position.GetY(),tmp.GetZ() - Position.GetZ()).length2()) < rad * rad);
+}
+void Sphere::calculation(Vector tmp, double resil, double t)
+{
+	Vector normal = Vector(Position.GetX() - tmp.GetX(), Position.GetX() - tmp.GetY(), Position.GetX() - tmp.GetZ());
+	Vector vec_n = Vector_norm(normal);
+	Vector vy = vec_n * (((velo * resil) & normal) /normal.length());
+	double Fy =  (((F * resil) & normal) /normal.length());
+	F = - ((vy * 2 * m) / t) + vec_n * Fy + F;
+
+	double eqa = abs(Position.GetX()*normal.GetX() + Position.GetY()*normal.GetY() + Position.GetZ()* normal.GetZ() - (tmp.GetX() * normal.GetX() + tmp.GetY() * normal.GetY() + tmp.GetZ() * normal.GetZ()));
+	double lon = pow(normal.GetX(),2) + pow(normal.GetY(),2) + pow(normal.GetZ(),2);
+	eqa = eqa/(sqrt(lon) );
+	if((velo ^ normal) < 0 )   
+		Position = Position  + normal * (rad - eqa);
+	else
+		Position = Position + normal * (eqa - rad);
+
+	accel = F/m;
+	velo = velo +  accel*t;
+	F = Vector(0,-m * _g,0);
+}
 
 
 //Camera::

@@ -314,33 +314,12 @@ int main(int argc, char **argv)
 
 
 	planes = new StaticWorld();
-	Plane* p = planes->Get(0);
-	p->val = 5;
-	Vector v = p->tmp[0];
-
-
 	balls = new DynamicWorld();
 
-	balls->Add(Sphere(Vector(5,3,0)));
+	/*balls->Add(Sphere(Vector(5,3,0)));*/
 	
 	phy = new Fizika(*planes, *balls);
-	phy->FindCollisions();
-	
-	Collision tmp = phy->collision[0];
-	
-	Plane* pl = tmp.plane;
-
-	tmp.sp->Test();
-	pl->Test();
-	Plane pl1 = *pl; //<-- тут ошибка.
-	
-	tmp.sp->Test2(pl1, 1.0, 0.03);
-	(*tmp.sp).Test2(pl1, 1.0, 0.03);
-	
-
-
-
-
+	//phy->FindCollisions();
 
 	//phy->ParseCollision(0.03);
 	
