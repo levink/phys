@@ -136,776 +136,733 @@
 			value.GetZ() / longg );
 	}
 //Matrix::
-		Matrix::Matrix()
-		{
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					mat[i][e] = 0;
-		}
-
-		Matrix::Matrix(double count[3][3])
-		{
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					mat[i][e] = count[i][e];
-		}
-
-		double Matrix::GetM(int a,int b)
-		{
-			return mat[a][b];
-		}
-		
-		void Matrix::SetM(double value,int i,int j)
-		{
-			mat[i][j] = value;
-		}
-		
-		const double* Matrix::Values()
-		{
-			return &(mat[0][0]);
-		}
-
-		Matrix Matrix::Transpose()
-		{
-			double tr[3][3];
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					tr[e][i] = mat[i][e];
-			return Matrix(tr);
-		}
-
-		Matrix Matrix::operator* (double t)
-		{
-			double _mat[3][3];
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					_mat[i][e] = mat[i][e] * t;
-			return Matrix(_mat);
-		}
-
-		Vector Matrix::operator* (Vector vector)
-		{
-			double vx = vector.GetX();
-			double vy = vector.GetY();
-			double vz = vector.GetZ();
-			return Vector(
-				(mat[0][0] * vx +  mat[0][1] * vy + mat[0][2] * vz),
-				(mat[1][0] * vx +  mat[1][1] * vy + mat[1][2] * vz),
-				(mat[2][0] * vx +  mat[2][1] * vy + mat[2][2] * vz));
-		}
-
-		Matrix Matrix::operator* (Matrix& const right)
-		{
-			double _mat[3][3];
-			const double* m = right.Values();
-
-			/*for(int i=0;i<3;i++)
-				for(int j=0;j<3;j++)
-					_mat[i][j] = m1[i*3+0] * m2[0*3 + j] + m1[i*3+1] * m2[1*3 + j] + m1[i*3+2] * m2[2*3 + j];*/
-			
-			// more quickly
-			_mat[0][0] = mat[0][0] * m[0*3 + 0] + mat[0][1] * m[1*3 + 0] + mat[0][2] * m[2*3 + 0];
-			_mat[0][1] = mat[0][0] * m[0*3 + 1] + mat[0][1] * m[1*3 + 1] + mat[0][2] * m[2*3 + 1];
-			_mat[0][2] = mat[0][0] * m[0*3 + 2] + mat[0][1] * m[1*3 + 2] + mat[0][2] * m[2*3 + 2];
-			_mat[1][0] = mat[1][0] * m[0*3 + 0] + mat[1][1] * m[1*3 + 0] + mat[1][2] * m[2*3 + 0];
-			_mat[1][1] = mat[1][0] * m[0*3 + 1] + mat[1][1] * m[1*3 + 1] + mat[1][2] * m[2*3 + 1];
-			_mat[1][2] = mat[1][0] * m[0*3 + 2] + mat[1][1] * m[1*3 + 2] + mat[1][2] * m[2*3 + 2];
-			_mat[2][0] = mat[2][0] * m[0*3 + 0] + mat[2][1] * m[1*3 + 0] + mat[2][2] * m[2*3 + 0];
-			_mat[2][1] = mat[2][0] * m[0*3 + 1] + mat[2][1] * m[1*3 + 1] + mat[2][2] * m[2*3 + 1];
-			_mat[2][2] = mat[2][0] * m[0*3 + 2] + mat[2][1] * m[1*3 + 2] + mat[2][2] * m[2*3 + 2];
-			
-			return Matrix(_mat);
-		}
-
-		Matrix Matrix::operator/ (double t)
-		{
-			double _mat[3][3];
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					_mat[i][e] = mat[i][e] / t;
-			return Matrix(mat);
-		}
-
-		Matrix Matrix::operator= (Matrix& const right)
-		{
-			//TODO: test this method
-			const double *items = right.Values();
-			for(int i=0;i<3;i++)
-				for(int j=0;j<3;j++)
-					mat[i][j] = items[i*3 + j];
-			return *this;
-		}
-
-		Matrix Matrix::Invert()
-		{
-			//Determinant calculating
-			double d1 = mat[0][0] * ( mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]);
-			double d2 = mat[0][1] * ( mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]);
-			double d3 = mat[0][2] * ( mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]);
-			double det = d1 - d2 + d3;
-			if(det == 0) det = 1;
-			else det = 1 / det; //(!)
-			
-			//Mat_alg_aff + Transposition + " scale on (1/det)" in one step
-			double matA [3][3];
-			matA[0][0] =  (mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]) * det;
-			matA[1][0] = -(mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]) * det;
-			matA[2][0] =  (mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]) * det;
-			matA[0][1] = -(mat[0][1] * mat[2][2] - mat[2][1] * mat[0][2]) * det; 
-			matA[1][1] =  (mat[0][0] * mat[2][2] - mat[2][0] * mat[0][2]) * det; 
-			matA[2][1] = -(mat[0][0] * mat[2][1] - mat[2][0] * mat[0][1]) * det;
-			matA[0][2] =  (mat[0][1] * mat[1][2] - mat[1][1] * mat[0][2]) * det;
-			matA[1][2] = -(mat[0][0] * mat[1][2] - mat[1][0] * mat[0][2]) * det;
-			matA[2][2] =  (mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1]) * det;
-			
-			return Matrix(matA);
-		}
-//Plane
-	Plane::Plane()
+	Matrix::Matrix()
 	{
-		equa[0] = 0;
-		equa[1] = 0;
-		equa[2] = 0;
-		equa[3] = 0; 
-		tmp = NULL;
-		num = 0;
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				mat[i][e] = 0;
+	}
+
+	Matrix::Matrix(double count[3][3])
+	{
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				mat[i][e] = count[i][e];
+	}
+
+	double Matrix::GetM(int a,int b)
+	{
+		return mat[a][b];
+	}
+		
+	void Matrix::SetM(double value,int i,int j)
+	{
+		mat[i][j] = value;
+	}
+		
+	const double* Matrix::Values()
+	{
+		return &(mat[0][0]);
+	}
+
+	Matrix Matrix::Transpose()
+	{
+		double tr[3][3];
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				tr[e][i] = mat[i][e];
+		return Matrix(tr);
+	}
+
+	Matrix Matrix::operator* (double t)
+	{
+		double _mat[3][3];
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				_mat[i][e] = mat[i][e] * t;
+		return Matrix(_mat);
+	}
+
+	Vector Matrix::operator* (Vector vector)
+	{
+		double vx = vector.GetX();
+		double vy = vector.GetY();
+		double vz = vector.GetZ();
+		return Vector(
+			(mat[0][0] * vx +  mat[0][1] * vy + mat[0][2] * vz),
+			(mat[1][0] * vx +  mat[1][1] * vy + mat[1][2] * vz),
+			(mat[2][0] * vx +  mat[2][1] * vy + mat[2][2] * vz));
+	}
+
+	Matrix Matrix::operator* (Matrix& const right)
+	{
+		double _mat[3][3];
+		const double* m = right.Values();
+
+		/*for(int i=0;i<3;i++)
+			for(int j=0;j<3;j++)
+				_mat[i][j] = m1[i*3+0] * m2[0*3 + j] + m1[i*3+1] * m2[1*3 + j] + m1[i*3+2] * m2[2*3 + j];*/
+			
+		// more quickly
+		_mat[0][0] = mat[0][0] * m[0*3 + 0] + mat[0][1] * m[1*3 + 0] + mat[0][2] * m[2*3 + 0];
+		_mat[0][1] = mat[0][0] * m[0*3 + 1] + mat[0][1] * m[1*3 + 1] + mat[0][2] * m[2*3 + 1];
+		_mat[0][2] = mat[0][0] * m[0*3 + 2] + mat[0][1] * m[1*3 + 2] + mat[0][2] * m[2*3 + 2];
+		_mat[1][0] = mat[1][0] * m[0*3 + 0] + mat[1][1] * m[1*3 + 0] + mat[1][2] * m[2*3 + 0];
+		_mat[1][1] = mat[1][0] * m[0*3 + 1] + mat[1][1] * m[1*3 + 1] + mat[1][2] * m[2*3 + 1];
+		_mat[1][2] = mat[1][0] * m[0*3 + 2] + mat[1][1] * m[1*3 + 2] + mat[1][2] * m[2*3 + 2];
+		_mat[2][0] = mat[2][0] * m[0*3 + 0] + mat[2][1] * m[1*3 + 0] + mat[2][2] * m[2*3 + 0];
+		_mat[2][1] = mat[2][0] * m[0*3 + 1] + mat[2][1] * m[1*3 + 1] + mat[2][2] * m[2*3 + 1];
+		_mat[2][2] = mat[2][0] * m[0*3 + 2] + mat[2][1] * m[1*3 + 2] + mat[2][2] * m[2*3 + 2];
+			
+		return Matrix(_mat);
+	}
+
+	Matrix Matrix::operator/ (double t)
+	{
+		double _mat[3][3];
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				_mat[i][e] = mat[i][e] / t;
+		return Matrix(mat);
+	}
+
+	Matrix Matrix::operator= (Matrix& const right)
+	{
+		//TODO: test this method
+		const double *items = right.Values();
+		for(int i=0;i<3;i++)
+			for(int j=0;j<3;j++)
+				mat[i][j] = items[i*3 + j];
+		return *this;
+	}
+
+	Matrix Matrix::Invert()
+	{
+		//Determinant calculating
+		double d1 = mat[0][0] * ( mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]);
+		double d2 = mat[0][1] * ( mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]);
+		double d3 = mat[0][2] * ( mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]);
+		double det = d1 - d2 + d3;
+		if(det == 0) det = 1;
+		else det = 1 / det; //(!)
+			
+		//Mat_alg_aff + Transposition + " scale on (1/det)" in one step
+		double matA [3][3];
+		matA[0][0] =  (mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]) * det;
+		matA[1][0] = -(mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]) * det;
+		matA[2][0] =  (mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]) * det;
+		matA[0][1] = -(mat[0][1] * mat[2][2] - mat[2][1] * mat[0][2]) * det; 
+		matA[1][1] =  (mat[0][0] * mat[2][2] - mat[2][0] * mat[0][2]) * det; 
+		matA[2][1] = -(mat[0][0] * mat[2][1] - mat[2][0] * mat[0][1]) * det;
+		matA[0][2] =  (mat[0][1] * mat[1][2] - mat[1][1] * mat[0][2]) * det;
+		matA[1][2] = -(mat[0][0] * mat[1][2] - mat[1][0] * mat[0][2]) * det;
+		matA[2][2] =  (mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1]) * det;
+			
+		return Matrix(matA);
+	}
+	
+	//Plane
+	/*Plane::Plane()
+	{
+		normal[0] = 0;
+		normal[1] = 0;
+		normal[2] = 0;
+		normal[3] = 0; 
+		
 		Mat = Matrix();
-		tr[0] = NULL;
-		tr[1] = NULL;
-		tr[2] = NULL;
+		
 		nor[0] = NULL;
 		nor[1] = NULL;
 		nor[2] = NULL;
-		tr_num = 0;
-		tes[0] = 0;
-		tes[1] = 0;
-		tes[2] = 0;
-		tes[3] = 0;
-		tes[4] = 0;
-		tes[5] = 0;
-		li = &Line();
-		li_num = 0;
-	}
-
-	void Plane::PlaneSetEquation(double eq[4])
-	{
-		tmp = NULL;
-		num = 0;
-		Mat = Matrix();
-		tr[0] = NULL;
-		tr[1] = NULL;
-		tr[2] = NULL;
-		tes[0] = 0;
-		tes[1] = 0;
-		tes[2] = 0;
-		tes[3] = 0;
-		tes[4] = 0;
-		tes[5] = 0;
-		equa[0] = eq[0];
-		equa[1] = eq[1];
-		equa[2] = eq[2];
-		equa[3] = eq[3];
-		li = &Line();
-		li_num = 0;
-	}
-
-	Matrix Plane::GetBathis ()
-	{
-		double a [3]; // x0
-		double b [3]; // x1
-		double c [3]; // x2
-		double f [3];
-		double e [3] = {0,0,0};
-
-		if(equa[2] != 0)
-		{
-			a[0] = 1;
-			a[1] = 1;
-			a[2] = - ((equa[0] * a[0] + equa[1] * a[1] + equa[3])/equa[2]);
-			b[0] = 2;
-			b[1] = 2;
-			b[2] = - ((equa[0] * b[0] + equa[1] * b[1] + equa[3])/equa[2]);
-			c[0] = 3;
-			e[0] = c[0] - a[0];
-
-			f[0] = b[0] - a[0];
-			f[1] = b[1] - a[1];
-			f[2] = b[2] - a[2];
-
-			e[1] = (equa[0] * (e[0] + a[0]) + equa[1] * a[1] - ((equa[2] * e[0] * f[0])/f[2]) + equa[2] * a[2]) / (((equa[2] * f[1])/f[2]) - equa[1]);
-			e[2] = -((e[0] * f[0] + e[1] * f[1])/f[2]);
-		}
-
-		if(equa[2] == 0 && equa[0] != 0 &&  equa[1] != 0)
-		{
-			a[1] = 1;
-			a[2] = 1;
-			a[0] = - ((equa[1] * a[1] + equa[3])/equa[0]);
-			b[1] = 2;
-			b[2] = 2;
-			b[0] = - ((equa[1] * b[1] + equa[3])/equa[0]);
-			c[0] = 3;
-			e[0] = c[0] - a[0];
-
-			f[0] = b[0] - a[0];
-			f[1] = b[1] - a[1];
-			f[2] = b[2] - a[2];
-
-			e[1] = -((equa[0] * (e[0] + a[0]) + equa[1] * a[1] + equa[3])/equa[1]);
-			e[2] = -((e[0] * f[0] + e[1] * f[1])/f[2]);
-		}
-		if(equa[2] == 0 && equa[0] == 0)
-		{
-			a[0] = 1;
-			a[2] = 1;
-			a[1] = - (equa[3]/equa[1]);
-			b[0] = 2;
-			b[2] = 2;
-			b[1] = - (equa[3]/equa[1]);
-			c[0] = 3;
-			e[0] = c[0] - a[0];
-
-			f[0] = b[0] - a[0];
-			f[1] = b[1] - a[1];
-			f[2] = b[2] - a[2];
-
-			e[1] = -((equa[1]  * a[1] + equa[3]) / equa[1]);
-			e[2] = -((e[0] * f[0])/f[2]);
-		}
-		if(equa[1] == 0 && equa[2] == 0)
-		{
-			a[1] = 1;
-			a[2] = 1;
-			a[0] = - (equa[3]/equa[0]);
-			b[1] = 2;
-			b[2] = 2;
-			b[0] = - (equa[3]/equa[0]);
-			c[1] = 3;
-			c[0] = - (equa[3]/equa[0]);
-			e[1] = c[1] - a[1];
-
-			f[0] = b[0] - a[0];
-			f[1] = b[1] - a[1];
-			f[2] = b[2] - a[2];
-
-			e[0] = -(equa[3] / equa[0]);
-			e[2] = (( -c[0] * f[0] + a[0] * f[0] - c[1] * f[1] + a[1] * f[1])/f[2]) + a[2];
-		}
-		double  x[3][3] = { 
-					{f[0],f[1],f[2]},
-					{equa[0],equa[1],equa[2]},
-					{e[0],e[1],e[2]} };
-
-		Vector f1 = Vector(f);
-		Vector e1 = Vector(e);
-		double ang = e1 & f1;
-		cout << ang << endl;
-		if(ang > 0.000001 || ang < -0.000001)
-		{
-			cout << "ERROR\n";
-		}
-
-		return Matrix(x);
-	}
 	
-	Plane::Plane(double Ctmp[3][3])
-	{
-		equa[0] = Ctmp[1][0]*(Ctmp[2][1] - Ctmp[2][2]) + Ctmp[1][1]*(Ctmp[2][2] - Ctmp[2][0]) + Ctmp[1][2]*(Ctmp[2][0] - Ctmp[2][1]);
-		equa[1] = Ctmp[2][0]*(Ctmp[0][1] - Ctmp[0][2]) + Ctmp[2][1]*(Ctmp[0][2] - Ctmp[0][0]) + Ctmp[2][2]*(Ctmp[0][0] - Ctmp[0][1]);
-		equa[2] = Ctmp[0][0]*(Ctmp[1][1] - Ctmp[1][2]) + Ctmp[0][1]*(Ctmp[1][2] - Ctmp[1][0]) + Ctmp[0][2]*(Ctmp[1][0] - Ctmp[1][1]);
-
-		double longg  = sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
-		double eq[4] = {equa[0],equa[1],equa[2],equa[3]};
-		equa[0] = equa[0] / longg;
-		equa[1] = equa[1] / longg;
-		equa[2] = equa[2] / longg;
-
-		Mat = GetBathis();
-		Matrix invert = Mat.Invert();
-
-		/*double redoun[3][3] = 
-		{	{1,0,0},
-			{0,-1,0},
-			{0,0,1}, };
-		Matrix rebound = Matrix(redoun);*/
-		equa[0] = eq[0];
-		equa[1] = eq[1];
-		equa[2] = eq[2];
-		equa[3] = eq[3];
-		Mat = invert /** rebound * Mat*/;
-	}
-
-	Plane::Plane(Vector x1,Vector x2, Vector x3)
-	{
-		equa[0] = x2.GetX() * (x3.GetY() - x3.GetZ()) + x2.GetY() * (x3.GetZ() - x3.GetX()) + x2.GetZ() * (x3.GetX() - x3.GetY());
-		equa[1] = x3.GetX() * (x1.GetY() - x1.GetZ()) + x3.GetY() * (x1.GetZ() - x1.GetX()) + x3.GetZ() * (x1.GetX() - x1.GetY());
-		equa[2] = x1.GetX() * (x2.GetY() - x2.GetZ()) + x1.GetY() * (x2.GetZ() - x2.GetX()) + x1.GetZ() * (x2.GetX() - x2.GetY());
-
-		double longg  = sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
-		double eq[4] = {equa[0],equa[1],equa[2],equa[3]};
-		equa[0] = equa[0] / longg;
-		equa[1] = equa[1] / longg;
-		equa[2] = equa[2] / longg;
-
-		Mat = GetBathis();
-		Matrix invert = Mat.Invert();
-
-		/*double redoun[3][3] = 
-		{	{1,0,0},
-			{0,-1,0},
-			{0,0,1}, };
-		Matrix rebound = Matrix(redoun);*/
-		equa[0] = eq[0];
-		equa[1] = eq[1];
-		equa[2] = eq[2];
-		equa[3] = eq[3];
-		Mat = invert /** rebound * Mat*/;
-	}
-
-	Plane::Plane(double eq [4])
-	{
-		tmp = NULL;
-		num = 0;
-		Mat = Matrix();
-		tr[0] = NULL;
-		tr[1] = NULL;
-		tr[2] = NULL;
 		tes[0] = 0;
 		tes[1] = 0;
 		tes[2] = 0;
 		tes[3] = 0;
 		tes[4] = 0;
 		tes[5] = 0;
-		li = &Line();
-		li_num = 0;
-		for(int i=0;i<4;i++)
-		{
-			equa[i] = eq[i];
-		}
-		double length = sqrt(eq[0] * eq[0] + eq[1] * eq[1] + eq[2] * eq[2]); 
-		double equation[4] = {equa[0],equa[1],equa[2],equa[3]};
-		equa[0] = equa[0] / length;
-		equa[1] = equa[1] / length;
-		equa[2] = equa[2] / length;
-		equa[3] = equa[3] / length;
+	}*/
 
-		Mat = GetBathis();
-		Matrix invert = Mat.Invert();
+	//void Plane::PlaneSetEquation(double eq[4])
+	//{
+	//	Mat = Matrix();
+	//	tes[0] = 0;
+	//	tes[1] = 0;
+	//	tes[2] = 0;
+	//	tes[3] = 0;
+	//	tes[4] = 0;
+	//	tes[5] = 0;
+	//	normal[0] = eq[0];
+	//	normal[1] = eq[1];
+	//	normal[2] = eq[2];
+	//	normal[3] = eq[3];
+	//}
 
-		/*double redoun[3][3] = 
-		{	{1,0,0},
-			{0,-1,0},
-			{0,0,1}, };
-		Matrix rebound = Matrix(redoun);*/
-		equa[0] = equation[0];
-		equa[1] = equation[1];
-		equa[2] = equation[2];
-		equa[3] = equation[3];
-		Mat = invert /** rebound * Mat*/;
+	//Matrix Plane::GetBathis ()
+	//{
+	//	double a [3]; // x0
+	//	double b [3]; // x1
+	//	double c [3]; // x2
+	//	double f [3];
+	//	double e [3] = {0,0,0};
 
-	}
+	//	if(normal[2] != 0)
+	//	{
+	//		a[0] = 1;
+	//		a[1] = 1;
+	//		a[2] = - ((normal [0] * a[0] + normal [1] * a[1] + normal [3])/normal [2]);
+	//		b[0] = 2;
+	//		b[1] = 2;
+	//		b[2] = - ((normal [0] * b[0] + normal [1] * b[1] + normal [3])/normal [2]);
+	//		c[0] = 3;
+	//		e[0] = c[0] - a[0];
 
-	Matrix Plane::GetInvertMat()                            
-	{
-		Matrix Matr  = GetBathis();
-		Matr = Matr.Invert();
-		/*double e[3][3] = {
-			{1,0,0},
-			{0,-1,0},
-			{0,0,1} };*/
-		return  /*Matrix(e) **/ Matr;
-	}
+	//		f[0] = b[0] - a[0];
+	//		f[1] = b[1] - a[1];
+	//		f[2] = b[2] - a[2];
 
-	Matrix Plane::GetMat()
-	{
-		return Mat;
-	}
-	Vector Plane::GetN()
-	{
-		return Vector(equa[0],equa[1],equa[2]);
-	}
-	double Plane::GetA()
-	{
-		return equa[0];
-	}
-	double Plane::GetB()
-	{
-		return equa[1];
-	}
-	double Plane::GetC()
-	{
-		return equa[2];
-	}
-	double Plane::GetD()
-	{
-		return equa[3];
-	}
-	Vector Plane::project(Vector* point)
-	{
-		double test = equa[0] * point->GetX() + equa[1] * point->GetY() + equa[2] * point->GetZ() + equa[3];
-		if(test >=0.0000001 || test <=-0.0000001)
-		{
-			double _x = point->GetX();
-			double _y = point->GetY();
-			double _z = point->GetZ();
-			if(equa[0] != 0)
-			{
-				double x = (_x * ( equa[1] * equa[1] + equa[2] * equa[2]) - equa[0] * (equa[1] * _y + equa[2] * _z + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
-				return(Vector(x,(equa[1] * (x - _x))/equa[0] + _y,(equa[2] * (x - _x))/equa[0] + _z));
-			}
-			if(equa[1] != 0)
-			{
-				double y = (_y * ( equa[0] * equa[0] + equa[2] * equa[2]) - equa[1] * (equa[0] * _x + equa[2] * _z + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
-				return(Vector((equa[0] * (y - _y))/equa[1] + _x,y,(equa[2] * (y - _y))/equa[1] + _z));
-			}
-			if(equa[2] != 0)
-			{
-				double z = (_z * ( equa[0] * equa[0] + equa[1] * equa[1]) - equa[2] * (equa[0] * _x + equa[1] * _y + equa[3])) / Vector(equa[0],equa[1],equa[2]).length2();
-				return(Vector((equa[0] * (z - _z))/equa[2] + _x,(equa[1] * (z - _z))/equa[2] + _y,z));
-			}
-		}
-		return (*point);
-	}
-	void Plane::SetPoints(Vector * point, int l)
-	{
-		num = l;
-		if(tmp!=NULL)	delete[] tmp;
-		tmp = new Vector[num];
-		for(int i= 0;i<num;i++)
-		{
-			tmp[i] = project(&point[i]);
-		}
-		this->triangulation();
-	}
-	void Plane::triangulation() // триангуляция !!!!!!!(не работает вообще 06.01.2015)работает только для четырёхугольников! + определение ограничивающего куба + определение нормалей к контуру
-	{
-		int current = 0;
-		int maximum = num;
-		tr_num = 0;
-		tr[0] = new int[num];
-		tr[1] = new int[num];
-		tr[2] = new int[num];
-		nor[0] = new Vector[num];
-		nor[1] = new Vector[num];
-		nor[2] = new Vector[num];
-		int cur_rej = 0;
-		int max_rej = 4;
-		int * rejected = new int[4];
-		int signal = num;
+	//		e[1] = (normal [0] * (e[0] + a[0]) + normal [1] * a[1] - ((normal [2] * e[0] * f[0])/f[2]) + normal [2] * a[2]) / (((normal [2] * f[1])/f[2]) - normal [1]);
+	//		e[2] = -((e[0] * f[0] + e[1] * f[1])/f[2]);
+	//	}
 
-		li_num = num;
-		li = new Line[num];
-		int n = 0;
-		for(int i =0;i<num;i++)
-		{
-			n = i + 1;
-			if(n >= num)
-				n  = n - (num);
-			li[i].vec = Vector(tmp[n].GetX() - tmp[i].GetX(),tmp[n].GetY() - tmp[i].GetY(),tmp[n].GetZ() - tmp[i].GetZ());
-			li[i].tmp = tmp[i];
-			if(tmp[i].GetX() > tmp[n].GetX())
-			{
-				li[i].limit[0] = tmp[i].GetX();
-				li[i].limit[1] = tmp[n].GetX();
-			}	
-			else
-			{	
-				li[i].limit[0] = tmp[n].GetX();
-				li[i].limit[1] = tmp[i].GetX();
-			}
-			if(tmp[i].GetY() > tmp[n].GetY())
-			{
-				li[i].limit[2] = tmp[i].GetY();
-				li[i].limit[3] = tmp[n].GetY();
-			}	
-			else
-			{	
-				li[i].limit[2] = tmp[n].GetY();
-				li[i].limit[3] = tmp[i].GetY();
-			}
-			if(tmp[i].GetZ() > tmp[n].GetZ())
-			{
-				li[i].limit[4] = tmp[i].GetZ();
-				li[i].limit[5] = tmp[n].GetZ();
-			}						 
-			else					 
-			{						 
-				li[i].limit[4] = tmp[n].GetZ();
-				li[i].limit[5] = tmp[i].GetZ();
-			}
-			
-		}
+	//	if(normal [2] == 0 && normal [0] != 0 &&  normal [1] != 0)
+	//	{
+	//		a[1] = 1;
+	//		a[2] = 1;
+	//		a[0] = - ((normal [1] * a[1] + normal [3])/normal [0]);
+	//		b[1] = 2;
+	//		b[2] = 2;
+	//		b[0] = - ((normal [1] * b[1] + normal [3])/normal [0]);
+	//		c[0] = 3;
+	//		e[0] = c[0] - a[0];
 
-		Vector testing = Vector();
-		n = 0;
-		int  i = 0;
-		int e  = 0;
-		while(signal >= 3) // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ. Эту запись, а не код
-		{
-			bool et = true;
-			bool nt = true;
-			bool it = true;
-			e = i + 1; 
-			n = i - 1; 
-			while(et || nt || it)
-			{
-				if(et)
-				{
-					bool erej = true;
-					if(e >= num)
-					{
-						e  = e - (num);
-					}
-					for(int i = 0;i<cur_rej;i++)
-					{
-						if(rejected[i] == e)
-						{
-							erej = false;
-							break;
-						}
-					}
-					if(!erej)
-					{
-						e++;
-						erej = true;
-					}
-					else
-					{
-						et = false;
-					}
-				}
-				if(nt)
-				{
-					bool nrej = true;
-					if(n < 0)
-					{
-						n = num + n;
-					}
-					for(int i = 0;i<cur_rej;i++)
-					{
-						if(rejected[i] == n)
-						{
-							nrej = false;
-							break;
-						}
-					}
-					if(!nrej)
-					{
-						n--;
-						nrej = true;
-					}
-					else
-					{
-						nt = false;
-					}
-				}
-				if(it)
-				{
-					bool irej = true;
-					if(i >= num)
-					{
-						i = 0;
-					}
-					for(int c = 0;c<cur_rej;c++)
-					{
-						if(rejected[c] == i)
-						{
-							irej = false;
-							break;
-						}
-					}
-					if(!irej)
-					{
-						i++;
-						irej = true;
-					}
-					else
-					{
-						it = false;
-					}
-				}
-			}
-			Vector normal[3];
-			Vector edge = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
-			normal[0] = Vector(edge.GetZ(), 0, -edge.GetX()); // Всё правильно, не надо пугаться 
-			testing = Vector(tmp[n].GetX() - tmp[e].GetX(), 0, tmp[n].GetZ() - tmp[e].GetZ());
-			if((normal[0] & testing) <= 0)
-			{
-				if((normal[0] & testing) == 0)
-				{
-					Vector tes = Vector(tmp[n].GetX() - tmp[i].GetX(),0, tmp[n].GetZ() - tmp[i].GetZ());
-					if((normal[0] & tes) < 0)
-						normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
-				}
-				else
-					normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
-			}
-			testing = - edge;
-			edge = Vector(tmp[n].GetX() - tmp[e].GetX(),0, tmp[n].GetZ() - tmp[e].GetZ());
-			normal[1] = Vector(edge.GetZ(), 0, -edge.GetX());
-			if((normal[1] & testing) <= 0)
-			{
-				if((normal[1] & testing) == 0)
-				{
-					Vector tes = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
-					if((normal[i] & tes) < 0)
-						normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
-				}
-				else
-					normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
-			}
-			testing = - edge;
-			edge = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
-			normal[2] = Vector(edge.GetZ(), 0, -edge.GetX());
-			if((normal[2] & testing) <= 0)
-			{
-				if((normal[2] & testing) == 0)
-				{
-					Vector tes = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
-					if((normal[2] & tes) < 0)
-						normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
-				}
-				else
-					normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
-			}
-			bool flag = 1;
-			for(int c = 0;c<num;c++)
-			{
-				if(c!=i)
-				{
-					testing = Vector(tmp[c].GetX() - tmp[i].GetX(),0, tmp[c].GetZ() - tmp[i].GetZ());
-					if((normal[0] & testing) > 0 && (normal[1] & testing) > 0 && (normal[2] & testing) > 0)
-					{
-						flag = 0;
-						break;
-					}
-				}
-			}
-			if(flag)
-			{
-				tr[0][current] = i;
-				tr[1][current] = e;
-				tr[2][current] = n;
-				nor[0][current] = normal[0];
-				nor[1][current] = normal[1];
-				nor[2][current] = normal[2];
-				tr_num += 1;
-				current += 1;
-				signal -= 1;
-				rejected[cur_rej] = i;
-				cur_rej += 1;
-				if(cur_rej >=max_rej)
-				{
-					int * copy = new int[cur_rej];
-					for(int i = 0;i<cur_rej;i++)
-					{
-						copy[i] = rejected[i];
-					}
-					delete rejected;
-					rejected = new int [cur_rej + 4];
-					for(int i = 0 ;i<cur_rej;i++)
-					{
-						rejected[i] = copy[i];
-					}
-					delete copy;
-					max_rej +=4;
-				}
-				if(current >= maximum)
-				{
-					int * cop1 = new int[current];
-					int * cop2 = new int[current];
-					int * cop3 = new int[current];
-					Vector * co_n1 = new Vector[current];
-					Vector * co_n2 = new Vector[current];
-					Vector * co_n3 = new Vector[current];
-					for(int i = 0;i<num;i++)
-					{
-						cop1[i] = tr[0][i];
-						cop2[i] = tr[1][i];
-						cop3[i] = tr[2][i];
-						co_n1[i] = nor[0][i];
-						co_n2[i] = nor[1][i];
-						co_n3[i] = nor[2][i];
-					}
-					delete tr[0];
-					delete tr[1];
-					delete tr[2];
-					delete nor[0];
-					delete nor[1];
-					delete nor[2];
-					tr[0] = new int[current + 10];
-					tr[1] = new int[current + 10];
-					tr[2] = new int[current + 10];
-					nor[0] = new Vector[current + 10];
-					nor[1] = new Vector[current + 10];
-					nor[2] = new Vector[current + 10];
-					for(int i = 0; i < num;i++)
-					{
-						tr[0][i] = cop1[i];
-						tr[1][i] = cop2[i];
-						tr[2][i] = cop3[i];
-						nor[0][i] = co_n1[i];
-						nor[1][i] = co_n2[i];
-						nor[2][i] = co_n3[i];
-					}
-					delete cop1;
-					delete cop2;
-					delete cop3;
-					delete co_n1;
-					delete co_n2;
-					delete co_n3;
-					maximum += 10;
-				}
-			} // конец триангуляции, конец света, конец добра и зла, чёрная дыра без массы и тому подобные прелести ( Конец шуту и королю, и глупости, и уму. Исполняли Никитины, Автора стихов не помню)
-			i++;
-		}
-		delete rejected;
-		// Конец поиска.
-		//Определение ограничивающего куба.
-		double maxX = tmp[num].GetX();
-		double maxY = tmp[num].GetY();
-		double maxZ = tmp[num].GetZ();
-		for(int i = 0;i<num;i++) 
-		{
-			if(tmp[i].GetX() > maxX)
-			{
-				maxX = tmp[i].GetX();
-			}
-			if(tmp[i].GetY() > maxY)
-			{
-				maxY = tmp[i].GetY();
-			}
-			if(tmp[i].GetZ() > maxZ)
-			{
-				maxZ = tmp[i].GetZ();
-			}
-		}
-		tes[0] = maxX + 2;
-		tes[2] = maxY + 2;
-		tes[4] = maxZ + 2;
-		maxX = tmp[num].GetX();
-		maxY = tmp[num].GetY();
-		maxZ = tmp[num].GetZ();
-		for(int i = 0;i<num;i++) 
-		{
-			if(tmp[i].GetX() < maxX)
-			{
-				maxX = tmp[i].GetX();
-			}
-			if(tmp[i].GetY() < maxY)
-			{
-				maxY = tmp[i].GetY();
-			}
-			if(tmp[i].GetZ() < maxZ)
-			{
-				maxZ = tmp[i].GetZ();
-			}
-		}
-		tes[1] = maxX - 2;
-		tes[3] = maxY - 2;
-		tes[5] = maxZ - 2;
-		//Конец определения куба.
-	}
+	//		f[0] = b[0] - a[0];
+	//		f[1] = b[1] - a[1];
+	//		f[2] = b[2] - a[2];
+
+	//		e[1] = -((normal [0] * (e[0] + a[0]) + normal [1] * a[1] + normal [3])/normal [1]);
+	//		e[2] = -((e[0] * f[0] + e[1] * f[1])/f[2]);
+	//	}
+	//	if(normal [2] == 0 && normal [0] == 0)
+	//	{
+	//		a[0] = 1;
+	//		a[2] = 1;
+	//		a[1] = - (normal [3]/normal [1]);
+	//		b[0] = 2;
+	//		b[2] = 2;
+	//		b[1] = - (normal [3]/normal [1]);
+	//		c[0] = 3;
+	//		e[0] = c[0] - a[0];
+
+	//		f[0] = b[0] - a[0];
+	//		f[1] = b[1] - a[1];
+	//		f[2] = b[2] - a[2];
+
+	//		e[1] = -((normal [1]  * a[1] + normal [3]) / normal [1]);
+	//		e[2] = -((e[0] * f[0])/f[2]);
+	//	}
+	//	if(normal [1] == 0 && normal [2] == 0)
+	//	{
+	//		a[1] = 1;
+	//		a[2] = 1;
+	//		a[0] = - (normal [3]/normal [0]);
+	//		b[1] = 2;
+	//		b[2] = 2;
+	//		b[0] = - (normal [3]/normal [0]);
+	//		c[1] = 3;
+	//		c[0] = - (normal [3]/normal [0]);
+	//		e[1] = c[1] - a[1];
+
+	//		f[0] = b[0] - a[0];
+	//		f[1] = b[1] - a[1];
+	//		f[2] = b[2] - a[2];
+
+	//		e[0] = -(normal [3] / normal [0]);
+	//		e[2] = (( -c[0] * f[0] + a[0] * f[0] - c[1] * f[1] + a[1] * f[1])/f[2]) + a[2];
+	//	}
+	//	double  x[3][3] = { 
+	//				{f[0],f[1],f[2]},
+	//				{normal [0],normal [1],normal [2]},
+	//				{e[0],e[1],e[2]} };
+
+	//	Vector f1 = Vector(f);
+	//	Vector e1 = Vector(e);
+	//	double ang = e1 & f1;
+	//	cout << ang << endl;
+	//	if(ang > 0.000001 || ang < -0.000001)
+	//	{
+	//		cout << "ERROR\n";
+	//	}
+
+	//	return Matrix(x);
+	//}
+	//
+	//Plane::Plane(double Ctmp[3][3])
+	//{
+	//	normal [0] = Ctmp[1][0]*(Ctmp[2][1] - Ctmp[2][2]) + Ctmp[1][1]*(Ctmp[2][2] - Ctmp[2][0]) + Ctmp[1][2]*(Ctmp[2][0] - Ctmp[2][1]);
+	//	normal [1] = Ctmp[2][0]*(Ctmp[0][1] - Ctmp[0][2]) + Ctmp[2][1]*(Ctmp[0][2] - Ctmp[0][0]) + Ctmp[2][2]*(Ctmp[0][0] - Ctmp[0][1]);
+	//	normal [2] = Ctmp[0][0]*(Ctmp[1][1] - Ctmp[1][2]) + Ctmp[0][1]*(Ctmp[1][2] - Ctmp[1][0]) + Ctmp[0][2]*(Ctmp[1][0] - Ctmp[1][1]);
+
+	//	double longg  = sqrt(normal [0] * normal [0] + normal [0] * normal [0] + normal [0] * normal [0]); 
+	//	double eq[4] = {normal [0],normal [1],normal [2],normal [3]};
+	//	normal [0] = normal [0] / longg;
+	//	normal [1] = normal [1] / longg;
+	//	normal [2] = normal [2] / longg;
+
+	//	Mat = GetBathis();
+	//	Matrix invert = Mat.Invert();
+
+	//	/*double redoun[3][3] = 
+	//	{	{1,0,0},
+	//		{0,-1,0},
+	//		{0,0,1}, };
+	//	Matrix rebound = Matrix(redoun);*/
+	//	normal [0] = eq[0];
+	//	normal [1] = eq[1];
+	//	normal [2] = eq[2];
+	//	normal [3] = eq[3];
+	//	Mat = invert /** rebound * Mat*/;
+	//}
+
+	//Plane::Plane(Vector x1,Vector x2, Vector x3)
+	//{
+	//	//normal [0] = x2.GetX() * (x3.GetY() - x3.GetZ()) + x2.GetY() * (x3.GetZ() - x3.GetX()) + x2.GetZ() * (x3.GetX() - x3.GetY());
+	//	//normal [1] = x3.GetX() * (x1.GetY() - x1.GetZ()) + x3.GetY() * (x1.GetZ() - x1.GetX()) + x3.GetZ() * (x1.GetX() - x1.GetY());
+	//	//normal [2] = x1.GetX() * (x2.GetY() - x2.GetZ()) + x1.GetY() * (x2.GetZ() - x2.GetX()) + x1.GetZ() * (x2.GetX() - x2.GetY());
+
+	//	//double longg  = sqrt(normal [0] * normal [0] + normal [0] * normal [0] + normal [0] * normal [0]); 
+	//	//double eq[4] = {normal [0],normal [1],normal [2],normal [3]};
+	//	//normal [0] = normal [0] / longg;
+	//	//normal [1] = normal [1] / longg;
+	//	//normal [2] = normal [2] / longg;
+
+	//	//Mat = GetBathis();
+	//	//Matrix invert = Mat.Invert();
+
+	//	///*double redoun[3][3] = 
+	//	//{	{1,0,0},
+	//	//	{0,-1,0},
+	//	//	{0,0,1}, };
+	//	//Matrix rebound = Matrix(redoun);*/
+	//	//normal [0] = eq[0];
+	//	//normal [1] = eq[1];
+	//	//normal [2] = eq[2];
+	//	//normal [3] = eq[3];
+	//	//Mat = invert /** rebound * Mat*/;
+	//}
+
+	//Plane::Plane(double n[4])
+	//{
+	//	Mat = Matrix();
+	//	tes[0] = 0;
+	//	tes[1] = 0;
+	//	tes[2] = 0;
+	//	tes[3] = 0;
+	//	tes[4] = 0;
+	//	tes[5] = 0;
+
+	//	for(int i=0;i<4;i++)
+	//	{
+	//		normal [i] = n[i];
+	//	}
+	//	double length = sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]); 
+	//	double equation[4] = {normal [0], normal [1], normal [2], normal [3]};
+	//	normal [0] = normal [0] / length;
+	//	normal [1] = normal [1] / length;
+	//	normal [2] = normal [2] / length;
+	//	normal [3] = normal [3] / length;
+
+	//	Mat = GetBathis();
+	//	Matrix invert = Mat.Invert();
+
+	//	normal [0] = equation[0];
+	//	normal [1] = equation[1];
+	//	normal [2] = equation[2];
+	//	normal [3] = equation[3];
+	//	Mat = invert /** rebound * Mat*/;
+
+	//}
+
+	//Matrix Plane::GetInvertMat()                            
+	//{
+	//	Matrix Matr  = GetBathis();
+	//	Matr = Matr.Invert();
+	//	/*double e[3][3] = {
+	//		{1,0,0},
+	//		{0,-1,0},
+	//		{0,0,1} };*/
+	//	return  /*Matrix(e) **/ Matr;
+	//}
+
+	//Matrix Plane::GetMat()
+	//{
+	//	return Mat;
+	//}
+	//Vector Plane::GetN()
+	//{
+	//	return Vector(normal [0],normal [1],normal [2]);
+	//}
+	//double Plane::GetA()
+	//{
+	//	return normal [0];
+	//}
+	//double Plane::GetB()
+	//{
+	//	return normal [1];
+	//}
+	//double Plane::GetC()
+	//{
+	//	return normal [2];
+	//}
+	//double Plane::GetD()
+	//{
+	//	return normal [3];
+	//}
+	//Vector Plane::project(Vector* point)
+	//{
+	//	double test = normal [0] * point->GetX() + normal [1] * point->GetY() + normal [2] * point->GetZ() + normal [3];
+	//	if(test >=0.0000001 || test <=-0.0000001)
+	//	{
+	//		double _x = point->GetX();
+	//		double _y = point->GetY();
+	//		double _z = point->GetZ();
+	//		if(normal [0] != 0)
+	//		{
+	//			double x = (_x * ( normal [1] * normal [1] + normal [2] * normal [2]) - normal [0] * (normal [1] * _y + normal [2] * _z + normal [3])) / Vector(normal [0],normal [1],normal [2]).length2();
+	//			return(Vector(x,(normal [1] * (x - _x))/normal [0] + _y,(normal [2] * (x - _x))/normal [0] + _z));
+	//		}
+	//		if(normal [1] != 0)
+	//		{
+	//			double y = (_y * ( normal [0] * normal [0] + normal [2] * normal [2]) - normal [1] * (normal [0] * _x + normal [2] * _z + normal [3])) / Vector(normal [0],normal [1],normal [2]).length2();
+	//			return(Vector((normal [0] * (y - _y))/normal [1] + _x,y,(normal [2] * (y - _y))/normal [1] + _z));
+	//		}
+	//		if(normal [2] != 0)
+	//		{
+	//			double z = (_z * ( normal [0] * normal [0] + normal [1] * normal [1]) - normal [2] * (normal [0] * _x + normal [1] * _y + normal [3])) / Vector(normal [0],normal [1],normal [2]).length2();
+	//			return(Vector((normal [0] * (z - _z))/normal [2] + _x,(normal [1] * (z - _z))/normal [2] + _y,z));
+	//		}
+	//	}
+	//	return (*point);
+	//}
+	//void Plane::SetPoints(vector<Vector> points)
+	//{
+	//	tmp = vector<Vector>(points);
+	//	//this->triangulation();
+	//}
+	//void Plane::triangulation() // триангуляция !!!!!!!(не работает вообще 06.01.2015)работает только для четырёхугольников! + определение ограничивающего куба + определение нормалей к контуру
+	//{
+	//	throw exception("Not tested");
+	//	int current = 0;
+	//	int num = 3;
+	///*	nor[0] = new Vector[num];
+	//	nor[1] = new Vector[num];
+	//	nor[2] = new Vector[num];
+	//	int cur_rej = 0;
+	//	int max_rej = 4;
+	//	int * rejected = new int[4];
+	//	int signal = num;
+
+	//
+	//	int n = 0;
+	//	for(int i =0;i<num;i++)
+	//	{
+	//		n = i + 1;
+	//		if(n >= num)
+	//			n  = n - (num);
+	//		li[i].vec = Vector(tmp[n].GetX() - tmp[i].GetX(),tmp[n].GetY() - tmp[i].GetY(),tmp[n].GetZ() - tmp[i].GetZ());
+	//		li[i].tmp = tmp[i];
+	//		if(tmp[i].GetX() > tmp[n].GetX())
+	//		{
+	//			li[i].limit[0] = tmp[i].GetX();
+	//			li[i].limit[1] = tmp[n].GetX();
+	//		}	
+	//		else
+	//		{	
+	//			li[i].limit[0] = tmp[n].GetX();
+	//			li[i].limit[1] = tmp[i].GetX();
+	//		}
+	//		if(tmp[i].GetY() > tmp[n].GetY())
+	//		{
+	//			li[i].limit[2] = tmp[i].GetY();
+	//			li[i].limit[3] = tmp[n].GetY();
+	//		}	
+	//		else
+	//		{	
+	//			li[i].limit[2] = tmp[n].GetY();
+	//			li[i].limit[3] = tmp[i].GetY();
+	//		}
+	//		if(tmp[i].GetZ() > tmp[n].GetZ())
+	//		{
+	//			li[i].limit[4] = tmp[i].GetZ();
+	//			li[i].limit[5] = tmp[n].GetZ();
+	//		}						 
+	//		else					 
+	//		{						 
+	//			li[i].limit[4] = tmp[n].GetZ();
+	//			li[i].limit[5] = tmp[i].GetZ();
+	//		}
+	//		
+	//	}*/
+
+	//	//Vector testing = Vector();
+	//	//n = 0;
+	//	//int  i = 0;
+	//	//int e  = 0;
+	//	//while(signal >= 3) // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ. Эту запись, а не код
+	//	//{
+	//	//	bool et = true;
+	//	//	bool nt = true;
+	//	//	bool it = true;
+	//	//	e = i + 1; 
+	//	//	n = i - 1; 
+	//	//	while(et || nt || it)
+	//	//	{
+	//	//		if(et)
+	//	//		{
+	//	//			bool erej = true;
+	//	//			if(e >= num)
+	//	//			{
+	//	//				e  = e - (num);
+	//	//			}
+	//	//			for(int i = 0;i<cur_rej;i++)
+	//	//			{
+	//	//				if(rejected[i] == e)
+	//	//				{
+	//	//					erej = false;
+	//	//					break;
+	//	//				}
+	//	//			}
+	//	//			if(!erej)
+	//	//			{
+	//	//				e++;
+	//	//				erej = true;
+	//	//			}
+	//	//			else
+	//	//			{
+	//	//				et = false;
+	//	//			}
+	//	//		}
+	//	//		if(nt)
+	//	//		{
+	//	//			bool nrej = true;
+	//	//			if(n < 0)
+	//	//			{
+	//	//				n = num + n;
+	//	//			}
+	//	//			for(int i = 0;i<cur_rej;i++)
+	//	//			{
+	//	//				if(rejected[i] == n)
+	//	//				{
+	//	//					nrej = false;
+	//	//					break;
+	//	//				}
+	//	//			}
+	//	//			if(!nrej)
+	//	//			{
+	//	//				n--;
+	//	//				nrej = true;
+	//	//			}
+	//	//			else
+	//	//			{
+	//	//				nt = false;
+	//	//			}
+	//	//		}
+	//	//		if(it)
+	//	//		{
+	//	//			bool irej = true;
+	//	//			if(i >= num)
+	//	//			{
+	//	//				i = 0;
+	//	//			}
+	//	//			for(int c = 0;c<cur_rej;c++)
+	//	//			{
+	//	//				if(rejected[c] == i)
+	//	//				{
+	//	//					irej = false;
+	//	//					break;
+	//	//				}
+	//	//			}
+	//	//			if(!irej)
+	//	//			{
+	//	//				i++;
+	//	//				irej = true;
+	//	//			}
+	//	//			else
+	//	//			{
+	//	//				it = false;
+	//	//			}
+	//	//		}
+	//	//	}
+	//	//	Vector normal[3];
+	//	//	Vector edge = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
+	//	//	normal[0] = Vector(edge.GetZ(), 0, -edge.GetX()); // Всё правильно, не надо пугаться 
+	//	//	testing = Vector(tmp[n].GetX() - tmp[e].GetX(), 0, tmp[n].GetZ() - tmp[e].GetZ());
+	//	//	if((normal[0] & testing) <= 0)
+	//	//	{
+	//	//		if((normal[0] & testing) == 0)
+	//	//		{
+	//	//			Vector tes = Vector(tmp[n].GetX() - tmp[i].GetX(),0, tmp[n].GetZ() - tmp[i].GetZ());
+	//	//			if((normal[0] & tes) < 0)
+	//	//				normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
+	//	//		}
+	//	//		else
+	//	//			normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
+	//	//	}
+	//	//	testing = - edge;
+	//	//	edge = Vector(tmp[n].GetX() - tmp[e].GetX(),0, tmp[n].GetZ() - tmp[e].GetZ());
+	//	//	normal[1] = Vector(edge.GetZ(), 0, -edge.GetX());
+	//	//	if((normal[1] & testing) <= 0)
+	//	//	{
+	//	//		if((normal[1] & testing) == 0)
+	//	//		{
+	//	//			Vector tes = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
+	//	//			if((normal[i] & tes) < 0)
+	//	//				normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
+	//	//		}
+	//	//		else
+	//	//			normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
+	//	//	}
+	//	//	testing = - edge;
+	//	//	edge = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
+	//	//	normal[2] = Vector(edge.GetZ(), 0, -edge.GetX());
+	//	//	if((normal[2] & testing) <= 0)
+	//	//	{
+	//	//		if((normal[2] & testing) == 0)
+	//	//		{
+	//	//			Vector tes = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
+	//	//			if((normal[2] & tes) < 0)
+	//	//				normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
+	//	//		}
+	//	//		else
+	//	//			normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
+	//	//	}
+	//	//	bool flag = 1;
+	//	//	for(int c = 0;c<num;c++)
+	//	//	{
+	//	//		if(c!=i)
+	//	//		{
+	//	//			testing = Vector(tmp[c].GetX() - tmp[i].GetX(),0, tmp[c].GetZ() - tmp[i].GetZ());
+	//	//			if((normal[0] & testing) > 0 && (normal[1] & testing) > 0 && (normal[2] & testing) > 0)
+	//	//			{
+	//	//				flag = 0;
+	//	//				break;
+	//	//			}
+	//	//		}
+	//	//	}
+	//	//	if(flag)
+	//	//	{
+	//	//		//tr[0][current] = i;
+	//	//		//tr[1][current] = e;
+	//	//		//tr[2][current] = n;
+	//	//		nor[0][current] = normal[0];
+	//	//		nor[1][current] = normal[1];
+	//	//		nor[2][current] = normal[2];
+	//	//		//tr_num += 1;
+	//	//		current += 1;
+	//	//		signal -= 1;
+	//	//		rejected[cur_rej] = i;
+	//	//		cur_rej += 1;
+	//	//		if(cur_rej >=max_rej)
+	//	//		{
+	//	//			int * copy = new int[cur_rej];
+	//	//			for(int i = 0;i<cur_rej;i++)
+	//	//			{
+	//	//				copy[i] = rejected[i];
+	//	//			}
+	//	//			delete rejected;
+	//	//			rejected = new int [cur_rej + 4];
+	//	//			for(int i = 0 ;i<cur_rej;i++)
+	//	//			{
+	//	//				rejected[i] = copy[i];
+	//	//			}
+	//	//			delete copy;
+	//	//			max_rej +=4;
+	//	//		}
+	//	//		if(false /*current >= maximum*/)
+	//	//		{
+	//	//			int * cop1 = new int[current];
+	//	//			int * cop2 = new int[current];
+	//	//			int * cop3 = new int[current];
+	//	//			Vector * co_n1 = new Vector[current];
+	//	//			Vector * co_n2 = new Vector[current];
+	//	//			Vector * co_n3 = new Vector[current];
+	//	//			for(int i = 0;i<num;i++)
+	//	//			{
+	//	//			
+	//	//				co_n1[i] = nor[0][i];
+	//	//				co_n2[i] = nor[1][i];
+	//	//				co_n3[i] = nor[2][i];
+	//	//			}
+	//	//			
+	//	//			delete nor[0];
+	//	//			delete nor[1];
+	//	//			delete nor[2];
+	//	//			nor[0] = new Vector[current + 10];
+	//	//			nor[1] = new Vector[current + 10];
+	//	//			nor[2] = new Vector[current + 10];
+	//	//			for(int i = 0; i < num;i++)
+	//	//			{
+	//	//				nor[0][i] = co_n1[i];
+	//	//				nor[1][i] = co_n2[i];
+	//	//				nor[2][i] = co_n3[i];
+	//	//			}
+	//	//			delete cop1;
+	//	//			delete cop2;
+	//	//			delete cop3;
+	//	//			delete co_n1;
+	//	//			delete co_n2;
+	//	//			delete co_n3;
+	//	//		}
+	//	//	} // конец триангуляции, конец света, конец добра и зла, чёрная дыра без массы и тому подобные прелести ( Конец шуту и королю, и глупости, и уму. Исполняли Никитины, Автора стихов не помню)
+	//	//	i++;
+	//	//}
+	//	//delete rejected;
+	//	//// Конец поиска.
+	//	////Определение ограничивающего куба.
+	//	//double maxX = tmp[num].GetX();
+	//	//double maxY = tmp[num].GetY();
+	//	//double maxZ = tmp[num].GetZ();
+	//	//for(int i = 0;i<num;i++) 
+	//	//{
+	//	//	if(tmp[i].GetX() > maxX)
+	//	//	{
+	//	//		maxX = tmp[i].GetX();
+	//	//	}
+	//	//	if(tmp[i].GetY() > maxY)
+	//	//	{
+	//	//		maxY = tmp[i].GetY();
+	//	//	}
+	//	//	if(tmp[i].GetZ() > maxZ)
+	//	//	{
+	//	//		maxZ = tmp[i].GetZ();
+	//	//	}
+	//	//}
+	//	//tes[0] = maxX + 2;
+	//	//tes[2] = maxY + 2;
+	//	//tes[4] = maxZ + 2;
+	//	//maxX = tmp[num].GetX();
+	//	//maxY = tmp[num].GetY();
+	//	//maxZ = tmp[num].GetZ();
+	//	//for(int i = 0;i<num;i++) 
+	//	//{
+	//	//	if(tmp[i].GetX() < maxX)
+	//	//	{
+	//	//		maxX = tmp[i].GetX();
+	//	//	}
+	//	//	if(tmp[i].GetY() < maxY)
+	//	//	{
+	//	//		maxY = tmp[i].GetY();
+	//	//	}
+	//	//	if(tmp[i].GetZ() < maxZ)
+	//	//	{
+	//	//		maxZ = tmp[i].GetZ();
+	//	//	}
+	//	//}
+	//	//tes[1] = maxX - 2;
+	//	//tes[3] = maxY - 2;
+	//	//tes[5] = maxZ - 2;
+	//	//Конец определения куба.
+	//}
 
 	Line::Line ()
 	{

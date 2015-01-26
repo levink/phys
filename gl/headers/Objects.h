@@ -16,30 +16,48 @@ public:
 	Vector w;
 	Vector Angl;
 	BaseObject();
+	BaseObject(Vector pos);
 };
 
-class Sphere: public BaseObject
+class Sphere
 {
 private: 
 	double rad;
+	Vector Position;
+	
 public:
 	double _g;
-	Sphere();
+	Sphere(Vector position){
+		Position = position;
+		rad = 1;
+		_g = 9.8;	
+	}
+	void Test(){
+		rad = rad + 1;
+	}
 
-	void Rotated(Vector ve1, Vector nor);
-
-	void Test_Sphere(Sphere * obj, bool motion);
-	bool Test(Sphere * obj);
-	void HandlerCollision(Sphere * obj);
-	double GetRad();
+	Sphere& operator=(const Sphere *);
 	
-	void operator=(Sphere * count);
-	bool inspections(Plane pl);
-	void calculation(Plane  pl, double resil, double t);
-	bool inspections(Line li);
-	void calculation(Line  li, double resil, double t);
-	bool inspections(Vector tmp);
-	void calculation(Vector  tmp, double resil, double t); 
+	void Test2(Plane  pl, double resil, double t)
+	{
+		pl.Test();
+	}
+	
+	//void Rotated(Vector ve1, Vector nor);
+	//void Test_Sphere(Sphere * obj, bool motion);
+	//bool Test(Sphere * obj);
+	//void HandlerCollision(Sphere * obj);
+	//double GetRad();
+	//
+	
+
+	//bool inspections(Plane pl);
+	//bool inspections(Line li);
+	//bool inspections(Vector tmp);
+
+	//void calculation(Plane  pl, double resil, double t);
+	//void calculation(Line  li, double resil, double t);
+	//void calculation(Vector  tmp, double resil, double t); 
 };
 
 class Polyg: public BaseObject
@@ -77,25 +95,5 @@ struct CollisionInfoOfSphere
 	int num;
 };
 
-class ContainerObjects
-{
-private:
-	//Sphere ** obj;
-	vector<Sphere> obj;
-	int number;
-public:
-	void MoveOutSphere(Sphere * sp, double t_sec); 
-	void MoveSphere(int n, double t_sec);
-	ContainerObjects();
-	void AddSphere(Sphere * count);
-	Sphere GetSphere(int n);
-	CollisionInfoOfSphere* inspection();
-	void calculation(CollisionInfoOfSphere * col,int n);
-	void all_calculation(CollisionInfoOfSphere * col);
-	int GetNumber()
-	{
-		return number;
-	}
-};
 
 #endif

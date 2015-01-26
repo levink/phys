@@ -287,7 +287,7 @@
 //
 //}
 
-//bool World::TestEqua(Polyg * obj, int i)
+//bool StaticWorld::TestEqua(Polyg * obj, int i)
 //{
 //	bool test  = 0;
 //	for(int i=0;i<obj->GetN_t() && !test;i++)
@@ -299,7 +299,7 @@
 //	return test;
 //}
 
-//void World::Test(Polyg * obj,double resil)
+//void StaticWorld::Test(Polyg * obj,double resil)
 //{
 //	for(int i=0;i<k;i++)
 //	{

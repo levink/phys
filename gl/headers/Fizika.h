@@ -1,5 +1,7 @@
 #include "Objects.h"
 #include "World.h"
+#include "DynamicWorld.h"
+
 #ifndef __FIZIKA_H
 #define __FIZIKA_H
 class Fizika
@@ -9,13 +11,19 @@ double p;
 private:
 	double _g;
 public:
-	ContainerObjects con_obj;
-	World wor;
-	Fizika();
-	//void Kick (double plane[4],Camera * obj,double k);
-	friend World* GetWorld(Fizika* obj);
-	void MoveObject(Camera * obj, double t);
-	void MoveObject(Sphere * obj, double t);
+	
+	vector<Collision> collision;
+	vector<int> test;
+	
+	StaticWorld& planes;
+	DynamicWorld& balls;
+
+	Fizika(StaticWorld& sw, DynamicWorld& dw);
+	
+	
+	void MoveObject(BaseObject * obj, double t);
+	void FindCollisions();
+	void ParseCollision(double dt);
 };
 
 #endif

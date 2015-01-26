@@ -19,6 +19,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -65,6 +66,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Garbage.cpp" />
+    <ClCompile Include="src\DynamicWorld.cpp" />
     <ClCompile Include="src\Fizika.cpp" />
     <ClCompile Include="src\func.cpp" />
     <ClCompile Include="src\Geometry.cpp" />
@@ -78,6 +80,7 @@
     <ClInclude Include="headers\Fizika.h" />
     <ClInclude Include="headers\func.h" />
     <ClInclude Include="headers\Geometry.h" />
+    <ClInclude Include="headers\DynamicWorld.h" />
     <ClInclude Include="headers\Objects.h" />
     <ClInclude Include="headers\scene.h" />
     <ClInclude Include="headers\World.h" />

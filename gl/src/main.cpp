@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "../headers/DynamicWorld.h"
+
 
 const double PI = 3.1415916;
 const int E = 20;
@@ -44,18 +46,12 @@ double IFPS = 0;
 //int num = 0;
 int maxx = 0;
 
-Fizika * phy;
+Fizika * phy = NULL;
+StaticWorld* planes = NULL; 
+DynamicWorld* balls = NULL; 
 
 double e [3] = {1,0,0};
 
-World* GetWorld(Fizika* obj)
-{
-	return &obj->wor;
-}
-Plane* GetPlane(World obj)
-{
-	return obj.Plan;
-}
 
 void keyboard(unsigned char key, int x, int y)
 {
@@ -78,7 +74,6 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	glutPostRedisplay();
 }
-
 void keyboard1(unsigned char key, int x, int y)
 {
 	switch(key)
@@ -104,24 +99,13 @@ void keyboard1(unsigned char key, int x, int y)
 	}
 	glutPostRedisplay();
 }
-
-
 void mouseClick(int button, int state, int x, int y)
 {
 	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN /*&& num < 100*/)
 	{
-		double x1;
-		double y1;
-		
-		x1 = x * 0.05;
-		y1 = 30 - y * 0.05;
-
-		Vector pos = Vector(x1,y1,25);
-
-		Sphere tmp = Sphere();
-		tmp.Position = pos;
-		phy->con_obj.AddSphere(&tmp);
-
+		double x1 = x * 0.05;
+		double y1 = 30 - y * 0.05;
+		balls->Add(Sphere(Vector(x1,y1,25)));
 	}
 	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
 	{
@@ -136,7 +120,6 @@ void mouseClick(int button, int state, int x, int y)
 	//std::cout << " X : " << x << std::endl << "Y : " << y << std::endl;
 
 }
-
 void mouseMotion(int x, int y)
 {
 	if (dragFlag)
@@ -150,7 +133,6 @@ void mouseMotion(int x, int y)
 		oldY = y;
 	}
 }
-
 void idle(void)
 {
 
@@ -170,7 +152,6 @@ void idle(void)
 		glutPostRedisplay();
 	}
 }
-
 void reshape(int width, int height)
 {
 	glMatrixMode(GL_PROJECTION);
@@ -183,10 +164,10 @@ void reshape(int width, int height)
 
 }
 
-double GY (double X, double Z,Plane & pl)
-{
-	return -( ( X * pl.GetA() + Z * pl.GetC() + pl.GetD() ) / pl.GetB() );
-}
+//double GY (double X, double Z,Plane & pl)
+//{
+//	return -( ( X * pl.GetA() + Z * pl.GetC() + pl.GetD() ) / pl.GetB() );
+//}
 void Draw(Vector & v)
 {
 	glBegin(GL_LINES);
@@ -250,106 +231,31 @@ void display(void)
 	int x = 20;
 	int z = -20;
 
-
-	//Plane pl = Plane(e);
-	//Vector eq = Vector(e);
-
-	//for(int i=0;i < x; i++)
-	//	for(int j=0;j > z; j--)
-	//	{
-	//		glVertex3d(i, GY(i,j,pl),j);
-	//		glVertex3d(i,GY(i,j-1,pl),j-1);
-	//		glVertex3d(i+1,GY(i+1,j-1,pl),j-1);
-	//		glVertex3d(i+1,GY(i+1,j,pl),j);
-	//	}
-	//glEnd();
-	//
-
-	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, yellow); Draw(eq); Draw(-eq);
-	//cout << "Equation : {" << eq.GetX() << ", " << eq.GetY() << ", " << eq.GetZ() << "}.";
-	//
-	//Vector down = Vector(0,-5,0);
-	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red); DrawD(down);
-	////cout << "Down : {3,-5,0}.\t";
-	//
-	//Vector up = pl.GetMat() * down;
-	////down = Vector_norm(down);
-	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green); DrawD(up);
-	//cout << "Redound : { " << down.GetX() << ", " << down.GetY() << ", " << down.GetZ() << "}." << endl;
-
-	/*double ang = ((up^eq) - (down^eq)) * ((up^eq) + (down^eq));
-
-	if(ang > 0.000001 || ang < -0.000001)
-		cout << "FATAL ERROR\n";
-	else
-		cout << "ALL RIGHT\n";*/
-	/*double v[3] = {0,1,0};
-	Vector velo = Vector(1,-0.001,0);
-	velo = -(Plane(v).GetMat() * velo);
-
-	Vector velo1 = Vector(1,-1,0);
-	velo1 = -(Plane(v).GetMat() * velo1);*/
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red);
 	Draw(Vector(5,0,0));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
 	Draw(Vector(0,5,0));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	Draw(Vector(0,0,5));
+	
+
+	//выводит только первые три точки плоскости
+	StaticWorld tmp = phy->planes;
+	//Plane pl = tmp.Get(0);
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
-	World* tmp = NULL; // раньше было tmp
-	tmp = GetWorld(phy);
-	for(int i = 0;i<tmp->GetK();i++)
-	{
-		glBegin(GL_TRIANGLES);
-		Plane pl = tmp->GetPl(i);
-		for(int e = 0;e<pl.tr_num;e++)
-		{
-			glVertex3d(pl.tmp[pl.tr[0][e]].GetX(), pl.tmp[pl.tr[0][e]].GetY(),pl.tmp[pl.tr[0][e]].GetZ());
-			glVertex3d(pl.tmp[pl.tr[1][e]].GetX(), pl.tmp[pl.tr[1][e]].GetY(),pl.tmp[pl.tr[1][e]].GetZ());
-			glVertex3d(pl.tmp[pl.tr[2][e]].GetX(), pl.tmp[pl.tr[2][e]].GetY(),pl.tmp[pl.tr[2][e]].GetZ());
-		}
-		glEnd();
-	}
-	/*glBegin(GL_QUADS);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
-	for(int t=0;t<tmp->GetK();t++)
-	{
-		for(int i=0;i < x; i++)
-			for(int j=50;j > z; j--)
-			{
-				glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,t),j);
-				glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,t),j);
-			}
-	}
-
-	for(int i=0;i < x; i++)
-		for(int j=0;j > z; j--)
-		{
-			glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,1)+10,j);
-			glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,1)+10,j-1);
-			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,1)+10,j-1);
-			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+10,j);
-		}
-
-	glEnd();*/
+	glBegin(GL_TRIANGLES);
+	/*glVertex3d(pl.tmp[0].GetX(), pl.tmp[0].GetY(), pl.tmp[0].GetZ());
+	glVertex3d(pl.tmp[1].GetX(), pl.tmp[1].GetY(), pl.tmp[1].GetZ());
+	glVertex3d(pl.tmp[2].GetX(), pl.tmp[2].GetY(), pl.tmp[2].GetZ());*/
+	glEnd();
+	
 
 	//plane
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
 	glBegin(GL_POLYGON);
 	glNormal3d(-10,10,1);
-	/*glVertex3d(10, GetY(10,-0)-5,-0);
-	glVertex3d(10, GetY(10,-40)-5,-40);
-	glVertex3d(30, GetY(30,-40)-5,-40);
-	glVertex3d(30, GetY(30,-0)-5,-0);*/
-	/*glVertex3d(10, GetWorld(*phy)->GetYatXZ(10,-0,0),-0);
-	glVertex3d(10, GetWorld(*phy)->GetYatXZ(10,-30,0),-30);
-	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-30,0),-30);
-	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-0,0),-0);*/
 	glEnd();
-	//glTranslated(0,0,-40);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+
 
 	//DWORD dt = GetTickCount()-t1;
 	needStep = 1; // удалить
@@ -358,26 +264,26 @@ void display(void)
 		needStep = false;
 		DWORD dt = 25;/*GetTickCount()-t1*/; 
 		double tim = dt/1000.0;
-		
-		CollisionInfoOfSphere * col_of_sp = phy->con_obj.inspection();
-		phy->con_obj.all_calculation(col_of_sp);
-
-		for(int i=0;i<phy->con_obj.GetNumber();i++)
+	
+		for(int i=0;i<phy->balls.Count();i++)
 		{
-			phy->con_obj.MoveSphere(i,tim);
+			phy->balls.MoveSphere(i, tim);
 		}
-		CollisionInfo * col = NULL;
-		col = phy->wor.inspections(phy->con_obj);
-		phy->wor.Calculation(col,tim);
-		delete[] col;
+		
+		phy->FindCollisions();
+		phy->ParseCollision(tim);
 	}
-	int number = phy->con_obj.GetNumber();
+
+	
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+	int number = phy->balls.Count();
 	for(int i=0;i<number;i++)
 	{
+		//Sphere* s = &phy->balls.Get(i);
 		glPushMatrix();
-		glTranslated(phy->con_obj.GetSphere(i).Position.GetX(),phy->con_obj.GetSphere(i).Position.GetY(), phy->con_obj.GetSphere(i).Position.GetZ());
-		glRotated(phy->con_obj.GetSphere(i).Angl.GetX(),0,0,1);
-		glRotated(phy->con_obj.GetSphere(i).Angl.GetZ(),1,0,0);
+		//glTranslated(s->p.GetX(),s->p.GetY(), s->p.GetZ());
+		//glRotated(s->Angl.GetX(),0,0,1);
+		//glRotated(s->Angl.GetZ(),1,0,0);
 		glutSolidSphere(1,5,5);
 		glPopMatrix();
 		
@@ -390,58 +296,10 @@ void display(void)
 	glutSwapBuffers();
 }
 
-int main1(int argc,char** argv)
-{
-	setlocale(LC_ALL,"RUS");
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(SCENE_W, SCENE_H);
-	glutCreateWindow("OpenGL тестовый мир");
-
-	glutDisplayFunc(display);
-	glutIdleFunc(idle);
-	glutKeyboardFunc(keyboard1);
-	glutMouseFunc(mouseClick);
-	glutMotionFunc(mouseMotion);
-	glutReshapeFunc(reshape);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	glutMainLoop();
-
-	return 0;
-}
-
-int main2(int argc,char** argv)
-{
-	/*double s [3][3] = {{1,2,3},
-						{4,5,6},
-						{7,8,9} };
-	Matrix m = Matrix(s);
-	double f [3][3] = { {1,0,0},
-						{0,-1,0},
-						{0,0,1} };
-	Matrix m1 = Matrix(f);
-	 m = m * m1;
-	cout << "| " << m.GetM(0,0) << ", " << m.GetM(0,1) << ", " << m.GetM(0,2) << " |\n" 
-		 << "| " << m.GetM(1,0) << ", " << m.GetM(1,1) << ", " << m.GetM(1,2) << " |\n"
-		 << "| " << m.GetM(2,0) << ", " << m.GetM(2,1) << ", " << m.GetM(2,2) << " |\n";*/
-	Vector v = Vector(2,-3,4);
-	double s [3][3] = {{1,2,3},
-						{4,5,6},
-						{7,8,9} };
-	Matrix m = Matrix(s);
-	v = m * v;
-	cout << "{ " << v.GetX() << ", " << v.GetY() << ", " << v.GetZ() << " }\n";
-	system("Pause");
-	return 0;
-}
-
 int main(int argc, char **argv)
 {
-	//Vector_t T;
-	//T.RunAll();
 	setlocale(LC_ALL,"RUS");
-	glutInit(&argc, argv);
+	/*glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowSize(SCENE_W, SCENE_H);
 	glutCreateWindow("OpenGL тестовый мир");
@@ -452,44 +310,44 @@ int main(int argc, char **argv)
 	glutMouseFunc(mouseClick);
 	glutMotionFunc(mouseMotion);
 	glutReshapeFunc(reshape);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);*/
 
-	//phy = &Fizika();
-	phy = new Fizika();
-	/*Sphere * tmp = new Sphere();
-	tmp->Position = Vector(14,17,25);
-	tmp->velo = Vector(0,-3,0);
-	obj[num] = tmp;
-	num++;*/
-	Sphere * tmp1 = new Sphere();
-	tmp1->Position = Vector(5,12,0); // 5,12,0 - —тандартное значение. 2,12,-5.3 -  расивый треугольник.
-	phy->con_obj.AddSphere(tmp1);
-	//num++;
-	/*Sphere * tmp2 = new Sphere();
-	tmp2->Position = Vector(4,9,25);
-	phy->con_obj.CreateSphere(tmp2);
-	num++;*/
+
+	planes = new StaticWorld();
+	Plane* p = planes->Get(0);
+	p->val = 5;
+	Vector v = p->tmp[0];
+
+
+	balls = new DynamicWorld();
+
+	balls->Add(Sphere(Vector(5,3,0)));
 	
-	//Sphere * tmp = new Sphere();
-	//tmp->Position = Vector(	12-2.78,17-1.3,25); // |
-	//tmp->velo = Vector(0,-3,0);
-	//obj[num] = tmp;
-	//num++;
-	//Sphere * tmp1 = new Sphere();
-	//tmp1->Position = Vector(12-1.32,17-2.74,25); // ||
-	//obj[num] = tmp1;
-	//num++;
-	//Sphere * tmp2 = new Sphere();
-	//tmp2->Position = Vector(12-3.29,17-3.22,25); // ||
-	//obj[num] = tmp2;
-	//num++;
+	phy = new Fizika(*planes, *balls);
+	phy->FindCollisions();
+	
+	Collision tmp = phy->collision[0];
+	
+	Plane* pl = tmp.plane;
 
-	int d = 1;
+	tmp.sp->Test();
+	pl->Test();
+	Plane pl1 = *pl; //<-- тут ошибка.
+	
+	tmp.sp->Test2(pl1, 1.0, 0.03);
+	(*tmp.sp).Test2(pl1, 1.0, 0.03);
+	
+
+
+
+
+
+	//phy->ParseCollision(0.03);
 	
 	maxx = 10;
 	t1 = GetTickCount();
 
-	glutMainLoop();
+	//glutMainLoop();
 	
 	delete phy;
 	return 0;

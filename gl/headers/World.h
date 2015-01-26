@@ -1,56 +1,59 @@
 #include <cmath>
 #include "Objects.h"
 #include "Geometry.h"
+#include "DynamicWorld.h"
 
 
-#ifndef __WORLD_H
-#define __WORLD_H
+#ifndef __StaticWorld_H
+#define __StaticWorld_H
 
-class CollisionInfo
+enum CollisionType {NONE=0, WITH_POINT, WITH_LINE, WITH_PLANE};
+
+class Collision
 {
 public:
-	Plane pl;
-	Line li;
-	Vector tmp;
+	CollisionType type;
 	Sphere * sp;
-	bool pl_t;
-	bool li_t;
-	bool tmp_t;
-	int num;
+	Plane* plane;
+	Line* line;
+	Vector *point;
+
+	Collision()
+	{
+		plane = NULL;
+		line = NULL; 
+		point = NULL;
+		sp = NULL;
+		type = CollisionType::NONE;
+	}
 };
 
-
-class World
+class StaticWorld
 {
-private:
-	Plane * Plan;
-	int k;
+	vector<Plane> items;
 public: 
+	StaticWorld();
 	
-	World();
-	World(double A, double B, double C, double D, double reserve[6]);
-
-	friend Plane*  GetPlane(World obj);
-
-	int GetK()
-	{
-		return k;
+	Plane* Get(int num){
+		return &items[num];
 	}
-	Plane GetPl(int i)
-	{
-		if(i<=k)
-			return Plan[i];
-		return Plane();
-	}
+
 	bool TestEqua(Camera * obj,int i);
 	void Test(Camera * obj,double resil);
 	bool TestEqua(Sphere * obj,int i);
 	void Test(Sphere * obj,double resil, double t);
 
-	CollisionInfo* inspections(ContainerObjects con);
-	void Calculation(CollisionInfo * col, int n, double t_sec);
-	void Calculation(CollisionInfo * col, double t_sec);
+	void inspections(DynamicWorld con, vector<Collision>& result);
+	void Calculation(vector<Collision>& col, int n, double t_sec);
+	void Calculation(vector<Collision>& col, double t_sec);
+
+	int Count()
+	{
+		return items.size();
+	}
 
 	double GetYatXZ(double X,double Y,int nomber_plane);
 };
+
+
 #endif
