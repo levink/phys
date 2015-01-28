@@ -420,8 +420,8 @@
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
 
-		Mat = GetBathis();
-		Matrix invert = Mat.Invert();
+		/*Mat = GetBathis();*/
+		//Matrix invert = Mat.Invert();
 
 		/*double redoun[3][3] = 
 		{	{1,0,0},
@@ -432,7 +432,7 @@
 		equa[1] = eq[1];
 		equa[2] = eq[2];
 		equa[3] = eq[3];
-		Mat = invert /** rebound * Mat*/;
+		//Mat = invert /** rebound * Mat*/;
 	}
 
 	Plane::Plane(Vector x1,Vector x2, Vector x3)
@@ -643,7 +643,8 @@
 		n = 0;
 		int  i = 0;
 		int e  = 0;
-		while(signal >= 3) // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ. Эту запись, а не код
+		/*bool st_conv = false;*/
+		while(signal > 3) // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ. Эту запись, а не код
 		{
 			bool et = true;
 			bool nt = true;
@@ -765,11 +766,20 @@
 				{
 					if((((tmp[n].GetX() - tmp[i].GetX()) * (tmp[con].GetZ()-tmp[i].GetZ()) - (tmp[n].GetZ() - tmp[i].GetZ()) * (tmp[con].GetX()-tmp[i].GetX())) >= 0) != left_turn)
 					{
+						/*if(signal ==3)
+						{
+							st_conv = false;
+							break;
+						}*/
 						convex = false;
 						break;
 					}
 				}
 			}
+			/*if(st_conv)
+			{
+				break;
+			}*/
 			if(convex)
 			{
 				Vector normal[3];

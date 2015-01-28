@@ -92,7 +92,7 @@ class Plane
 {
 private:
 	double equa [4]; // Нормаль к плоскости.
-	Matrix Mat; // Матрица перевода в СК, связанную с плоскостью.
+	//Matrix Mat; // Матрица перевода в СК, связанную с плоскостью.
 	//Vector * vec; // Направляющие вектора прямых, ограничивающих контур. Точки, через которые проходят прямые - это tmp под номером = номеру вектора.
 	double tes [6]; // Ограничивающий куб. MaxX->MinX->MaxY->MinY->MaxZ->MinZ
 public:
@@ -107,13 +107,13 @@ public:
 
 	Plane();
 	void PlaneSetEquation(double eq[4]);
-	Matrix GetBathis ();
+	//Matrix GetBathis ();
 	Plane(double Ctmp[3][3]);
 
 	Plane(Vector x1,Vector x2, Vector x3);
 
 	Plane(double eq [4]);
-	Matrix GetInvertMat();
+	//Matrix GetInvertMat();
 
 	Vector project(Vector* point);
 	void SetPoints(Vector * t, int l);
@@ -126,7 +126,7 @@ public:
 		return ( a && b & c);
 	}
 
-	Matrix GetMat();
+	//Matrix GetMat();
 	Vector GetN();
 	double GetA();
 	double GetB();
