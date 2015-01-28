@@ -146,7 +146,7 @@ bool Sphere::Test(Sphere * obj)
 {
 	return ((obj->Position - Position).length2() < (rad + obj->rad)* (rad + obj->rad) * 1.001);
 }
-void Sphere::HandlerCollision(Sphere * obj)
+void Sphere::HandlerCollision(Sphere * obj, double tim)
 {
 	double x = obj->Position.GetX() - Position.GetX();
 	double y = obj->Position.GetY() - Position.GetY();
@@ -157,14 +157,14 @@ void Sphere::HandlerCollision(Sphere * obj)
 	norm = Vector_norm(norm);
 	double e[3] = {0,0,0};
 
-	Plane * plan  = new Plane();
-	plan->PlaneSetEquation(eq);	
+	/*Plane * plan  = new Plane();
+	plan->PlaneSetEquation(eq);	*/
 
 	Vector ve2 = Vector();
 	Vector ve1 = Vector();
 	
-	velo = plan->GetBathis() * velo;
-	obj->velo = plan->GetBathis() * obj->velo;
+	/*velo = plan->GetBathis() * velo;
+	obj->velo = plan->GetBathis() * obj->velo;*/
 
 	Vector D = (velo - obj->velo) * obj->m;
 	Vector A = velo * m + obj->velo * obj->m;
@@ -191,11 +191,16 @@ void Sphere::HandlerCollision(Sphere * obj)
 		ve1 = e;
 	if(ve2 < 0.01)
 		ve2 = e;
-	velo = ve1;
-	obj->velo = ve2;
+	
 
-	velo = plan->GetInvertMat() * velo;
-	obj->velo = plan->GetInvertMat() * obj->velo;
+	Vector ref_li = Vector_norm(Position - obj->Position);
+	velo = ref_li * ve1.length();
+	obj->velo = -ref_li * ve2.length();
+	/*velo = ve1;
+	obj->velo = ve2;*/
+	
+	/*velo = plan->GetInvertMat() * velo;
+	obj->velo = plan->GetInvertMat() * obj->velo;*/
 
 	//if((velo ^ norm) > 0)
 	//	velo = plan->GetMat() * /*velo*/ve1 * res;
@@ -225,7 +230,7 @@ void Sphere::HandlerCollision(Sphere * obj)
 		F = (norm * (obj->F & norm)) + F;
 		obj->F = -(norm * (F & norm) + obj->F);
 	}
-	delete plan;
+	//delete plan;
 }
 
 double Sphere::GetRad()
@@ -260,8 +265,8 @@ bool Sphere::inspections(Plane pl)
 			bool flag = false;
 			for(int i = 0; i< pl.tr_num; i++)
 			{
-				if(((Vector(progect.GetX() - pl.tmp[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) >= 0) ||
-					((Vector(progect.GetX() - pl.tmp[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) >= 0) ||
+				if(((Vector(progect.GetX() - pl.tmp[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) >= 0) &&
+					((Vector(progect.GetX() - pl.tmp[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) >= 0) &&
 					((Vector(progect.GetX() - pl.tmp[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) >= 0) )
 				{
 					flag = true;
@@ -481,53 +486,37 @@ Sphere* ContainerObjects::GetSphere(int n)
 	}
 }
 
-CollisionInfoOfSphere* ContainerObjects::inspection()
+vector<CollisionInfoOfSphere> ContainerObjects::inspection()
 {
-	CollisionInfoOfSphere * col = new CollisionInfoOfSphere[50];
-	int current = 0;
-	int max = 49;
+	vector<CollisionInfoOfSphere> col;
 	for(int i = 0;i<number;i++)
 	{
 		for(int e = i+1; e<number;e++)
 		{
 			if(obj[i].Test(&obj[e]))
-			{
-				col[current].sp1 = &obj[i];
-				col[current].sp2 = &obj[e];
-				current += 1;
-				if(	current >= max)
-				{
-					CollisionInfoOfSphere * copy = new CollisionInfoOfSphere[number];
-					for(int i = 0;i<number;i++)
-					{
-						copy[i] = col[i];
-					}
-					delete obj;
-					col = new CollisionInfoOfSphere[number+1];
-					for(int i = 0; i < number;i++)
-					{
-						col[i] = copy[i];
-					}
-					delete copy;
-				}
+			{	
+				CollisionInfoOfSphere co;
+				co.sp1 = &obj[i];
+				co.sp2 = &obj[e];
+				col.insert(col.end(),co);
 			}
 		}
 	}
-	col[0].num = current;
 	return col;
 }
-void ContainerObjects::calculation(CollisionInfoOfSphere * col,int n)
+void ContainerObjects::calculation(vector<CollisionInfoOfSphere> col,int n,double time)
 {
-	if(n <=col[0].num)
+	if(n <=col.size())
 	{
-		col[n].sp1->HandlerCollision(col[n].sp2);
+		col[n].sp1->HandlerCollision(col[n].sp2,time);
 	}
 }
-void ContainerObjects::all_calculation(CollisionInfoOfSphere * col)
+void ContainerObjects::all_calculation(vector<CollisionInfoOfSphere> col,double time)
 {
-	for(int i = 0;i<col[0].num;i++)
+	int c_n = col.size(); 
+	for(int i = 0;i<c_n;i++)
 	{
-		col[i].sp1->HandlerCollision(col[i].sp2);
+		col[i].sp1->HandlerCollision(col[i].sp2,time);
 	}
 }
 

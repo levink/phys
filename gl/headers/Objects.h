@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "Geometry.h"
 
 using namespace std;
@@ -29,7 +30,7 @@ public:
 
 	void Test_Sphere(Sphere * obj, bool motion);
 	bool Test(Sphere * obj);
-	void HandlerCollision(Sphere * obj);
+	void HandlerCollision(Sphere * obj, double tim);
 	double GetRad();
 	
 	void operator=(Sphere * count);
@@ -73,7 +74,6 @@ struct CollisionInfoOfSphere
 {
 	Sphere * sp1;
 	Sphere * sp2;
-	int num;
 };
 
 class ContainerObjects
@@ -87,9 +87,9 @@ public:
 	ContainerObjects();
 	void AddSphere(Sphere count);
 	Sphere* GetSphere(int n);
-	CollisionInfoOfSphere* inspection();
-	void calculation(CollisionInfoOfSphere * col,int n);
-	void all_calculation(CollisionInfoOfSphere * col);
+	vector<CollisionInfoOfSphere> inspection();
+	void calculation(vector<CollisionInfoOfSphere> col,int n,double time);
+	void all_calculation(vector<CollisionInfoOfSphere> col,double time);
 	int GetNumber()
 	{
 		return number;

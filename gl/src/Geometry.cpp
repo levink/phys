@@ -758,12 +758,12 @@
 				}
 				if(left_test)
 				{
-					left_turn = (((tmp[n].GetX() - tmp[i].GetX()) * (tmp[con].GetY()-tmp[i].GetY()) - (tmp[n].GetY() - tmp[i].GetY()) * (tmp[con].GetX()-tmp[i].GetX())) > 0);
+					left_turn = (((tmp[n].GetX() - tmp[i].GetX()) * (tmp[con].GetZ()-tmp[i].GetZ()) - (tmp[n].GetZ() - tmp[i].GetZ()) * (tmp[con].GetX()-tmp[i].GetX())) >= 0);
 					left_test = false;
 				}
 				else
 				{
-					if((((tmp[n].GetX() - tmp[i].GetX()) * (tmp[con].GetY()-tmp[i].GetY()) - (tmp[n].GetY() - tmp[i].GetY()) * (tmp[con].GetX()-tmp[i].GetX())) > 0) != left_turn)
+					if((((tmp[n].GetX() - tmp[i].GetX()) * (tmp[con].GetZ()-tmp[i].GetZ()) - (tmp[n].GetZ() - tmp[i].GetZ()) * (tmp[con].GetX()-tmp[i].GetX())) >= 0) != left_turn)
 					{
 						convex = false;
 						break;

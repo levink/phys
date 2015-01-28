@@ -26,6 +26,7 @@ double lightHeight = 8;
 double camAng1 = 90;
 double camAng2 = 0;
 double camHeight = 0;
+double camY = 0;
 
 double oldX = 0;
 double oldY = 0;
@@ -75,6 +76,10 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 't':
 		needStep  = true;
+	case'8': 
+		camY +=1;
+	case '2':
+		camY -=1;
 	}
 	glutPostRedisplay();
 }
@@ -208,12 +213,11 @@ void display(void)
 	glEnable(GL_NORMALIZE);
 	//Camera
 	glPushMatrix();
-	glTranslated(0,-5,-30 + camHeight);
+	glTranslated(0,-10 + camY,-10 + camHeight); 
 	glRotated(camAng2, 1,0,0);
 	glRotated(camAng1, 0,1,0);
 	//glTranslated(-10,0,10);
 	//glTranslated(-0,0,-10);
-	
 
 	//Scene light
 	GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0}; 
@@ -243,7 +247,7 @@ void display(void)
 	/*glBegin(GL_LINES);
 		glVertex
 	glEnd();*/
-	//glLineWidth(5.0);
+	glLineWidth(1.5);
 	////floor
 	glNormal3d(0,1,0);
 	int x = 20;
@@ -303,6 +307,8 @@ void display(void)
 		Plane pl = tmp->GetPl(i);
 		for(int e = 0;e<pl.tr_num;e++)
 		{
+			GLfloat col[3] = {0.1,0.9 - e * 0.1,0};
+			glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,col);
 			glVertex3d(pl.tmp[pl.tr[0][e]].GetX(), pl.tmp[pl.tr[0][e]].GetY(),pl.tmp[pl.tr[0][e]].GetZ());
 			glVertex3d(pl.tmp[pl.tr[1][e]].GetX(), pl.tmp[pl.tr[1][e]].GetY(),pl.tmp[pl.tr[1][e]].GetZ());
 			glVertex3d(pl.tmp[pl.tr[2][e]].GetX(), pl.tmp[pl.tr[2][e]].GetY(),pl.tmp[pl.tr[2][e]].GetZ());
@@ -355,31 +361,36 @@ void display(void)
 	if(needStep) 
 	{
 		needStep = false;
-		DWORD dt = 25;/*GetTickCount()-t1*/; 
+		DWORD dt = 25;/*GetTickCount()-t1;*/ 
 		double tim = dt/1000.0;
 		
-		CollisionInfoOfSphere * col_of_sp = phy->con_obj.inspection();
-		phy->con_obj.all_calculation(col_of_sp);
+		vector<CollisionInfoOfSphere>  col_of_sp = phy->con_obj.inspection();
+		phy->con_obj.all_calculation(col_of_sp,dt);
 
 		int num_con = phy->con_obj.GetNumber();
 		for(int i=0;i<num_con;i++)
 		{
 			phy->con_obj.MoveSphere(i,tim);
 		}
-		CollisionInfo * col = phy->wor.inspections(phy->con_obj);
+		vector<CollisionInfo> col = phy->wor.inspections(phy->con_obj);
 		phy->wor.Calculation(col,tim);
-		delete col;
 	}
 	int num_obj = phy->con_obj.GetNumber();
 	for(int i=0;i<num_obj;i++)
 	{
 		glPushMatrix();
 		glTranslated(phy->con_obj.GetSphere(i)->Position.GetX(),phy->con_obj.GetSphere(i)->Position.GetY(), phy->con_obj.GetSphere(i)->Position.GetZ());
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
+		Draw(phy->con_obj.GetSphere(i)->velo);
 		glRotated(phy->con_obj.GetSphere(i)->Angl.GetX(),0,0,1);
 		glRotated(phy->con_obj.GetSphere(i)->Angl.GetZ(),1,0,0);
-		glutSolidSphere(1,5,5);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+		glutSolidSphere(phy->con_obj.GetSphere(i)->GetRad(),25,25);
 		glPopMatrix();
-		
+		/*if(phy->con_obj.GetSphere(i)->F != Vector(0,-98,0))
+		{
+			Draw(Vector(0,-5,0));
+		}*/
 	}
 	
 	//t1 += dt;
@@ -461,21 +472,29 @@ int main(int argc, char **argv)
 	obj[num] = tmp;
 	num++;*/
 	Sphere tmp1 =Sphere();
-	for(int i = 0;i<4;i++) // девятнадцатый шар почему-то залипает в плоскости(19)
-	{
-		tmp1.Position = Vector(3.6762,16 + i*10,6.2121); // 5,12,0 - Стандартное значение. 2,12,-5.3 - Красивый треугольник.
+	//for(int i = 0;i<2;i++) // девятнадцатый шар почему-то залипает в плоскости(19) // восьмой отскакивает вверх, после падения как надо.(8)
+	//{
+		//tmp1.Position = Vector(3.6762,16 + i*11,6.2121); // 5,12,0 - Стандартное значение. 2,12,-5.3 - Красивый треугольник.
+		//phy->con_obj.AddSphere(tmp1);
+		/*tmp1.Position = Vector(-3.6762,14 + i*11,6.2121);
 		phy->con_obj.AddSphere(tmp1);
-		tmp1.Position = Vector(-3.6762,14 + i*10,6.2121);
+		tmp1.Position = Vector(-7.1403,12 + i*11,0);
 		phy->con_obj.AddSphere(tmp1);
-		tmp1.Position = Vector(-7.1403,12 + i*10,0);
-		phy->con_obj.AddSphere(tmp1);
-		tmp1.Position = Vector(-3.6762,10 + i*10,-6.2121);
-		phy->con_obj.AddSphere(tmp1);
-		tmp1.Position = Vector(3.6762,8 + i*10,-6.2121);
-		phy->con_obj.AddSphere(tmp1);
-		tmp1.Position = Vector(7.1403,6 + i*10,0);
-		phy->con_obj.AddSphere(tmp1);
-	}
+		tmp1.Position = Vector(-3.6762,10 + i*11,-6.2121);
+		phy->con_obj.AddSphere(tmp1);*/
+		/*tmp1.Position = Vector(3.6762,8 + 1*11,-6.2121); // ошибка в этом шаре при i = 1.
+		phy->con_obj.AddSphere(tmp1);*/
+		/*tmp1.Position = Vector(7.1403,6 + i*11,0);
+		phy->con_obj.AddSphere(tmp1);*/
+	//}
+	tmp1.Position = Vector(0,20,0);
+	tmp1.velo = Vector(0,-4,0);
+	phy->con_obj.AddSphere(tmp1);
+	tmp1.Position = Vector(1,15,0);
+	tmp1.velo = Vector(0,0,0);
+	phy->con_obj.AddSphere(tmp1);
+	tmp1.Position = Vector(2,5,0);
+	phy->con_obj.AddSphere(tmp1);
 	//num++;
 	/*Sphere * tmp2 = new Sphere();
 	tmp2->Position = Vector(4,9,25);

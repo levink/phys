@@ -1,4 +1,5 @@
 #include <cmath>
+#include <vector>
 #include "Objects.h"
 #include "Geometry.h"
 
@@ -15,7 +16,6 @@ struct CollisionInfo
 	bool pl_t;
 	bool li_t;
 	bool tmp_t;
-	int num;
 };
 
 
@@ -46,9 +46,9 @@ public:
 	bool TestEqua(Sphere * obj,int i);
 	void Test(Sphere * obj,double resil, double t);
 
-	CollisionInfo* inspections(ContainerObjects con);
-	void Calculation(CollisionInfo * col, int n, double t_sec);
-	void Calculation(CollisionInfo * col, double t_sec);
+	vector<CollisionInfo> inspections(ContainerObjects con);
+	void Calculation(vector<CollisionInfo> col, int n, double t_sec);
+	void Calculation(vector<CollisionInfo> col, double t_sec);
 
 	double GetYatXZ(double X,double Y,int nomber_plane);
 };
