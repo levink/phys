@@ -12,7 +12,7 @@ struct CollisionInfo
 	Plane pl;
 	Line li;
 	Vector tmp;
-	Sphere * sp;
+	Sphere *sp;
 	bool pl_t;
 	bool li_t;
 	bool tmp_t;
@@ -22,34 +22,29 @@ struct CollisionInfo
 class World
 {
 private:
-	Plane * Plan;
-	int k;
+	vector<Plane> Plan;
+	const double res;
+
 public: 
 	
 	World();
-	World(double A, double B, double C, double D, double reserve[6]);
-
+	
 	friend Plane*  GetPlane(World obj);
 
-	int GetK()
+	int Count(){ return Plan.size();}
+
+	Plane* GetPl(int i)
 	{
-		return k;
+		return &Plan[i];
 	}
-	Plane GetPl(int i)
-	{
-		if(i<=k)
-			return Plan[i];
-		return Plane();
-	}
-	bool TestEqua(Camera * obj,int i);
-	void Test(Camera * obj,double resil);
-	bool TestEqua(Sphere * obj,int i);
-	void Test(Sphere * obj,double resil, double t);
+
+	double GetYatXZ(double X,double Y,int nomber_plane);
 
 	vector<CollisionInfo> inspections(ContainerObjects con);
 	void Calculation(vector<CollisionInfo> col, int n, double t_sec);
 	void Calculation(vector<CollisionInfo> col, double t_sec);
 
-	double GetYatXZ(double X,double Y,int nomber_plane);
+	void Add(Plane pl) { Plan.push_back(pl); }
+	
 };
 #endif

@@ -45,18 +45,17 @@ double IFPS = 0;
 //int num = 0;
 //int maxx = 0;
 
-Fizika * phy;
+Fizika* phy = NULL;
+World* planes = NULL;
 
 double e [3] = {1,0,0};
 
-World* GetWorld(Fizika* obj)
-{
-	return &obj->wor;
-}
-Plane* GetPlane(World obj)
-{
-	return obj.Plan;
-}
+
+int _tmp = 0;
+
+
+void Demo1();
+
 
 void keyboard(unsigned char key, int x, int y)
 {
@@ -78,38 +77,19 @@ void keyboard(unsigned char key, int x, int y)
 		needStep  = true;
 	case'8': 
 		camY +=1;
+		break;
 	case '2':
 		camY -=1;
-	}
-	glutPostRedisplay();
-}
-
-void keyboard1(unsigned char key, int x, int y)
-{
-	switch(key)
-	{
-	case 'e':
-		e[0]-=0.1;
 		break;
-	case 'v':
-		e[0]+=0.1;
+	case 'i':
+		_tmp++;
 		break;
-	case 'r':
-		e[1]-=0.1;
-		break;
-	case 'f':
-		e[1]+=0.1;
-		break;
-	case 't':
-		e[2]-=0.1;
-		break;
-	case 'c':
-		e[2]+=0.1;
+	case 'k':
+		_tmp--;
 		break;
 	}
 	glutPostRedisplay();
 }
-
 
 void mouseClick(int button, int state, int x, int y)
 {
@@ -125,7 +105,7 @@ void mouseClick(int button, int state, int x, int y)
 
 		Sphere tmp = Sphere();
 		tmp.Position = pos;
-		phy->con_obj.AddSphere(tmp);
+		phy->balls.Add(tmp);
 	}
 	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
 	{
@@ -299,22 +279,22 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	Draw(Vector(0,0,5));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
-	World* tmp = NULL; 
-	tmp = GetWorld(phy);
-	for(int i = 0;i<tmp->GetK();i++)
-	{
-		glBegin(GL_TRIANGLES);
-		Plane pl = tmp->GetPl(i);
-		for(int e = 0;e<pl.tr_num;e++)
-		{
-			GLfloat col[3] = {0.1,0.9 - e * 0.1,0};
-			glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,col);
-			glVertex3d(pl.tmp[pl.tr[0][e]].GetX(), pl.tmp[pl.tr[0][e]].GetY(),pl.tmp[pl.tr[0][e]].GetZ());
-			glVertex3d(pl.tmp[pl.tr[1][e]].GetX(), pl.tmp[pl.tr[1][e]].GetY(),pl.tmp[pl.tr[1][e]].GetZ());
-			glVertex3d(pl.tmp[pl.tr[2][e]].GetX(), pl.tmp[pl.tr[2][e]].GetY(),pl.tmp[pl.tr[2][e]].GetZ());
-		}
-		glEnd();
-	}
+	
+
+	//for(int i = 0;i<tmp->GetK();i++)
+	//{
+	//	glBegin(GL_TRIANGLES);
+	//	Plane pl = tmp->GetPl(i);
+	//	for(int e = 0;e<pl.tr_num;e++)
+	//	{
+	//		GLfloat col[3] = {0.1,0.9 - e * 0.1,0};
+	//		glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,col);
+	//		glVertex3d(pl.tmp[pl.tr[0][e]].GetX(), pl.tmp[pl.tr[0][e]].GetY(),pl.tmp[pl.tr[0][e]].GetZ());
+	//		glVertex3d(pl.tmp[pl.tr[1][e]].GetX(), pl.tmp[pl.tr[1][e]].GetY(),pl.tmp[pl.tr[1][e]].GetZ());
+	//		glVertex3d(pl.tmp[pl.tr[2][e]].GetX(), pl.tmp[pl.tr[2][e]].GetY(),pl.tmp[pl.tr[2][e]].GetZ());
+	//	}
+	//	glEnd();
+	//}
 	/*glBegin(GL_QUADS);
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
 	for(int t=0;t<tmp->GetK();t++)
@@ -364,30 +344,32 @@ void display(void)
 		DWORD dt = 25;/*GetTickCount()-t1;*/ 
 		double tim = dt/1000.0;
 		
-		vector<CollisionInfoOfSphere>  col_of_sp = phy->con_obj.inspection();
-		phy->con_obj.all_calculation(col_of_sp,dt);
+		vector<CollisionInfoOfSphere>  col_of_sp = phy->balls.inspection();
+		phy->balls.all_calculation(col_of_sp,dt);
 
-		int num_con = phy->con_obj.GetNumber();
+		int num_con = phy->balls.Count();
 		for(int i=0;i<num_con;i++)
 		{
-			phy->con_obj.MoveSphere(i,tim);
+			phy->balls.MoveSphere(i,tim);
 		}
-		vector<CollisionInfo> col = phy->wor.inspections(phy->con_obj);
-		phy->wor.Calculation(col,tim);
+		vector<CollisionInfo> col = phy->wor->inspections(phy->balls);
+		phy->wor->Calculation(col,tim);
 	}
-	int num_obj = phy->con_obj.GetNumber();
+	int num_obj = phy->balls.Count();
+	
 	for(int i=0;i<num_obj;i++)
 	{
+		Sphere* tmp = phy->balls.Get(i);
 		glPushMatrix();
-		glTranslated(phy->con_obj.GetSphere(i)->Position.GetX(),phy->con_obj.GetSphere(i)->Position.GetY(), phy->con_obj.GetSphere(i)->Position.GetZ());
+		glTranslated(tmp->Position.GetX(),tmp->Position.GetY(), tmp->Position.GetZ());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
-		Draw(phy->con_obj.GetSphere(i)->velo);
-		glRotated(phy->con_obj.GetSphere(i)->Angl.GetX(),0,0,1);
-		glRotated(phy->con_obj.GetSphere(i)->Angl.GetZ(),1,0,0);
+		Draw(tmp->velo);
+		glRotated(tmp->Angl.GetX(),0,0,1);
+		glRotated(tmp->Angl.GetZ(),1,0,0);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
-		glutSolidSphere(phy->con_obj.GetSphere(i)->GetRad(),25,25);
+		glutSolidSphere(tmp->GetRad(),25,25);
 		glPopMatrix();
-		/*if(phy->con_obj.GetSphere(i)->F != Vector(0,-98,0))
+		/*if(phy->balls.GetSphere(i)->F != Vector(0,-98,0))
 		{
 			Draw(Vector(0,-5,0));
 		}*/
@@ -398,52 +380,6 @@ void display(void)
 	IFPS = IFPS + 1;
 	glFlush();
 	glutSwapBuffers();
-}
-
-int main1(int argc,char** argv)
-{
-	setlocale(LC_ALL,"RUS");
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(SCENE_W, SCENE_H);
-	glutCreateWindow("OpenGL тестовый мир");
-
-	glutDisplayFunc(display);
-	glutIdleFunc(idle);
-	glutKeyboardFunc(keyboard1);
-	glutMouseFunc(mouseClick);
-	glutMotionFunc(mouseMotion);
-	glutReshapeFunc(reshape);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	glutMainLoop();
-
-	return 0;
-}
-
-int main2(int argc,char** argv)
-{
-	/*double s [3][3] = {{1,2,3},
-						{4,5,6},
-						{7,8,9} };
-	Matrix m = Matrix(s);
-	double f [3][3] = { {1,0,0},
-						{0,-1,0},
-						{0,0,1} };
-	Matrix m1 = Matrix(f);
-	 m = m * m1;
-	cout << "| " << m.GetM(0,0) << ", " << m.GetM(0,1) << ", " << m.GetM(0,2) << " |\n" 
-		 << "| " << m.GetM(1,0) << ", " << m.GetM(1,1) << ", " << m.GetM(1,2) << " |\n"
-		 << "| " << m.GetM(2,0) << ", " << m.GetM(2,1) << ", " << m.GetM(2,2) << " |\n";*/
-	Vector v = Vector(2,-3,4);
-	double s [3][3] = {{1,2,3},
-						{4,5,6},
-						{7,8,9} };
-	Matrix m = Matrix(s);
-	v = m * v;
-	cout << "{ " << v.GetX() << ", " << v.GetY() << ", " << v.GetZ() << " }\n";
-	system("Pause");
-	return 0;
 }
 
 int main(int argc, char **argv)
@@ -464,64 +400,59 @@ int main(int argc, char **argv)
 	glutReshapeFunc(reshape);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	//phy = &Fizika();
-	phy = new Fizika();
-	/*Sphere * tmp = new Sphere();
-	tmp->Position = Vector(14,17,25);
-	tmp->velo = Vector(0,-3,0);
-	obj[num] = tmp;
-	num++;*/
-	Sphere tmp1 =Sphere();
-	//for(int i = 0;i<2;i++) // дев€тнадцатый шар почему-то залипает в плоскости(19) // восьмой отскакивает вверх, после падени€ как надо.(8)
-	//{
-		//tmp1.Position = Vector(3.6762,16 + i*11,6.2121); // 5,12,0 - —тандартное значение. 2,12,-5.3 -  расивый треугольник.
-		//phy->con_obj.AddSphere(tmp1);
-		/*tmp1.Position = Vector(-3.6762,14 + i*11,6.2121);
-		phy->con_obj.AddSphere(tmp1);
-		tmp1.Position = Vector(-7.1403,12 + i*11,0);
-		phy->con_obj.AddSphere(tmp1);
-		tmp1.Position = Vector(-3.6762,10 + i*11,-6.2121);
-		phy->con_obj.AddSphere(tmp1);*/
-		/*tmp1.Position = Vector(3.6762,8 + 1*11,-6.2121); // ошибка в этом шаре при i = 1.
-		phy->con_obj.AddSphere(tmp1);*/
-		/*tmp1.Position = Vector(7.1403,6 + i*11,0);
-		phy->con_obj.AddSphere(tmp1);*/
-	//}
-	tmp1.Position = Vector(0,20,0);
-	tmp1.velo = Vector(0,-4,0);
-	phy->con_obj.AddSphere(tmp1);
-	tmp1.Position = Vector(1,15,0);
-	tmp1.velo = Vector(0,0,0);
-	phy->con_obj.AddSphere(tmp1);
-	tmp1.Position = Vector(2,5,0);
-	phy->con_obj.AddSphere(tmp1);
-	//num++;
-	/*Sphere * tmp2 = new Sphere();
-	tmp2->Position = Vector(4,9,25);
-	phy->con_obj.CreateSphere(tmp2);
-	num++;*/
-	
-	//Sphere * tmp = new Sphere();
-	//tmp->Position = Vector(	12-2.78,17-1.3,25); // |
-	//tmp->velo = Vector(0,-3,0);
-	//obj[num] = tmp;
-	//num++;
-	//Sphere * tmp1 = new Sphere();
-	//tmp1->Position = Vector(12-1.32,17-2.74,25); // ||
-	//obj[num] = tmp1;
-	//num++;
-	//Sphere * tmp2 = new Sphere();
-	//tmp2->Position = Vector(12-3.29,17-3.22,25); // ||
-	//obj[num] = tmp2;
-	//num++;
+	planes = new World();
 
-	int d = 1;
+	phy = new Fizika(*planes);
+	Demo1();
 	
-	//maxx = 10;
 	t1 = GetTickCount();
 
 	glutMainLoop();
 	
 	delete phy;
+	delete planes;
 	return 0;
+}
+
+void Demo1()
+{
+	//отскок от двух плоскостей
+	
+	//пол
+	double f[3][3] = {
+		{0,0,0},
+		{10,0,0},
+		{0,0,10}
+	};
+	Plane floor = Plane(f);
+	
+	Vector v0[4] = {
+		Vector(0,0,0),
+		Vector(10,0,0),
+		Vector(10,0,10),
+		Vector(0,0,10),
+	};
+	floor.SetPoints(v0, 4);
+
+	//стенка1
+	double w[3][3] = 
+	{
+		{10,0,0},
+		{15,5,0},
+		{15,5,10}
+	};
+	Plane wall = Plane(w);
+	
+	Vector v1[4] = {
+		Vector(10,0,0),
+		Vector(15,5,0),
+		Vector(15,5,10),
+		Vector(10,0,10),
+	};
+	wall.SetPoints(v1,4);
+
+	planes->Add(floor);
+	planes->Add(wall);
+
+
 }

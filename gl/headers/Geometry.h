@@ -1,4 +1,6 @@
 #include<iostream> // УДАЛИТЬ!!!!!
+#include <vector>
+
 #ifndef __GEOMETRY_H
 #define __GEOMETRY_H
 
@@ -99,21 +101,18 @@ public:
 	Vector * nor[3]; // Нормали к прямым, ограничивающим контур. В СК, связанной с плоскостью.
 	int *  tr[3]; // Треугольники. Содержит номера вершин, принадлежащих треугольникам. Необходимо для проверки столкновения и правильной отрисовки плоскостей.
 	int tr_num; // количество треугольников, нужно для того, чтобы понять, было ли столкновение. 
-	Vector * tmp; // Точки, определяющие ВЫПУКЛЫЙ контур.
-	int num; // Количество вершин.
+	vector<Vector> tmp; // Точки, определяющие ВЫПУКЛЫЙ контур.
+	int num;
 	Line * li;
 	// Проекции точек, определяющих ВЫПУКЛЫЙ контур.
 	int li_num;
 
 	Plane();
-	void PlaneSetEquation(double eq[4]);
-	//Matrix GetBathis ();
+	Plane(double eq [4]);
 	Plane(double Ctmp[3][3]);
-
 	Plane(Vector x1,Vector x2, Vector x3);
 
-	Plane(double eq [4]);
-	//Matrix GetInvertMat();
+	void PlaneSetEquation(double eq[4]);
 
 	Vector project(Vector* point);
 	void SetPoints(Vector * t, int l);

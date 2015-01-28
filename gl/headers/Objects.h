@@ -28,7 +28,6 @@ public:
 
 	void Rotated(Vector ve1, Vector nor);
 
-	void Test_Sphere(Sphere * obj, bool motion);
 	bool Test(Sphere * obj);
 	void HandlerCollision(Sphere * obj, double tim);
 	double GetRad();
@@ -79,20 +78,20 @@ struct CollisionInfoOfSphere
 class ContainerObjects
 {
 private:
-	Sphere * obj;
-	int number;
+	vector <Sphere> obj;
 public:
-	void MoveOutSphere(Sphere * sp, double t_sec); 
-	void MoveSphere(int n, double t_sec);
 	ContainerObjects();
-	void AddSphere(Sphere count);
-	Sphere* GetSphere(int n);
+	
+	void MoveSphere(int n, double t_sec);
+	
+	void Add(Sphere);
+	Sphere* Get(int i){return &obj[i];}
 	vector<CollisionInfoOfSphere> inspection();
 	void calculation(vector<CollisionInfoOfSphere> col,int n,double time);
 	void all_calculation(vector<CollisionInfoOfSphere> col,double time);
-	int GetNumber()
+	int Count()
 	{
-		return number;
+		return obj.size();
 	}
 };
 

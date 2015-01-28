@@ -54,93 +54,6 @@ void Sphere::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор
 		//w = ( normal * ( velo & normal ) / velo.length() ) * 0.2 ;
 }
 
-void Sphere::Test_Sphere(Sphere * obj, bool motion)
-{
-	double const res = 0.8;
-	double const K = 10;
-	double len = (obj->Position - Position).length2();
-	if( len < (rad + obj->rad)* (rad + obj->rad) * 1.001 || motion)
-	{
-		double x = obj->Position.GetX() - Position.GetX();
-		double y = obj->Position.GetY() - Position.GetY();
-		double z = obj->Position.GetZ() - Position.GetZ();
-
-		double eq[3]  = {x,y,z};
-		Vector norm = Vector(eq);
-		norm = Vector_norm(norm);
-		double e[3] = {0,0,0};
-
-		Plane * plan  = new Plane();
-		plan->PlaneSetEquation(eq);	
-
-		Vector ve2 = Vector();
-		Vector ve1 = Vector();
-		
-		velo = plan->GetBathis() * velo;
-		obj->velo = plan->GetBathis() * obj->velo;
-
-		Vector D = (velo - obj->velo) * obj->m;
-		Vector A = velo * m + obj->velo * obj->m;
-		if(D.length2() == 0)
-		{
-			ve1 = (A) / (m + obj->m);
-			ve2 = (A - ve1 * m) / (obj->m);
-		}
-		else
-		{
-			ve1 = (A + D) / (m + obj->m);
-			ve2 = (A - ve1 * m) / (obj->m);
-			Vector t_1 = velo > velo * m + obj->velo > obj->velo * obj->m;
-			Vector t_2 = ve1 > ve1 * m + ve2 > ve2 * obj->m; 
-			double test = t_1.length2() - t_2.length2();
-			if( test > 0.0000001 || test < -0.0000001)
-			{
-				ve1 = (A  - D) / (m + obj->m);
-				ve2 = (A - ve1 * m) / (obj->m);
-			}
-		}
-
-		if(ve1 < 0.01)
-			ve1 = e;
-		if(ve2 < 0.01)
-			ve2 = e;
-		velo = ve1;
-		obj->velo = ve2;
-
-		velo = plan->GetInvertMat() * velo;
-		obj->velo = plan->GetInvertMat() * obj->velo;
-
-		//if((velo ^ norm) > 0)
-		//	velo = plan->GetMat() * /*velo*/ve1 * res;
-		//else
-		//		velo = -/*velo*/norm * (ve1 * res).length();
-		//if( (obj->velo ^ norm) < 0)
-		//	obj->velo = plan->GetMat() * /*obj->velo*/ve2 * res;
-		//else
-		//	obj->velo = /*obj->velo*/norm * (ve2 * res).length();
-
-		len = sqrt(len);
-		len = ((rad + obj->rad) - len)/2; 
-		
-		 Position = Position - norm * len;
-		 obj->Position = obj->Position + norm * len;
-
-		Rotated(obj->velo,eq);
-		obj->Rotated(velo,eq);
-
-		if((norm ^ F) > 0)
-		{
-			F = - (norm * (obj->F & norm)) + F;
-			obj->F = (norm * (F & norm) + obj->F);
-		}
-		else
-		{
-			F = (norm * (obj->F & norm)) + F;
-			obj->F = -(norm * (F & norm) + obj->F);
-		}
-		delete plan;
-	}
-}
 
 bool Sphere::Test(Sphere * obj)
 {
@@ -402,29 +315,6 @@ void Camera::SetAngleXOZ(int ang)
 		angle = 0;
 }
 
-void ContainerObjects::MoveOutSphere(Sphere * sp, double t_sec)
-{
-	Vector Ft = Vector(0,-sp->m * sp->_g,0); 
-	//Vector Ftr = - (obj->velo /*> obj->velo*/ * p / 2) *  n * 3.14;
-	Vector F = sp->F /*+ Ftr*/;	// + F1 + F2 + ...;
-	Vector a = sp->F / sp->m;
-	Vector v = sp->velo + a*t_sec; 
-	Vector x = sp->Position + sp->velo*t_sec + (a*t_sec*t_sec)/2; 
-
-	sp->accel = a;
-	sp->velo = v;
-	sp->Position = x;
-	sp->F = Ft;
-
-	double l = sp->GetRad() * 2 * PI;
-	sp->Angl  = ( (sp->w * t_sec) / l) * 360 + sp->Angl;
-	if(sp->Angl.GetX() > 360 || sp->Angl.GetX() < -360)
-		sp->Angl.SetX(0);
-	if(sp->Angl.GetY() > 360 || sp->Angl.GetY() < -360)
-		sp->Angl.SetY(0);
-	if(sp->Angl.GetZ() > 360 || sp->Angl.GetZ() < -360)
-		sp->Angl.SetZ(0);
-}
 
 void ContainerObjects::MoveSphere(int n,double t_sec)
 {
@@ -452,46 +342,20 @@ void ContainerObjects::MoveSphere(int n,double t_sec)
 
 ContainerObjects::ContainerObjects()
 {
-	obj = new Sphere[1];
-	number = 0;
+
 }
 
-void ContainerObjects::AddSphere(Sphere count)
+void ContainerObjects::Add(Sphere item)
 {
-	//obj[number] = new Sphere();
-	obj[number] = count;
-	number += 1;
-	Sphere * copy = new Sphere[number];
-	for(int i = 0;i<number;i++)
-	{
-		copy[i] = obj[i];
-	}
-	delete obj;
-	obj = new Sphere[number+1];
-	for(int i = 0; i < number;i++)
-	{
-		obj[i] = copy[i];
-	}
-	delete copy;
-}
-
-Sphere* ContainerObjects::GetSphere(int n)
-{
-	if(n<=number)
-		return &obj[n];
-	else
-	{
-		Sphere * tmp = &Sphere();
-		return tmp;
-	}
+	obj.insert(obj.end(), item);
 }
 
 vector<CollisionInfoOfSphere> ContainerObjects::inspection()
 {
 	vector<CollisionInfoOfSphere> col;
-	for(int i = 0;i<number;i++)
+	for(int i = 0;i<Count();i++)
 	{
-		for(int e = i+1; e<number;e++)
+		for(int e = i+1; e<Count();e++)
 		{
 			if(obj[i].Test(&obj[e]))
 			{	

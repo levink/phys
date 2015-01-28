@@ -267,9 +267,6 @@
 		equa[1] = 0;
 		equa[2] = 0;
 		equa[3] = 0; 
-		tmp = NULL;
-		num = 0;
-		Mat = Matrix();
 		tr[0] = NULL;
 		tr[1] = NULL;
 		tr[2] = NULL;
@@ -283,15 +280,12 @@
 		tes[3] = 0;
 		tes[4] = 0;
 		tes[5] = 0;
-		li = &Line();
+		li = NULL;
 		li_num = 0;
 	}
 
 	void Plane::PlaneSetEquation(double eq[4])
 	{
-		tmp = NULL;
-		num = 0;
-		Mat = Matrix();
 		tr[0] = NULL;
 		tr[1] = NULL;
 		tr[2] = NULL;
@@ -305,114 +299,17 @@
 		equa[1] = eq[1];
 		equa[2] = eq[2];
 		equa[3] = eq[3];
-		li = &Line();
+		li = NULL;
 		li_num = 0;
 	}
 
-	Matrix Plane::GetBathis ()
-	{
-		double a [3]; // x0
-		double b [3]; // x1
-		double c [3]; // x2
-		double f [3];
-		double e [3] = {0,0,0};
-
-		if(equa[2] != 0)
-		{
-			a[0] = 1;
-			a[1] = 1;
-			a[2] = - ((equa[0] * a[0] + equa[1] * a[1] + equa[3])/equa[2]);
-			b[0] = 2;
-			b[1] = 2;
-			b[2] = - ((equa[0] * b[0] + equa[1] * b[1] + equa[3])/equa[2]);
-			c[0] = 3;
-			e[0] = c[0] - a[0];
-
-			f[0] = b[0] - a[0];
-			f[1] = b[1] - a[1];
-			f[2] = b[2] - a[2];
-
-			e[1] = (equa[0] * (e[0] + a[0]) + equa[1] * a[1] - ((equa[2] * e[0] * f[0])/f[2]) + equa[2] * a[2]) / (((equa[2] * f[1])/f[2]) - equa[1]);
-			e[2] = -((e[0] * f[0] + e[1] * f[1])/f[2]);
-		}
-
-		if(equa[2] == 0 && equa[0] != 0 &&  equa[1] != 0)
-		{
-			a[1] = 1;
-			a[2] = 1;
-			a[0] = - ((equa[1] * a[1] + equa[3])/equa[0]);
-			b[1] = 2;
-			b[2] = 2;
-			b[0] = - ((equa[1] * b[1] + equa[3])/equa[0]);
-			c[0] = 3;
-			e[0] = c[0] - a[0];
-
-			f[0] = b[0] - a[0];
-			f[1] = b[1] - a[1];
-			f[2] = b[2] - a[2];
-
-			e[1] = -((equa[0] * (e[0] + a[0]) + equa[1] * a[1] + equa[3])/equa[1]);
-			e[2] = -((e[0] * f[0] + e[1] * f[1])/f[2]);
-		}
-		if(equa[2] == 0 && equa[0] == 0)
-		{
-			a[0] = 1;
-			a[2] = 1;
-			a[1] = - (equa[3]/equa[1]);
-			b[0] = 2;
-			b[2] = 2;
-			b[1] = - (equa[3]/equa[1]);
-			c[0] = 3;
-			e[0] = c[0] - a[0];
-
-			f[0] = b[0] - a[0];
-			f[1] = b[1] - a[1];
-			f[2] = b[2] - a[2];
-
-			e[1] = -((equa[1]  * a[1] + equa[3]) / equa[1]);
-			e[2] = -((e[0] * f[0])/f[2]);
-		}
-		if(equa[1] == 0 && equa[2] == 0)
-		{
-			a[1] = 1;
-			a[2] = 1;
-			a[0] = - (equa[3]/equa[0]);
-			b[1] = 2;
-			b[2] = 2;
-			b[0] = - (equa[3]/equa[0]);
-			c[1] = 3;
-			c[0] = - (equa[3]/equa[0]);
-			e[1] = c[1] - a[1];
-
-			f[0] = b[0] - a[0];
-			f[1] = b[1] - a[1];
-			f[2] = b[2] - a[2];
-
-			e[0] = -(equa[3] / equa[0]);
-			e[2] = (( -c[0] * f[0] + a[0] * f[0] - c[1] * f[1] + a[1] * f[1])/f[2]) + a[2];
-		}
-		double  x[3][3] = { 
-					{f[0],f[1],f[2]},
-					{equa[0],equa[1],equa[2]},
-					{e[0],e[1],e[2]} };
-
-		Vector f1 = Vector(f);
-		Vector e1 = Vector(e);
-		double ang = e1 & f1;
-		cout << ang << endl;
-		if(ang > 0.000001 || ang < -0.000001)
-		{
-			cout << "ERROR\n";
-		}
-
-		return Matrix(x);
-	}
 	
 	Plane::Plane(double Ctmp[3][3])
 	{
 		equa[0] = Ctmp[1][0]*(Ctmp[2][1] - Ctmp[2][2]) + Ctmp[1][1]*(Ctmp[2][2] - Ctmp[2][0]) + Ctmp[1][2]*(Ctmp[2][0] - Ctmp[2][1]);
 		equa[1] = Ctmp[2][0]*(Ctmp[0][1] - Ctmp[0][2]) + Ctmp[2][1]*(Ctmp[0][2] - Ctmp[0][0]) + Ctmp[2][2]*(Ctmp[0][0] - Ctmp[0][1]);
 		equa[2] = Ctmp[0][0]*(Ctmp[1][1] - Ctmp[1][2]) + Ctmp[0][1]*(Ctmp[1][2] - Ctmp[1][0]) + Ctmp[0][2]*(Ctmp[1][0] - Ctmp[1][1]);
+		equa[3] = - (equa[0]*Ctmp[0][0] + equa[1] * Ctmp[0][1] + equa[2] * Ctmp[0][2]);
 
 		double longg  = sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
 		double eq[4] = {equa[0],equa[1],equa[2],equa[3]};
@@ -420,19 +317,10 @@
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
 
-		/*Mat = GetBathis();*/
-		//Matrix invert = Mat.Invert();
-
-		/*double redoun[3][3] = 
-		{	{1,0,0},
-			{0,-1,0},
-			{0,0,1}, };
-		Matrix rebound = Matrix(redoun);*/
 		equa[0] = eq[0];
 		equa[1] = eq[1];
 		equa[2] = eq[2];
 		equa[3] = eq[3];
-		//Mat = invert /** rebound * Mat*/;
 	}
 
 	Plane::Plane(Vector x1,Vector x2, Vector x3)
@@ -440,33 +328,22 @@
 		equa[0] = x2.GetX() * (x3.GetY() - x3.GetZ()) + x2.GetY() * (x3.GetZ() - x3.GetX()) + x2.GetZ() * (x3.GetX() - x3.GetY());
 		equa[1] = x3.GetX() * (x1.GetY() - x1.GetZ()) + x3.GetY() * (x1.GetZ() - x1.GetX()) + x3.GetZ() * (x1.GetX() - x1.GetY());
 		equa[2] = x1.GetX() * (x2.GetY() - x2.GetZ()) + x1.GetY() * (x2.GetZ() - x2.GetX()) + x1.GetZ() * (x2.GetX() - x2.GetY());
+		equa[3] = - (equa[0]*x1.GetX() + equa[1]* x1.GetY() + equa[2]* x1.GetZ());
 
 		double longg  = sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
-		double eq[4] = {equa[0],equa[1],equa[2],equa[3]};
+		double eq[4] = {equa[0], equa[1], equa[2], equa[3]};
 		equa[0] = equa[0] / longg;
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
 
-		Mat = GetBathis();
-		Matrix invert = Mat.Invert();
-
-		/*double redoun[3][3] = 
-		{	{1,0,0},
-			{0,-1,0},
-			{0,0,1}, };
-		Matrix rebound = Matrix(redoun);*/
 		equa[0] = eq[0];
 		equa[1] = eq[1];
 		equa[2] = eq[2];
 		equa[3] = eq[3];
-		Mat = invert /** rebound * Mat*/;
 	}
 
 	Plane::Plane(double eq [4])
 	{
-		tmp = NULL;
-		num = 0;
-		Mat = Matrix();
 		tr[0] = NULL;
 		tr[1] = NULL;
 		tr[2] = NULL;
@@ -476,7 +353,7 @@
 		tes[3] = 0;
 		tes[4] = 0;
 		tes[5] = 0;
-		li = &Line();
+		li = NULL;
 		li_num = 0;
 		for(int i=0;i<4;i++)
 		{
@@ -489,37 +366,14 @@
 		equa[2] = equa[2] / length;
 		equa[3] = equa[3] / length;
 
-		Mat = GetBathis();
-		Matrix invert = Mat.Invert();
-
-		/*double redoun[3][3] = 
-		{	{1,0,0},
-			{0,-1,0},
-			{0,0,1}, };
-		Matrix rebound = Matrix(redoun);*/
 		equa[0] = equation[0];
 		equa[1] = equation[1];
 		equa[2] = equation[2];
 		equa[3] = equation[3];
-		Mat = invert /** rebound * Mat*/;
-
 	}
 
-	Matrix Plane::GetInvertMat()                            
-	{
-		Matrix Matr  = GetBathis();
-		Matr = Matr.Invert();
-		/*double e[3][3] = {
-			{1,0,0},
-			{0,-1,0},
-			{0,0,1} };*/
-		return  /*Matrix(e) **/ Matr;
-	}
+	
 
-	Matrix Plane::GetMat()
-	{
-		return Mat;
-	}
 	Vector Plane::GetN()
 	{
 		return Vector(equa[0],equa[1],equa[2]);
@@ -543,7 +397,7 @@
 	Vector Plane::project(Vector* point)
  	{
 		double test = equa[0] * point->GetX() + equa[1] * point->GetY() + equa[2] * point->GetZ() + equa[3];
-		if(test >=0.0000001 || test <=-0.0000001)
+		if(test >=0.00001 || test <=-0.00001)
 		{
 			double _x = point->GetX();
 			double _y = point->GetY();
@@ -569,14 +423,13 @@
 		}
 		return (*point);
 	}
-	void Plane::SetPoints(Vector * point, int l)
+	void Plane::SetPoints(Vector* point, int l)
 	{
 		num = l;
-		if(tmp!=NULL)	delete[] tmp;
-		tmp = new Vector[num];
-		for(int i= 0;i<num;i++)
+		for(int i= 0; i < l; i++)
 		{
-			tmp[i] = project(&point[i]);
+			Vector t = point[i];
+			tmp.push_back(project(&t));
 		}
 		this->triangulation();
  	}
