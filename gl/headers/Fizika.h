@@ -9,10 +9,10 @@ double p;
 private:
 	double _g;
 public:
-	ContainerObjects balls;
+	ContainerObjects* balls;
 	World* wor;
 
-	Fizika(World& w);
+	Fizika(World& w,ContainerObjects& c);
 
 	//void Kick (double plane[4],Camera * obj,double k);
 	friend World* GetWorld(Fizika* obj);

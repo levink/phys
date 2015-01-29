@@ -26,7 +26,6 @@ double lightHeight = 8;
 double camAng1 = 90;
 double camAng2 = 0;
 double camHeight = 0;
-double camY = 0;
 
 double oldX = 0;
 double oldY = 0;
@@ -47,15 +46,21 @@ double IFPS = 0;
 
 Fizika* phy = NULL;
 World* planes = NULL;
+ContainerObjects* bal = NULL;
 
 double e [3] = {1,0,0};
 
 
-int _tmp = 0;
+int _tmp = 1;
+bool flag = true;
 
-
+void Delete();
 void Demo1();
-
+void Demo2();
+void Demo3();
+void Demo4();
+void Demo5();
+void Demo6();
 
 void keyboard(unsigned char key, int x, int y)
 {
@@ -75,17 +80,18 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 't':
 		needStep  = true;
-	case'8': 
-		camY +=1;
-		break;
-	case '2':
-		camY -=1;
 		break;
 	case 'i':
 		_tmp++;
+		flag = true;
 		break;
 	case 'k':
 		_tmp--;
+		flag = true;
+		break;
+	case 'p':
+		_tmp = -1;
+		flag = true;
 		break;
 	}
 	glutPostRedisplay();
@@ -105,7 +111,7 @@ void mouseClick(int button, int state, int x, int y)
 
 		Sphere tmp = Sphere();
 		tmp.Position = pos;
-		phy->balls.Add(tmp);
+		phy->balls->Add(tmp);
 	}
 	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN )
 	{
@@ -187,13 +193,37 @@ void DrawD(Vector & v)
 }
 void display(void)
 {
+	if(_tmp<0)
+		_tmp = 0;
+	if(flag)
+	{
+		flag = false;
+		switch(_tmp)
+		{
+		case 0:
+			Delete();
+			break;
+		case 1:
+			Demo1();
+			break;
+		case 2:
+			Demo2();
+			break;
+		case 3:
+			Demo3();
+			break;
+		case 4:
+			Demo4();
+			break;
+		}
+	}
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
 	//Camera
 	glPushMatrix();
-	glTranslated(0,-10 + camY,-10 + camHeight); 
+	glTranslated(0,-5,-30 + camHeight); 
 	glRotated(camAng2, 1,0,0);
 	glRotated(camAng1, 0,1,0);
 	//glTranslated(-10,0,10);
@@ -281,20 +311,20 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	
 
-	//for(int i = 0;i<tmp->GetK();i++)
-	//{
-	//	glBegin(GL_TRIANGLES);
-	//	Plane pl = tmp->GetPl(i);
-	//	for(int e = 0;e<pl.tr_num;e++)
-	//	{
-	//		GLfloat col[3] = {0.1,0.9 - e * 0.1,0};
-	//		glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,col);
-	//		glVertex3d(pl.tmp[pl.tr[0][e]].GetX(), pl.tmp[pl.tr[0][e]].GetY(),pl.tmp[pl.tr[0][e]].GetZ());
-	//		glVertex3d(pl.tmp[pl.tr[1][e]].GetX(), pl.tmp[pl.tr[1][e]].GetY(),pl.tmp[pl.tr[1][e]].GetZ());
-	//		glVertex3d(pl.tmp[pl.tr[2][e]].GetX(), pl.tmp[pl.tr[2][e]].GetY(),pl.tmp[pl.tr[2][e]].GetZ());
-	//	}
-	//	glEnd();
-	//}
+	for(int i = 0;i<planes->Count();i++)
+	{
+		glBegin(GL_TRIANGLES);
+		Plane * pl = planes->GetPl(i);
+		for(int e = 0;e<pl->tr_num;e++)
+		{
+			GLfloat col[3] = {0.1,0.9 - e * 0.1,0};
+			glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,col);
+			glVertex3d(pl->tmp[pl->tr[0][e]].GetX(), pl->tmp[pl->tr[0][e]].GetY(),pl->tmp[pl->tr[0][e]].GetZ());
+			glVertex3d(pl->tmp[pl->tr[1][e]].GetX(), pl->tmp[pl->tr[1][e]].GetY(),pl->tmp[pl->tr[1][e]].GetZ());
+			glVertex3d(pl->tmp[pl->tr[2][e]].GetX(), pl->tmp[pl->tr[2][e]].GetY(),pl->tmp[pl->tr[2][e]].GetZ());
+		}													   
+		glEnd();
+	}
 	/*glBegin(GL_QUADS);
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
 	for(int t=0;t<tmp->GetK();t++)
@@ -321,9 +351,9 @@ void display(void)
 	glEnd();*/
 
 	//plane
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
-	glBegin(GL_POLYGON);
-	glNormal3d(-10,10,1);
+	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
+	/*glBegin(GL_POLYGON);
+	glNormal3d(-10,10,1);*/
 	/*glVertex3d(10, GetY(10,-0)-5,-0);
 	glVertex3d(10, GetY(10,-40)-5,-40);
 	glVertex3d(30, GetY(30,-40)-5,-40);
@@ -332,7 +362,7 @@ void display(void)
 	glVertex3d(10, GetWorld(*phy)->GetYatXZ(10,-30,0),-30);
 	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-30,0),-30);
 	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-0,0),-0);*/
-	glEnd();
+	/*glEnd();*/
 	//glTranslated(0,0,-40);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
@@ -344,26 +374,26 @@ void display(void)
 		DWORD dt = 25;/*GetTickCount()-t1;*/ 
 		double tim = dt/1000.0;
 		
-		vector<CollisionInfoOfSphere>  col_of_sp = phy->balls.inspection();
-		phy->balls.all_calculation(col_of_sp,dt);
+		vector<CollisionInfoOfSphere>  col_of_sp = phy->balls->inspection();
+		phy->balls->all_calculation(col_of_sp,dt);
 
-		int num_con = phy->balls.Count();
+		int num_con = phy->balls->Count();
 		for(int i=0;i<num_con;i++)
 		{
-			phy->balls.MoveSphere(i,tim);
+			phy->balls->MoveSphere(i,tim);
 		}
 		vector<CollisionInfo> col = phy->wor->inspections(phy->balls);
 		phy->wor->Calculation(col,tim);
 	}
-	int num_obj = phy->balls.Count();
+	int num_obj = phy->balls->Count();
 	
 	for(int i=0;i<num_obj;i++)
 	{
-		Sphere* tmp = phy->balls.Get(i);
+		Sphere* tmp = phy->balls->Get(i);
 		glPushMatrix();
 		glTranslated(tmp->Position.GetX(),tmp->Position.GetY(), tmp->Position.GetZ());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
-		Draw(tmp->velo);
+		//Draw(tmp->velo);
 		glRotated(tmp->Angl.GetX(),0,0,1);
 		glRotated(tmp->Angl.GetZ(),1,0,0);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
@@ -401,9 +431,9 @@ int main(int argc, char **argv)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
 	planes = new World();
+	bal = new ContainerObjects();
 
-	phy = new Fizika(*planes);
-	Demo1();
+	phy = new Fizika(*planes,*bal);
 	
 	t1 = GetTickCount();
 
@@ -416,43 +446,133 @@ int main(int argc, char **argv)
 
 void Demo1()
 {
-	//отскок от двух плоскостей
-	
+	Delete();
+	//отскок от трёх плоскостей
 	//пол
-	double f[3][3] = {
-		{0,0,0},
-		{10,0,0},
-		{0,0,10}
-	};
-	Plane floor = Plane(f);
-	
 	Vector v0[4] = {
 		Vector(0,0,0),
 		Vector(10,0,0),
 		Vector(10,0,10),
 		Vector(0,0,10),
 	};
+	Plane floor = Plane(v0[0],v0[1],v0[2]);
 	floor.SetPoints(v0, 4);
 
 	//стенка1
-	double w[3][3] = 
-	{
-		{10,0,0},
-		{15,5,0},
-		{15,5,10}
-	};
-	Plane wall = Plane(w);
-	
 	Vector v1[4] = {
 		Vector(10,0,0),
 		Vector(15,5,0),
 		Vector(15,5,10),
 		Vector(10,0,10),
 	};
+	Plane wall = Plane(v1[0],v1[1],v1[2]);
 	wall.SetPoints(v1,4);
+
+	//стенка2
+	Vector v2[4] = {
+		Vector(0,0,0),
+		Vector(-5,5,0),
+		Vector(-5,5,10),
+		Vector(0,0,10),
+	};
+	Plane wall2 = Plane(v2[0],v2[1],v2[2]);
+	wall2.SetPoints(v2,4);
 
 	planes->Add(floor);
 	planes->Add(wall);
+	planes->Add(wall2);
 
+	
+	//Ball
+	Sphere tmp = Sphere();
+	tmp.Position = Vector(13,5,5);
+	bal->Add(tmp);
+}
+void Demo2()
+{
+	Delete();
+	//пол
+	Vector f2[6] = {	Vector(0,0,-8),
+					Vector(6.9282,0,-4),
+					Vector(6.9282,0,4),
+					Vector(0,0,8),
+					Vector(-6.9282,0,4),
+					Vector(-6.9282,0,-4) };
+	
+	Plane floor = Plane(f2[0],f2[1],f2[2]);
+	floor.SetPoints(f2, 6);
+	planes->Add(floor);
+	Sphere tmp = Sphere();
+	tmp.Position = Vector(0,0.9,3);
+	bal->Add(tmp);
+	tmp.Position = Vector(0,8,3);
+	bal->Add(tmp);
+}
+void Demo3()
+{
+	Delete();
+	//пол
+	Vector f2[6] = {	Vector(0,0,-8),
+					Vector(6.9282,0,-4),
+					Vector(6.9282,0,4),
+					Vector(0,0,8),
+					Vector(-6.9282,0,4),
+					Vector(-6.9282,0,-4) };
+	
+	Plane floor = Plane(f2[0],f2[1],f2[2]);
+	floor.SetPoints(f2, 6);
+	planes->Add(floor);
 
+	Sphere tmp = Sphere();
+	tmp.Position = Vector(0,0.9,3);
+	bal->Add(tmp);
+	tmp.Position = Vector(0,0.9,-3);
+	tmp.velo = Vector(0,0,3);
+	bal->Add(tmp);
+}
+void Demo4()
+{
+	Delete();
+	Vector r[4] = {	Vector(0,10,0),
+					Vector(18,10,0),
+					Vector(18,0,5),
+					Vector(0,0,5)};
+	Plane right = Plane(r[0],r[1],r[2]);
+	right.SetPoints(r, 4);
+	planes->Add(right);
+	Vector l[4] = {	Vector(0,10,0),
+					Vector(18,10,0),
+					Vector(18,0,-5),
+					Vector(0,0,-5)};
+	Plane left = Plane(l[0],l[1],l[2]);
+	left.SetPoints(l, 4);
+	planes->Add(left);
+
+	Sphere tmp = Sphere();
+	tmp.Position = Vector(1,14,0.5);
+	bal->Add(tmp);
+	tmp.Position = Vector(4,14,-0.5);
+	bal->Add(tmp);
+	tmp.Position = Vector(7,14,0.5);
+	bal->Add(tmp);
+	tmp.Position = Vector(10,14,-0.5);
+	bal->Add(tmp);
+	tmp.Position = Vector(13,14,0.5);
+	bal->Add(tmp);
+	tmp.Position = Vector(16,13.8,-0.5);
+	bal->Add(tmp);
+}
+void Demo5()
+{
+}
+void Demo6()
+{
+}
+void Delete()
+{
+	delete planes;
+	delete bal;
+	planes = new World();
+	bal = new ContainerObjects();
+	phy = new Fizika(*planes,*bal);
 }

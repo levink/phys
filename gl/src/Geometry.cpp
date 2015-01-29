@@ -311,35 +311,30 @@
 		equa[2] = Ctmp[0][0]*(Ctmp[1][1] - Ctmp[1][2]) + Ctmp[0][1]*(Ctmp[1][2] - Ctmp[1][0]) + Ctmp[0][2]*(Ctmp[1][0] - Ctmp[1][1]);
 		equa[3] = - (equa[0]*Ctmp[0][0] + equa[1] * Ctmp[0][1] + equa[2] * Ctmp[0][2]);
 
-		double longg  = sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
-		double eq[4] = {equa[0],equa[1],equa[2],equa[3]};
+		double longg  = sqrt(equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]); 
+		//double eq[4] = {equa[0],equa[1],equa[2],equa[3]};
 		equa[0] = equa[0] / longg;
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
-
-		equa[0] = eq[0];
+		equa[3] = equa[3] / longg;
+		/*equa[0] = eq[0];
 		equa[1] = eq[1];
 		equa[2] = eq[2];
-		equa[3] = eq[3];
+		equa[3] = eq[3];*/
 	}
 
-	Plane::Plane(Vector x1,Vector x2, Vector x3)
+	Plane::Plane(Vector O,Vector A, Vector B)
 	{
-		equa[0] = x2.GetX() * (x3.GetY() - x3.GetZ()) + x2.GetY() * (x3.GetZ() - x3.GetX()) + x2.GetZ() * (x3.GetX() - x3.GetY());
-		equa[1] = x3.GetX() * (x1.GetY() - x1.GetZ()) + x3.GetY() * (x1.GetZ() - x1.GetX()) + x3.GetZ() * (x1.GetX() - x1.GetY());
-		equa[2] = x1.GetX() * (x2.GetY() - x2.GetZ()) + x1.GetY() * (x2.GetZ() - x2.GetX()) + x1.GetZ() * (x2.GetX() - x2.GetY());
-		equa[3] = - (equa[0]*x1.GetX() + equa[1]* x1.GetY() + equa[2]* x1.GetZ());
+		equa[0] = ((A.GetY() - O.GetY()) * (B.GetZ() - O.GetZ())) - ((A.GetZ() - O.GetZ()) * (B.GetY() - O.GetY()));
+		equa[1] = -((A.GetX() - O.GetX()) * (B.GetZ() - O.GetZ())) - ((A.GetZ() - O.GetZ()) * (B.GetX() - O.GetX()));
+		equa[2] = ((A.GetX() - O.GetX()) * (B.GetY() - O.GetY())) - ((A.GetY() - O.GetY()) * (B.GetX() - O.GetX()));
+		equa[3] = -(equa[0] * O.GetX() + equa[1] * O.GetY() + equa[2] * O.GetZ());
 
-		double longg  = sqrt(equa[0] * equa[0] + equa[0] * equa[0] + equa[0] * equa[0]); 
-		double eq[4] = {equa[0], equa[1], equa[2], equa[3]};
+		double longg  = sqrt(equa[0] * equa[0] + equa[1] * equa[1] + equa[2] * equa[2]); 
 		equa[0] = equa[0] / longg;
 		equa[1] = equa[1] / longg;
 		equa[2] = equa[2] / longg;
-
-		equa[0] = eq[0];
-		equa[1] = eq[1];
-		equa[2] = eq[2];
-		equa[3] = eq[3];
+		equa[3] = equa[3] / longg;
 	}
 
 	Plane::Plane(double eq [4])
@@ -360,16 +355,10 @@
 			equa[i] = eq[i];
 		}
 		double length = sqrt(eq[0] * eq[0] + eq[1] * eq[1] + eq[2] * eq[2]); 
-		double equation[4] = {equa[0],equa[1],equa[2],equa[3]};
 		equa[0] = equa[0] / length;
 		equa[1] = equa[1] / length;
 		equa[2] = equa[2] / length;
 		equa[3] = equa[3] / length;
-
-		equa[0] = equation[0];
-		equa[1] = equation[1];
-		equa[2] = equation[2];
-		equa[3] = equation[3];
 	}
 
 	
@@ -496,8 +485,7 @@
 		n = 0;
 		int  i = 0;
 		int e  = 0;
-		/*bool st_conv = false;*/
-		while(signal > 3) // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ. Эту запись, а не код
+		while(signal >= 3) // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ. Эту запись, а не код
 		{
 			bool et = true;
 			bool nt = true;
@@ -582,200 +570,148 @@
 					}
 				}
 			}
-			bool convex = true;
-			bool left_turn;
-			bool left_test = true;
-			for(int con = 0;con<num;con++)
+			
+			Vector normal[3];
+			Vector edge = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
+			normal[0] = Vector(edge.GetZ(), 0, -edge.GetX()); // Всё правильно, не надо пугаться 
+			testing = Vector(tmp[n].GetX() - tmp[e].GetX(), 0, tmp[n].GetZ() - tmp[e].GetZ());
+			if((normal[0] & testing) <= 0)
 			{
-				bool conrej = true;
-				while(conrej)
+				if((normal[0] & testing) == 0)
 				{
-					if(con == i || con == n)
-						conrej = false;
-					for(int con_ = 0;con_<cur_rej && conrej;con_++)
-					{
-						if(rejected[con_] == con)
-						{
-							conrej = false;
-							break;
-						}
-					}
-					if(!conrej)
-					{
-						con++;
-						conrej = true;
-					}
-					else
-					{
-						break;
-					}
-				}
-				if(left_test)
-				{
-					left_turn = (((tmp[n].GetX() - tmp[i].GetX()) * (tmp[con].GetZ()-tmp[i].GetZ()) - (tmp[n].GetZ() - tmp[i].GetZ()) * (tmp[con].GetX()-tmp[i].GetX())) >= 0);
-					left_test = false;
+					Vector tes = Vector(tmp[n].GetX() - tmp[i].GetX(),0, tmp[n].GetZ() - tmp[i].GetZ());
+					if((normal[0] & tes) < 0)
+						normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
 				}
 				else
+					normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
+			}
+			testing = - edge;
+			edge = Vector(tmp[n].GetX() - tmp[e].GetX(),0, tmp[n].GetZ() - tmp[e].GetZ());
+			normal[1] = Vector(edge.GetZ(), 0, -edge.GetX());
+			if((normal[1] & testing) <= 0)
+			{
+				if((normal[1] & testing) == 0)
 				{
-					if((((tmp[n].GetX() - tmp[i].GetX()) * (tmp[con].GetZ()-tmp[i].GetZ()) - (tmp[n].GetZ() - tmp[i].GetZ()) * (tmp[con].GetX()-tmp[i].GetX())) >= 0) != left_turn)
+					Vector tes = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
+					if((normal[i] & tes) < 0)
+						normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
+				}
+				else
+					normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
+			}
+			testing = - edge;
+			edge = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
+			normal[2] = Vector(edge.GetZ(), 0, -edge.GetX());
+			if((normal[2] & testing) <= 0)
+			{
+				if((normal[2] & testing) == 0)
+				{
+					Vector tes = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
+					if((normal[2] & tes) < 0)
+						normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
+				}
+				else
+					normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
+			}
+			bool flag = 1;
+			for(int c = 0;c<num;c++)
+			{
+				if(c!=i)
+				{
+					testing = Vector(tmp[c].GetX() - tmp[i].GetX(),0, tmp[c].GetZ() - tmp[i].GetZ());
+					if((normal[0] & testing) > 0 && (normal[1] & testing) > 0 && (normal[2] & testing) > 0)
 					{
-						/*if(signal ==3)
-						{
-							st_conv = false;
-							break;
-						}*/
-						convex = false;
+						flag = 0;
 						break;
 					}
 				}
 			}
-			/*if(st_conv)
+			if(flag)
 			{
-				break;
-			}*/
-			if(convex)
-			{
-				Vector normal[3];
-				Vector edge = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
-				normal[0] = Vector(edge.GetZ(), 0, -edge.GetX()); // Всё правильно, не надо пугаться 
-				testing = Vector(tmp[n].GetX() - tmp[e].GetX(), 0, tmp[n].GetZ() - tmp[e].GetZ());
-				if((normal[0] & testing) <= 0)
+				tr[0][current] = i;
+				tr[1][current] = e;
+				tr[2][current] = n;
+				nor[0][current] = normal[0];
+				nor[1][current] = normal[1];
+				nor[2][current] = normal[2];
+				tr_num += 1;
+				current += 1;
+				signal -= 1;
+				rejected[cur_rej] = i;
+				cur_rej += 1;
+				if(cur_rej >=max_rej)
 				{
-					if((normal[0] & testing) == 0)
+					int * copy = new int[cur_rej];
+					for(int i = 0;i<cur_rej;i++)
 					{
-						Vector tes = Vector(tmp[n].GetX() - tmp[i].GetX(),0, tmp[n].GetZ() - tmp[i].GetZ());
-						if((normal[0] & tes) < 0)
-							normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
+						copy[i] = rejected[i];
 					}
-					else
-						normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
+					delete rejected;
+					rejected = new int [cur_rej + 4];
+					for(int i = 0 ;i<cur_rej;i++)
+					{
+						rejected[i] = copy[i];
+					}
+					delete copy;
+					max_rej +=4;
 				}
-				testing = - edge;
-				edge = Vector(tmp[n].GetX() - tmp[e].GetX(),0, tmp[n].GetZ() - tmp[e].GetZ());
-				normal[1] = Vector(edge.GetZ(), 0, -edge.GetX());
-				if((normal[1] & testing) <= 0)
+				if(current >= maximum)
 				{
-					if((normal[1] & testing) == 0)
+					int * cop1 = new int[current];
+					int * cop2 = new int[current];
+					int * cop3 = new int[current];
+					Vector * co_n1 = new Vector[current];
+					Vector * co_n2 = new Vector[current];
+					Vector * co_n3 = new Vector[current];
+					for(int i = 0;i<num;i++)
 					{
-						Vector tes = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
-						if((normal[i] & tes) < 0)
-							normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
+						cop1[i] = tr[0][i];
+						cop2[i] = tr[1][i];
+						cop3[i] = tr[2][i];
+						co_n1[i] = nor[0][i];
+						co_n2[i] = nor[1][i];
+						co_n3[i] = nor[2][i];
 					}
-					else
-						normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
+					delete tr[0];
+					delete tr[1];
+					delete tr[2];
+					delete nor[0];
+					delete nor[1];
+					delete nor[2];
+					tr[0] = new int[current + 10];
+					tr[1] = new int[current + 10];
+					tr[2] = new int[current + 10];
+					nor[0] = new Vector[current + 10];
+					nor[1] = new Vector[current + 10];
+					nor[2] = new Vector[current + 10];
+					for(int i = 0; i < num;i++)
+					{
+						tr[0][i] = cop1[i];
+						tr[1][i] = cop2[i];
+						tr[2][i] = cop3[i];
+						nor[0][i] = co_n1[i];
+						nor[1][i] = co_n2[i];
+						nor[2][i] = co_n3[i];
+					}
+					delete cop1;
+					delete cop2;
+					delete cop3;
+					delete co_n1;
+					delete co_n2;
+					delete co_n3;
+					maximum += 10;
 				}
-				testing = - edge;
-				edge = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
-				normal[2] = Vector(edge.GetZ(), 0, -edge.GetX());
-				if((normal[2] & testing) <= 0)
-				{
-					if((normal[2] & testing) == 0)
-					{
-						Vector tes = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
-						if((normal[2] & tes) < 0)
-							normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
-					}
-					else
-						normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
-				}
-				bool flag = 1;
-				for(int c = 0;c<num;c++)
-				{
-					if(c!=i)
-					{
-						testing = Vector(tmp[c].GetX() - tmp[i].GetX(),0, tmp[c].GetZ() - tmp[i].GetZ());
-						if((normal[0] & testing) > 0 && (normal[1] & testing) > 0 && (normal[2] & testing) > 0)
-						{
-							flag = 0;
-							break;
-						}
-					}
-				}
-				if(flag)
-				{
-					tr[0][current] = i;
-					tr[1][current] = e;
-					tr[2][current] = n;
-					nor[0][current] = normal[0];
-					nor[1][current] = normal[1];
-					nor[2][current] = normal[2];
-					tr_num += 1;
-					current += 1;
-					signal -= 1;
-					rejected[cur_rej] = i;
-					cur_rej += 1;
-					if(cur_rej >=max_rej)
-					{
-						int * copy = new int[cur_rej];
-						for(int i = 0;i<cur_rej;i++)
-						{
-							copy[i] = rejected[i];
-						}
-						delete rejected;
-						rejected = new int [cur_rej + 4];
-						for(int i = 0 ;i<cur_rej;i++)
-						{
-							rejected[i] = copy[i];
-						}
-						delete copy;
-						max_rej +=4;
-					}
-					if(current >= maximum)
-					{
-						int * cop1 = new int[current];
-						int * cop2 = new int[current];
-						int * cop3 = new int[current];
-						Vector * co_n1 = new Vector[current];
-						Vector * co_n2 = new Vector[current];
-						Vector * co_n3 = new Vector[current];
-						for(int i = 0;i<num;i++)
-						{
-							cop1[i] = tr[0][i];
-							cop2[i] = tr[1][i];
-							cop3[i] = tr[2][i];
-							co_n1[i] = nor[0][i];
-							co_n2[i] = nor[1][i];
-							co_n3[i] = nor[2][i];
-						}
-						delete tr[0];
-						delete tr[1];
-						delete tr[2];
-						delete nor[0];
-						delete nor[1];
-						delete nor[2];
-						tr[0] = new int[current + 10];
-						tr[1] = new int[current + 10];
-						tr[2] = new int[current + 10];
-						nor[0] = new Vector[current + 10];
-						nor[1] = new Vector[current + 10];
-						nor[2] = new Vector[current + 10];
-						for(int i = 0; i < num;i++)
-						{
-							tr[0][i] = cop1[i];
-							tr[1][i] = cop2[i];
-							tr[2][i] = cop3[i];
-							nor[0][i] = co_n1[i];
-							nor[1][i] = co_n2[i];
-							nor[2][i] = co_n3[i];
-						}
-						delete cop1;
-						delete cop2;
-						delete cop3;
-						delete co_n1;
-						delete co_n2;
-						delete co_n3;
-						maximum += 10;
-					}
-				} 
+			
 			}// конец триангуляции, конец света, конец добра и зла, чёрная дыра без массы и тому подобные прелести ( Конец шуту и королю, и глупости, и уму. Исполняли Никитины, Автора стихов не помню)
 			i++;
 		}
 		delete rejected;
 		// Конец поиска.
 		//Определение ограничивающего куба.
-		double maxX = tmp[num].GetX();
-		double maxY = tmp[num].GetY();
-		double maxZ = tmp[num].GetZ();
+		double maxX = tmp[num-1].GetX();
+		double maxY = tmp[num-1].GetY();
+		double maxZ = tmp[num-1].GetZ();
 		for(int i = 0;i<num;i++) 
 		{
 			if(tmp[i].GetX() > maxX)
@@ -794,9 +730,9 @@
 		tes[0] = maxX + 2;
 		tes[2] = maxY + 2;
 		tes[4] = maxZ + 2;
-		maxX = tmp[num].GetX();
-		maxY = tmp[num].GetY();
-		maxZ = tmp[num].GetZ();
+		maxX = tmp[num-1].GetX();
+		maxY = tmp[num-1].GetY();
+		maxZ = tmp[num-1].GetZ();
 		for(int i = 0;i<num;i++) 
 		{
 			if(tmp[i].GetX() < maxX)

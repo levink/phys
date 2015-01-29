@@ -84,7 +84,7 @@ public:
 	
 	void MoveSphere(int n, double t_sec);
 	
-	void Add(Sphere);
+	void Add(Sphere item) { obj.push_back(item); }
 	Sphere* Get(int i){return &obj[i];}
 	vector<CollisionInfoOfSphere> inspection();
 	void calculation(vector<CollisionInfoOfSphere> col,int n,double time);

@@ -29,13 +29,13 @@ double World::GetYatXZ(double X, double Z, int planeNum)
 			   1 * p->GetD() ) / p->GetB() );
 }
 
-vector<CollisionInfo> World::inspections(ContainerObjects con)
+vector<CollisionInfo> World::inspections(ContainerObjects* con)
 {
 	vector<CollisionInfo> col;
 	bool test = 1;
-	for(int i = 0;i<con.Count();i++)
+	for(int i = 0;i<con->Count();i++)
 	{
-		Sphere * sp = con.Get(i);
+		Sphere * sp = con->Get(i);
 		for(int e = 0;e < Count(); e++)
 		{
 			//Plane pl = Plan[e];

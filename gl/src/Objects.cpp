@@ -204,8 +204,8 @@ void Sphere::calculation(Plane pl,double resil, double t)
 	//obj->velo = Vector_norm(Plan[i].GetMat() * obj->velo);
 	//obj->velo = obj->velo * velo * resil;
 	//obj->F = obj->F + Vector_norm(Plan[i].GetN()) * obj->F.length()/** obj->velo.length()*sqrt(K * obj->m)*/;
-	if(velo < 0.1)
-		velo = Vector(0,0,0);
+	/*if(velo < 0.1)
+		velo = Vector(0,0,0);*/
 
 	Vector n = Vector_norm(normal);
 	Vector vy = n * (((velo * resil) & normal) /normal.length());
@@ -215,17 +215,17 @@ void Sphere::calculation(Plane pl,double resil, double t)
 	Vector N_velo = - ((vy * 2 * m)/(t));
 	F = - ((vy * 2 * m)/(t)) - n * Fy + F;
 
-	if((normal & ve) >= 0)
-		F = -F;
+	/*if((normal & ve) <= 0)
+		F = -F;*/
 
 	cout << "Velo to Plane : {" << velo.GetX() << ", " << velo.GetY() << ", " << velo.GetZ() << "}.\n\n";
 	double eqa =abs( Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD());
 	double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
 	eqa = eqa/(sqrt(lon));
 	if((ve ^ normal) < 0 )   
-		Position = Position  + normal * (rad - eqa);
+		Position = Position  + n * (rad - eqa);
 	else
-		Position = Position + normal * (eqa - rad);
+		Position = Position + n * (eqa - rad);
 
 	accel = F/m;
 	velo = velo +  accel*t;
@@ -263,9 +263,9 @@ void Sphere::calculation(Line li, double resil, double t)
 	double lon = pow(normal.GetX(),2) + pow(normal.GetY(),2) + pow(normal.GetZ(),2);
 	eqa = eqa/(sqrt(lon) );
 	if((velo ^ normal) < 0 )   
-		Position = Position  + normal * (rad - eqa);
+		Position = Position  + vec_n * (rad - eqa);
 	else
-		Position = Position + normal * (eqa - rad);
+		Position = Position + vec_n * (eqa - rad);
 
 	accel = F/m;
 	velo = velo +  accel*t;
@@ -288,9 +288,9 @@ void Sphere::calculation(Vector tmp, double resil, double t)
 	double lon = pow(normal.GetX(),2) + pow(normal.GetY(),2) + pow(normal.GetZ(),2);
 	eqa = eqa/(sqrt(lon) );
 	if((velo ^ normal) < 0 )   
-		Position = Position  + normal * (rad - eqa);
+		Position = Position  + vec_n * (rad - eqa);
 	else
-		Position = Position + normal * (eqa - rad);
+		Position = Position + vec_n * (eqa - rad);
 
 	accel = F/m;
 	velo = velo +  accel*t;
@@ -343,11 +343,6 @@ void ContainerObjects::MoveSphere(int n,double t_sec)
 ContainerObjects::ContainerObjects()
 {
 
-}
-
-void ContainerObjects::Add(Sphere item)
-{
-	obj.insert(obj.end(), item);
 }
 
 vector<CollisionInfoOfSphere> ContainerObjects::inspection()

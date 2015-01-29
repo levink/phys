@@ -24,7 +24,6 @@ class World
 private:
 	vector<Plane> Plan;
 	const double res;
-
 public: 
 	
 	World();
@@ -40,7 +39,7 @@ public:
 
 	double GetYatXZ(double X,double Y,int nomber_plane);
 
-	vector<CollisionInfo> inspections(ContainerObjects con);
+	vector<CollisionInfo> inspections(ContainerObjects *con);
 	void Calculation(vector<CollisionInfo> col, int n, double t_sec);
 	void Calculation(vector<CollisionInfo> col, double t_sec);
 
