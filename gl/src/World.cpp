@@ -81,6 +81,7 @@ vector<CollisionInfo> World::inspections(ContainerObjects* con)
 	}
 		return col;
 }
+
 void World::Calculation(vector<CollisionInfo> col, int n, double t_sec)
 {
 	if(n<=col.size() && (col[n].tmp_t || col[n].li_t || col[n].pl_t))
@@ -99,6 +100,17 @@ void World::Calculation(vector<CollisionInfo> col, int n, double t_sec)
 		}
 	}
 	
+}
+void World::Calculation_pl(vector<CollisionInfo> col, double t_sec)
+{
+	int c_n = col.size();
+	for(int i =0; i<c_n; i++)
+	{
+		if(col[i].pl_t)
+		{
+			col[i].sp->calculation(col[i].pl,res,t_sec);
+		}
+	}
 }
 void World::Calculation(vector<CollisionInfo> col, double t_sec)
 {

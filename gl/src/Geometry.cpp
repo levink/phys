@@ -83,7 +83,7 @@
 	}
 	double Vector::operator^(Vector& const right)
 	{
-		return( (x * right.GetX() + y * right.GetY() + z * right.GetZ() ) / (sqrt( (x * x + y * y + z * z) * right.length2())) );
+		return( (x * right.GetX() + y * right.GetY() + z * right.GetZ() ) / (sqrt( (x * x + y * y + z * z) * right.length())) );
 	}
 	Vector Vector::operator*(Vector& const right)
 	{
