@@ -41,6 +41,7 @@ public:
 
 	vector<CollisionInfo> inspections(ContainerObjects *con);
 	void Calculation(vector<CollisionInfo> col, int n, double t_sec);
+	void Calculation_pl(vector<CollisionInfo> col, double t_sec);
 	void Calculation(vector<CollisionInfo> col, double t_sec);
 
 	void Add(Plane pl) { Plan.push_back(pl); }

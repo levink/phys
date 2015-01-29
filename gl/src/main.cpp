@@ -215,6 +215,10 @@ void display(void)
 		case 4:
 			Demo4();
 			break;
+		case 5:
+			Demo5();
+			break;
+
 		}
 	}
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -315,9 +319,10 @@ void display(void)
 	{
 		glBegin(GL_TRIANGLES);
 		Plane * pl = planes->GetPl(i);
+		GLfloat col[3] = {0.1,0.9 - i * 0.1,0};
 		for(int e = 0;e<pl->tr_num;e++)
 		{
-			GLfloat col[3] = {0.1,0.9 - e * 0.1,0};
+			col[0] +=e * 0.3;
 			glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,col);
 			glVertex3d(pl->tmp[pl->tr[0][e]].GetX(), pl->tmp[pl->tr[0][e]].GetY(),pl->tmp[pl->tr[0][e]].GetZ());
 			glVertex3d(pl->tmp[pl->tr[1][e]].GetX(), pl->tmp[pl->tr[1][e]].GetY(),pl->tmp[pl->tr[1][e]].GetZ());
@@ -367,7 +372,7 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	//DWORD dt = GetTickCount()-t1;
-	needStep = 1; // удалить
+	//needStep = 1; // удалить
 	if(needStep) 
 	{
 		needStep = false;
@@ -383,6 +388,10 @@ void display(void)
 			phy->balls->MoveSphere(i, tim);
 		}
 		vector<CollisionInfo> col = phy->wor->inspections(phy->balls);
+		if(_tmp == 5)
+		{
+			phy->wor->Calculation_pl(col,tim);
+		}
 		phy->wor->Calculation(col,tim);
 	}
 	int num_obj = phy->balls->Count();
@@ -393,9 +402,9 @@ void display(void)
 		glPushMatrix();
 		glTranslated(tmp->Position.GetX(),tmp->Position.GetY(), tmp->Position.GetZ());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
-		//Draw(tmp->velo);
-		glRotated(tmp->Angl.GetX(),0,0,1);
-		glRotated(tmp->Angl.GetZ(),1,0,0);
+		Draw(tmp->velo);
+		/*glRotated(tmp->Angl.GetX(),0,0,1);
+		glRotated(tmp->Angl.GetZ(),1,0,0);*/
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 		glutSolidSphere(tmp->GetRad(),25,25);
 		glPopMatrix();
@@ -563,6 +572,60 @@ void Demo4()
 }
 void Demo5()
 {
+	Delete();
+	Vector f1[4] = {Vector(0,6,0),
+					Vector(0,6,10),
+					Vector(6,6,10),
+					Vector(6,6,0)};
+	Plane floor1 = Plane(f1[0],f1[1],f1[2]);
+	floor1.SetPoints(f1,4);
+
+	Vector w1[4] = {Vector(6,3,0),
+					Vector(6,6,0),
+					Vector(6,6,10),
+					Vector(6,3,10)};
+	Plane wall1 = Plane(w1[0],w1[1],w1[2]);
+	wall1.SetPoints(w1,4);
+
+	Vector f2[4] = {Vector(6,3,0),
+					Vector(6,3,10),
+					Vector(12,3,10),
+					Vector(12,3,0)};
+	Plane floor2 = Plane(f2[0],f2[1],f2[2]);
+	floor2.SetPoints(f2,4);
+
+	Vector w2[4] = {Vector(12,0,0),
+					Vector(12,3,0),
+					Vector(12,3,10),
+					Vector(12,0,10)};
+	Plane wall2 = Plane(w2[0],w2[1],w2[2]);
+	wall2.SetPoints(w2,4);
+
+	Vector f3[4] = {Vector(12,0,0),
+					Vector(12,0,10),
+					Vector(20,0,10),
+					Vector(20,0,0)};
+	Plane floor3 = Plane(f3[0],f3[1],f3[2]);
+	floor3.SetPoints(f3,4);
+
+	Vector w3[4] = {Vector(20,0,0),
+					Vector(20,0,10),
+					Vector(20,5,10),
+					Vector(20,5,0)};
+	Plane wall3 = Plane(w3[0],w3[1],w3[2]);
+	wall3.SetPoints(w3,4);
+	
+	Sphere tmp = Sphere();
+	tmp.Position = Vector(2,6,3);
+	tmp.velo = Vector(3,0,0);
+	bal->Add(tmp);
+
+	planes->Add(floor1);
+	planes->Add(floor2);
+	planes->Add(floor3);
+	planes->Add(wall1);
+	planes->Add(wall2);
+	planes->Add(wall3);
 }
 void Demo6()
 {
