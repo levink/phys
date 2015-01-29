@@ -17,7 +17,7 @@ Sphere::Sphere()
 {
 	rad = 1;
 	_g = 9.8;
-	BaseObject();
+	m = 20;
 }
 
 

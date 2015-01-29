@@ -54,16 +54,21 @@ double e [3] = {1,0,0};
 int _tmp = 1;
 bool flag = true;
 
-void Delete();
+void Clear();
+void StartDemo(int);
 void Demo1();
 void Demo2();
 void Demo3();
 void Demo4();
-void Demo5();
-void Demo6();
 
 void keyboard(unsigned char key, int x, int y)
 {
+	if (key >= '1' && key <= '4')
+	{
+		int num = key - '0';
+		_tmp = num;
+		StartDemo(_tmp);
+	}
 	switch(key)
 	{
 	case 'w':
@@ -80,18 +85,6 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 't':
 		needStep  = true;
-		break;
-	case 'i':
-		_tmp++;
-		flag = true;
-		break;
-	case 'k':
-		_tmp--;
-		flag = true;
-		break;
-	case 'p':
-		_tmp = -1;
-		flag = true;
 		break;
 	}
 	glutPostRedisplay();
@@ -153,8 +146,8 @@ void idle(void)
 	}
 	if(dt - previousTime > 15)
 	{
-		lightAngle+=2;
-		if(lightAngle>360) lightAngle = 0;
+		//lightAngle+=2;
+		//if(lightAngle>360) lightAngle = 0;
 
 		previousTime = dt;
 		glutPostRedisplay();
@@ -193,30 +186,6 @@ void DrawD(Vector & v)
 }
 void display(void)
 {
-	if(_tmp<0)
-		_tmp = 0;
-	if(flag)
-	{
-		flag = false;
-		switch(_tmp)
-		{
-		case 0:
-			Delete();
-			break;
-		case 1:
-			Demo1();
-			break;
-		case 2:
-			Demo2();
-			break;
-		case 3:
-			Demo3();
-			break;
-		case 4:
-			Demo4();
-			break;
-		}
-	}
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_DEPTH_TEST);
@@ -245,7 +214,7 @@ void display(void)
 	glTranslated(10,0,-10);
 	glRotated(lightAngle,0,1,0);
 	glTranslated(pos[0], pos[1], pos[2]);
-	glutSolidSphere(1,10,10);
+	//glutSolidSphere(1,10,10);
 	glEnable(GL_LIGHTING);
 	glPopMatrix();	
 	glTranslated(10,0,-10);
@@ -263,53 +232,18 @@ void display(void)
 	int x = 20;
 	int z = -20;
 
+	
 
-	//Plane pl = Plane(e);
-	//Vector eq = Vector(e);
-
-	//for(int i=0;i < x; i++)
-	//	for(int j=0;j > z; j--)
-	//	{
-	//		glVertex3d(i, GY(i,j,pl),j);
-	//		glVertex3d(i,GY(i,j-1,pl),j-1);
-	//		glVertex3d(i+1,GY(i+1,j-1,pl),j-1);
-	//		glVertex3d(i+1,GY(i+1,j,pl),j);
-	//	}
-	//glEnd();
-	//
-
-	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, yellow); Draw(eq); Draw(-eq);
-	//cout << "Equation : {" << eq.GetX() << ", " << eq.GetY() << ", " << eq.GetZ() << "}.";
-	//
-	//Vector down = Vector(0,-5,0);
-	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red); DrawD(down);
-	////cout << "Down : {3,-5,0}.\t";
-	//
-	//Vector up = pl.GetMat() * down;
-	////down = Vector_norm(down);
-	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green); DrawD(up);
-	//cout << "Redound : { " << down.GetX() << ", " << down.GetY() << ", " << down.GetZ() << "}." << endl;
-
-	/*double ang = ((up^eq) - (down^eq)) * ((up^eq) + (down^eq));
-
-	if(ang > 0.000001 || ang < -0.000001)
-		cout << "FATAL ERROR\n";
-	else
-		cout << "ALL RIGHT\n";*/
-	/*double v[3] = {0,1,0};
-	Vector velo = Vector(1,-0.001,0);
-	velo = -(Plane(v).GetMat() * velo);
-
-	Vector velo1 = Vector(1,-1,0);
-	velo1 = -(Plane(v).GetMat() * velo1);*/
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, red);
 	Draw(Vector(5,0,0));
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
+	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, yellow);
 	Draw(Vector(0,5,0));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	Draw(Vector(0,0,5));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	
+	glPushMatrix();
+	//glTranslated(-5,0,-5);
 
 	for(int i = 0;i<planes->Count();i++)
 	{
@@ -371,11 +305,13 @@ void display(void)
 	if(needStep) 
 	{
 		needStep = false;
-		DWORD dt = 25;/*GetTickCount()-t1;*/ 
-		double tim = dt/1000.0;
+		DWORD t2 = GetTickCount();
+		DWORD dt = t2-t1;
+		t1 = t2;
+		double tim = 25/1000.0;//dt/1000.0;
 		
 		vector<CollisionInfoOfSphere>  col_of_sp = phy->balls->inspection();
-		phy->balls->all_calculation(col_of_sp,dt);
+		phy->balls->all_calculation(col_of_sp, dt);
 
 		int num_con = phy->balls->Count();
 		for(int i=0;i<num_con;i++)
@@ -407,6 +343,7 @@ void display(void)
 	
 	//t1 += dt;
 	glPopMatrix();
+	glPopMatrix();
 	IFPS = IFPS + 1;
 	glFlush();
 	glutSwapBuffers();
@@ -433,6 +370,7 @@ int main(int argc, char **argv)
 	planes = new World();
 	bal = new ContainerObjects();
 	phy = new Fizika(*planes,*bal);
+	StartDemo(_tmp);
 	
 	t1 = GetTickCount();
 
@@ -442,10 +380,17 @@ int main(int argc, char **argv)
 	delete planes;
 	return 0;
 }
+void StartDemo(int num)
+{
+	if (num >= 1 && num <= 4) Clear();
 
+	if (num == 1) Demo1();
+	else if (num == 2) Demo2();
+	else if (num == 3) Demo3();
+	else if (num == 4) Demo4();
+}
 void Demo1()
 {
-	Delete();
 	//отскок от трЄх плоскостей
 	//пол
 	Vector v0[4] = {
@@ -489,7 +434,8 @@ void Demo1()
 }
 void Demo2()
 {
-	Delete();
+	//1 шарик падает сверху на второй
+	
 	//пол
 	Vector f2[6] = {	Vector(0,0,-8),
 					Vector(6.9282,0,-4),
@@ -502,14 +448,15 @@ void Demo2()
 	floor.SetPoints(f2, 6);
 	planes->Add(floor);
 	Sphere tmp = Sphere();
-	tmp.Position = Vector(0,0.9,3);
+	tmp.Position = Vector(1,1.5,3.5);
 	bal->Add(tmp);
 	tmp.Position = Vector(0,8,3);
 	bal->Add(tmp);
 }
 void Demo3()
 {
-	Delete();
+	//как биль€рд
+	
 	//пол
 	Vector f2[6] = {	Vector(0,0,-8),
 					Vector(6.9282,0,-4),
@@ -523,15 +470,15 @@ void Demo3()
 	planes->Add(floor);
 
 	Sphere tmp = Sphere();
-	tmp.Position = Vector(0,0.9,3);
+	tmp.Position = Vector(1,2,3);
 	bal->Add(tmp);
-	tmp.Position = Vector(0,0.9,-3);
-	tmp.velo = Vector(0,0,3);
+	tmp.Position = Vector(0,1,-3);
+	tmp.velo = Vector(0,0,15);
 	bal->Add(tmp);
 }
 void Demo4()
 {
-	Delete();
+	
 	Vector r[4] = {	Vector(0,10,0),
 					Vector(18,10,0),
 					Vector(18,0,5),
@@ -561,13 +508,7 @@ void Demo4()
 	tmp.Position = Vector(16,13.8,-0.5);
 	bal->Add(tmp);
 }
-void Demo5()
-{
-}
-void Demo6()
-{
-}
-void Delete()
+void Clear()
 {
 	planes->Clear();
 	bal->Clear();

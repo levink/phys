@@ -7,7 +7,7 @@ using namespace std;
 //коэффициент упругости
 
 World::World(/*bool test*/)
-	:res(1)
+	:res(0.95)
 {
 
 	//Vector a[] = {	Vector(0,0,-8),

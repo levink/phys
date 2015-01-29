@@ -14,7 +14,6 @@ public:
 
 	Fizika(World& w,ContainerObjects& c);
 
-	//void Kick (double plane[4],Camera * obj,double k);
 	friend World* GetWorld(Fizika* obj);
 	void MoveObject(Camera * obj, double t);
 	void MoveObject(Sphere * obj, double t);
