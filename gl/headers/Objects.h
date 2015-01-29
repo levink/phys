@@ -93,6 +93,10 @@ public:
 	{
 		return obj.size();
 	}
+	void Clear()
+	{
+		obj.clear();
+	}
 };
 
 #endif

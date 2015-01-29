@@ -44,6 +44,10 @@ public:
 	void Calculation(vector<CollisionInfo> col, double t_sec);
 
 	void Add(Plane pl) { Plan.push_back(pl); }
+	void Clear()
+	{
+		Plan.clear();
+	}
 	
 };
 #endif

@@ -367,7 +367,7 @@ void display(void)
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	//DWORD dt = GetTickCount()-t1;
-	//needStep = 1; // удалить
+	needStep = 1; // удалить
 	if(needStep) 
 	{
 		needStep = false;
@@ -380,7 +380,7 @@ void display(void)
 		int num_con = phy->balls->Count();
 		for(int i=0;i<num_con;i++)
 		{
-			phy->balls->MoveSphere(i,tim);
+			phy->balls->MoveSphere(i, tim);
 		}
 		vector<CollisionInfo> col = phy->wor->inspections(phy->balls);
 		phy->wor->Calculation(col,tim);
@@ -432,7 +432,6 @@ int main(int argc, char **argv)
 
 	planes = new World();
 	bal = new ContainerObjects();
-
 	phy = new Fizika(*planes,*bal);
 	
 	t1 = GetTickCount();
@@ -570,9 +569,6 @@ void Demo6()
 }
 void Delete()
 {
-	delete planes;
-	delete bal;
-	planes = new World();
-	bal = new ContainerObjects();
-	phy = new Fizika(*planes,*bal);
+	planes->Clear();
+	bal->Clear();
 }
