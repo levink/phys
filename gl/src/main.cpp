@@ -86,6 +86,7 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 't':
 		needStep  = true;
+		break;
 	case 'p':
 		pause = !pause;
 		break;
@@ -252,10 +253,10 @@ void display(void)
 	{
 		glBegin(GL_TRIANGLES);
 		Plane * pl = planes->GetPl(i);
-		GLfloat col[3] = {0.1,0.9 - i * 0.1,0};
+		GLfloat col[3] = {0,0.9 - 0.05 * i,0};
 		for(int e = 0;e<pl->tr_num;e++)
 		{
-			col[0] +=e * 0.3;
+			col[1] -=e * 0.1;
 			glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,col);
 			glVertex3d(pl->tmp[pl->tr[0][e]].GetX(), pl->tmp[pl->tr[0][e]].GetY(),pl->tmp[pl->tr[0][e]].GetZ());
 			glVertex3d(pl->tmp[pl->tr[1][e]].GetX(), pl->tmp[pl->tr[1][e]].GetY(),pl->tmp[pl->tr[1][e]].GetZ());
@@ -323,10 +324,6 @@ void display(void)
 			phy->balls->MoveSphere(i, tim);
 		}
 		vector<CollisionInfo> col = phy->wor->inspections(phy->balls);
-		if(_tmp == 5)
-		{
-			phy->wor->Calculation_pl(col,tim);
-		}
 		phy->wor->Calculation(col,tim);
 	}
 	int num_obj = phy->balls->Count();
@@ -457,7 +454,7 @@ void Demo2()
 	floor.SetPoints(f2, 6);
 	planes->Add(floor);
 	Sphere tmp = Sphere();
-	tmp.Position = Vector(1,1.5,3.5);
+	tmp.Position = Vector(1,1.7,3.5);
 	bal->Add(tmp);
 	tmp.Position = Vector(0,8,3);
 	bal->Add(tmp);
@@ -525,10 +522,10 @@ void Demo5()
 	Plane floor1 = Plane(f1[0],f1[1],f1[2]);
 	floor1.SetPoints(f1,4);
 
-	Vector w1[4] = {Vector(6,3,0),
+	Vector w1[4] = {Vector(6.01,3,0),
 					Vector(6,6,0),
 					Vector(6,6,10),
-					Vector(6,3,10)};
+					Vector(6.01,3,10)};
 	Plane wall1 = Plane(w1[0],w1[1],w1[2]);
 	wall1.SetPoints(w1,4);
 
@@ -539,10 +536,10 @@ void Demo5()
 	Plane floor2 = Plane(f2[0],f2[1],f2[2]);
 	floor2.SetPoints(f2,4);
 
-	Vector w2[4] = {Vector(12,0,0),
+	Vector w2[4] = {Vector(12.01,0,0),
 					Vector(12,3,0),
 					Vector(12,3,10),
-					Vector(12,0,10)};
+					Vector(12.01,0,10)};
 	Plane wall2 = Plane(w2[0],w2[1],w2[2]);
 	wall2.SetPoints(w2,4);
 
@@ -553,16 +550,16 @@ void Demo5()
 	Plane floor3 = Plane(f3[0],f3[1],f3[2]);
 	floor3.SetPoints(f3,4);
 
-	Vector w3[4] = {Vector(20,0,0),
-					Vector(20,0,10),
+	Vector w3[4] = {Vector(20.01,0,0),
+					Vector(20.01,0,10),
 					Vector(20,5,10),
 					Vector(20,5,0)};
 	Plane wall3 = Plane(w3[0],w3[1],w3[2]);
 	wall3.SetPoints(w3,4);
 	
 	Sphere tmp = Sphere();
-	tmp.Position = Vector(2,9,3);
-	tmp.velo = Vector(5,0,0);
+	tmp.Position = Vector(2,7.5,3);
+	tmp.velo = Vector(5,-5,0);
 	bal->Add(tmp);
 
 	planes->Add(floor1);

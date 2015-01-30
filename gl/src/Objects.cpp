@@ -17,7 +17,7 @@ Sphere::Sphere()
 {
 	rad = 1;
 	_g = 9.8;
-	m = 20;
+	m = 10;
 }
 
 
@@ -70,14 +70,8 @@ void Sphere::HandlerCollision(Sphere * obj, double tim)
 	norm = Vector_norm(norm);
 	double e[3] = {0,0,0};
 
-	/*Plane * plan  = new Plane();
-	plan->PlaneSetEquation(eq);	*/
-
 	Vector ve2 = Vector();
 	Vector ve1 = Vector();
-	
-	/*velo = plan->GetBathis() * velo;
-	obj->velo = plan->GetBathis() * obj->velo;*/
 
 	Vector D = (velo - obj->velo) * obj->m;
 	Vector A = velo * m + obj->velo * obj->m;
@@ -105,10 +99,8 @@ void Sphere::HandlerCollision(Sphere * obj, double tim)
 	if(ve2 < 0.01)
 		ve2 = e;
 	
-
-	Vector ref_li = Vector_norm(Position - obj->Position);
-	velo = ref_li * ve1.length();
-	obj->velo = -ref_li * ve2.length();
+	velo = -norm * ve2.length();
+	obj->velo = norm * ve1.length();
 	/*velo = ve1;
 	obj->velo = ve2;*/
 	
@@ -143,7 +135,6 @@ void Sphere::HandlerCollision(Sphere * obj, double tim)
 		F = (norm * (obj->F & norm)) + F;
 		obj->F = -(norm * (F & norm) + obj->F);
 	}
-	//delete plan;
 }
 
 double Sphere::GetRad()
@@ -209,7 +200,7 @@ void Sphere::calculation(Plane pl,double resil, double t)
 
 	Vector n = Vector_norm(normal);
 	Vector vy = n * (((velo * resil) & normal) /normal.length());
-	double Fy =  (((F * resil) & normal) /normal.length());
+	double Fy =  (((F /** resil*/) & normal) /normal.length());
 	Vector N_standart =  - n * Fy;
 	Vector F_obj = F;
 	Vector N_velo = - ((vy * 2 * m)/(t));
