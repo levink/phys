@@ -41,6 +41,23 @@ public:
 	void calculation(Vector  tmp, double resil, double t); 
 };
 
+class Quadrocopter: public BaseObject
+{
+public:
+	Sphere centre;
+	Sphere eng[4];
+	Vector I;
+	Vector a_tang;
+	Vector X;
+	Vector Y;
+	Vector Z;
+
+	Quadrocopter();
+	Quadrocopter(Vector pos);
+	void SetForse(double e1, double e2, double e3, double e4);
+	void Rotated(double t_sec);
+};
+
 class Polyg: public BaseObject
 {
 private: 
@@ -79,12 +96,15 @@ class ContainerObjects
 {
 private:
 	vector <Sphere> obj;
+	vector <Quadrocopter> quad;
 public:
 	ContainerObjects();
 	
 	void MoveSphere(int n, double t_sec);
+	void MoveQuadrocopter(int n,double t_sec); ////////////////
 	
 	void Add(Sphere item) { obj.push_back(item); }
+	void Add(Quadrocopter item)  { quad.push_back(item); }//////////////////
 	Sphere* Get(int i){return &obj[i];}
 	vector<CollisionInfoOfSphere> inspection();
 	void calculation(vector<CollisionInfoOfSphere> col,int n,double time);

@@ -306,7 +306,94 @@ void Camera::SetAngleXOZ(int ang)
 		angle = 0;
 }
 
+//Quadrocopter
+Quadrocopter::Quadrocopter()
+{
+	centre = Sphere();
+	eng[0] = Sphere();
+	eng[1] = Sphere();
+	eng[2] = Sphere();
+	eng[3] = Sphere();
+	eng[0].Position = Vector(centre.GetRad(),0,centre.GetRad());
+	eng[1].Position = Vector(-centre.GetRad(),0,centre.GetRad());
+	eng[2].Position = Vector(-centre.GetRad(),0,-centre.GetRad());
+	eng[3].Position = Vector(centre.GetRad(),0,-centre.GetRad());
+	I = Vector();
+	a_tang = Vector();
+	X = Vector(1,0,0);
+	Y = Vector(0,1,0);
+	Z = Vector(0,0,1);
+}
+Quadrocopter::Quadrocopter(Vector pos)
+{
+	centre = Sphere();
+	centre.Position = pos;
+	eng[0] = Sphere();
+	eng[1] = Sphere();
+	eng[2] = Sphere();
+	eng[3] = Sphere();
+	eng[0].Position = Vector(centre.GetRad() + pos.GetX(),pos.GetY(),centre.GetRad() + pos.GetZ());
+	eng[1].Position = Vector(-centre.GetRad() + pos.GetX(),pos.GetY(),centre.GetRad() + pos.GetZ());
+	eng[2].Position = Vector(-centre.GetRad() + pos.GetX(),pos.GetY(),-centre.GetRad() + pos.GetZ());
+	eng[3].Position = Vector(centre.GetRad() + pos.GetX(),pos.GetY(),-centre.GetRad() + pos.GetZ());
+	I = Vector();
+	a_tang = Vector();
+	X = Vector(1,0,0);
+	Y = Vector(0,1,0);
+	Z = Vector(0,0,1);
+}
+void Quadrocopter::SetForse(double e1, double e2, double e3, double e4)
+{
+	eng[0].F = eng[0].F + Y * e1;
+	eng[1].F = eng[1].F + Y * e2;
+	eng[2].F = eng[2].F + Y * e3;
+	eng[3].F = eng[3].F + Y * e4;
+}
+void Quadrocopter::Rotated(double t_sec)
+{
+	// положить в рссчёт перемещения
+	int min = 0;
+	if(eng[0].F.length2() > eng[1].F.length2())
+	{
+		min = 1;
+	}
+	if(eng[min].F.length2() > eng[2].F.length2())
+	{
+		min = 2;
+	}
+	if(eng[min].F.length2() > eng[3].F.length2())
+	{
+		min = 3;
+	}
+	// положить в рссчёт перемещения eng[min].F - сила, действующая на центр
+	double r = 1.141421 * centre.GetRad();
+	double Jx[4];
+	double Jy[4];
+	double Jz[4];
+	for(int  i = 0;i<4;i++)
+	{
+		Jx[i] = ((eng[i].F * r) & X); // будет работать только если X, Y, Z - нормализованны
+		Jy[i] = ((eng[i].F * r) & Y);
+		Jz[i] = ((eng[i].F * r) & Z);
+	}
+	a_tang.SetX((Jx[0] + Jx[1] + Jx[2] + Jx[3])/I.GetX());
+	a_tang.SetY((Jy[0] + Jy[1] + Jy[2] + Jy[3])/I.GetY());
+	a_tang.SetZ((Jz[0] + Jz[1] + Jz[2] + Jz[3])/I.GetZ());
+	w.SetX(w.GetX() + a_tang.GetX() * t_sec);
+	w.SetY(w.GetY() + a_tang.GetY() * t_sec);
+	w.SetZ(w.GetZ() + a_tang.GetZ() * t_sec);
+	Angl.SetX(Angl.GetX() + w.GetX() * t_sec);
+	Angl.SetY(Angl.GetY() + w.GetY() * t_sec);
+	Angl.SetZ(Angl.GetZ() + w.GetZ() * t_sec);
+	if(Angl.GetX() > 360)
+		Angl.SetX(Angl.GetX() - 360);
+	if(Angl.GetY() > 360)
+		Angl.SetY(Angl.GetY() - 360);
+	if(Angl.GetZ() > 360)
+		Angl.SetZ(Angl.GetZ() - 360);
+}
 
+//ContainerObjects
 void ContainerObjects::MoveSphere(int n,double t_sec)
 {
 	Vector Ft = Vector(0,-obj[n].m * obj[n]._g,0); 
