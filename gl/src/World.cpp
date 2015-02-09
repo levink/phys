@@ -33,9 +33,9 @@ vector<CollisionInfo> World::inspections(ContainerObjects* con)
 {
 	vector<CollisionInfo> col;
 	bool test = 1;
-	for(int i = 0;i<con->Count();i++)
+	for(int i = 0;i<con->Count_sp();i++)
 	{
-		Sphere * sp = con->Get(i);
+		Sphere * sp = con->Get_sp(i);
 		for(int e = 0;e < Count(); e++)
 		{
 			//Plane pl = Plan[e];

@@ -318,19 +318,24 @@ void display(void)
 		vector<CollisionInfoOfSphere>  col_of_sp = phy->balls->inspection();
 		phy->balls->all_calculation(col_of_sp, dt);
 
-		int num_con = phy->balls->Count();
+		int num_con = phy->balls->Count_sp();
 		for(int i=0;i<num_con;i++)
 		{
 			phy->balls->MoveSphere(i, tim);
 		}
+		int num_qu = phy->balls->Count_quad();
+		for(int i = 0;i<num_qu;i++)
+		{
+			phy->balls->MoveQuadrocopter(i, tim);
+		}
 		vector<CollisionInfo> col = phy->wor->inspections(phy->balls);
 		phy->wor->Calculation(col,tim);
 	}
-	int num_obj = phy->balls->Count();
+	int num_obj = phy->balls->Count_sp();
 	
 	for(int i=0;i<num_obj;i++)
 	{
-		Sphere* tmp = phy->balls->Get(i);
+		Sphere* tmp = phy->balls->Get_sp(i);
 		glPushMatrix();
 		glTranslated(tmp->Position.GetX(),tmp->Position.GetY(), tmp->Position.GetZ());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
@@ -340,10 +345,29 @@ void display(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 		glutSolidSphere(tmp->GetRad(),25,25);
 		glPopMatrix();
-		/*if(phy->balls.GetSphere(i)->F != Vector(0,-98,0))
-		{
-			Draw(Vector(0,-5,0));
-		}*/
+	}
+	int num_quad = phy->balls->Count_quad();
+	for(int i = 0;i<num_quad;i++)
+	{
+		Quadrocopter* tmp = phy->balls->Get_quad(i);
+		glPushMatrix();
+		glTranslated(tmp->centre.Position.GetX(),tmp->centre.Position.GetY(), tmp->centre.Position.GetZ());
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
+		Draw(tmp->centre.velo);
+		/*glRotated(tmp->Angl.GetX(),0,0,1);
+		glRotated(tmp->Angl.GetZ(),1,0,0);*/
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+		glPushMatrix();
+		glTranslated(tmp->centre.GetRad(),0,tmp->centre.GetRad());
+		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glTranslated(-2*tmp->centre.GetRad(),0,0);
+		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glTranslated(0,0,-2 * tmp->centre.GetRad());
+		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glTranslated(2 * tmp->centre.GetRad(),0,0);
+		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glPopMatrix();
+		glPopMatrix();
 	}
 	
 	//t1 += dt;
@@ -437,6 +461,9 @@ void Demo1()
 	Sphere tmp = Sphere();
 	tmp.Position = Vector(13,5,5);
 	bal->Add(tmp);
+	Quadrocopter qu  = Quadrocopter(Vector(0,5,0));
+	qu.SetForse(24.5,24.5,24.5,24.5);
+	bal->Add(qu);
 }
 void Demo2()
 {

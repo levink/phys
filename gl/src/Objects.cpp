@@ -323,6 +323,19 @@ Quadrocopter::Quadrocopter()
 	X = Vector(1,0,0);
 	Y = Vector(0,1,0);
 	Z = Vector(0,0,1);
+	double rox[3][3] = {{1,0,0},
+						{0,cos(0.0174532),sin(0.0174532)},
+						{0,-sin(0.0174532),cos(0.0174532)}};
+	double roy[3][3] = {{cos(0.0174532),0,-sin(0.0174532)},
+						{0,1,0},
+						{sin(0.0174532),0,cos(0.0174532)} };
+	double roz[3][3] = {{cos(0.0174532),sin(0.0174532),0},
+						{-sin(0.0174532),cos(0.0174532),0},
+						{0,0,1} };
+	Matrix rx = Matrix(rox);
+	Matrix ry = Matrix(roy);
+	Matrix rz = Matrix(roz);
+	rotated = rx * ry * rz;
 }
 Quadrocopter::Quadrocopter(Vector pos)
 {
@@ -341,6 +354,19 @@ Quadrocopter::Quadrocopter(Vector pos)
 	X = Vector(1,0,0);
 	Y = Vector(0,1,0);
 	Z = Vector(0,0,1);
+	double rox[3][3] = {	{1,0,0},
+						{0,cos(0.0174532),sin(0.0174532)},
+						{0,-sin(0.0174532),cos(0.0174532)}};
+	double roy[3][3] = {	{cos(0.0174532),0,-sin(0.0174532)},
+							{0,1,0},
+							{sin(0.0174532),0,cos(0.0174532)} };
+	double roz[3][3] = {{cos(0.0174532),sin(0.0174532),0},
+						{-sin(0.0174532),cos(0.0174532),0},
+						{0,0,1} };
+	Matrix rx = Matrix(rox);
+	Matrix ry = Matrix(roy);
+	Matrix rz = Matrix(roz);
+	rotated = rx * ry * rz;
 }
 void Quadrocopter::SetForse(double e1, double e2, double e3, double e4)
 {
@@ -351,30 +377,15 @@ void Quadrocopter::SetForse(double e1, double e2, double e3, double e4)
 }
 void Quadrocopter::Rotated(double t_sec)
 {
-	// положить в рссчёт перемещения
-	int min = 0;
-	if(eng[0].F.length2() > eng[1].F.length2())
-	{
-		min = 1;
-	}
-	if(eng[min].F.length2() > eng[2].F.length2())
-	{
-		min = 2;
-	}
-	if(eng[min].F.length2() > eng[3].F.length2())
-	{
-		min = 3;
-	}
-	// положить в рссчёт перемещения eng[min].F - сила, действующая на центр
 	double r = 1.141421 * centre.GetRad();
 	double Jx[4];
 	double Jy[4];
 	double Jz[4];
 	for(int  i = 0;i<4;i++)
 	{
-		Jx[i] = ((eng[i].F * r) & X); // будет работать только если X, Y, Z - нормализованны
-		Jy[i] = ((eng[i].F * r) & Y);
-		Jz[i] = ((eng[i].F * r) & Z);
+		Jx[i] = (((eng[i].F-centre.F) * r) & X); // будет работать только если X, Y, Z - нормализованны
+		Jy[i] = (((eng[i].F-centre.F) * r) & Y);
+		Jz[i] = (((eng[i].F-centre.F) * r) & Z);
 	}
 	a_tang.SetX((Jx[0] + Jx[1] + Jx[2] + Jx[3])/I.GetX());
 	a_tang.SetY((Jy[0] + Jy[1] + Jy[2] + Jy[3])/I.GetY());
@@ -391,6 +402,22 @@ void Quadrocopter::Rotated(double t_sec)
 		Angl.SetY(Angl.GetY() - 360);
 	if(Angl.GetZ() > 360)
 		Angl.SetZ(Angl.GetZ() - 360);
+	
+	double wer[3][3] = {{0,-w.GetZ(),w.GetY()},
+						{w.GetZ(),0,-w.GetX()},
+						{-w.GetY(),w.GetX(),0} };
+	Matrix rot = Matrix(wer) * rotated;
+	eng[0].Position = rot * eng[0].Position;
+	eng[1].Position = rot * eng[1].Position;
+	eng[2].Position = rot * eng[2].Position;
+	eng[3].Position = rot * eng[3].Position;
+	X = Vector_norm(rot * X);
+	Y = Vector_norm(rot * Y);
+	Z = Vector_norm(rot * Z);
+	eng[0].F = Y * eng[0].F.length(); 
+	eng[1].F = Y * eng[1].F.length();
+	eng[2].F = Y * eng[2].F.length();
+	eng[3].F = Y * eng[3].F.length();
 }
 
 //ContainerObjects
@@ -407,15 +434,35 @@ void ContainerObjects::MoveSphere(int n,double t_sec)
 	obj[n].velo = v;
 	obj[n].Position = x;
 	obj[n].F = Ft;
+}
+void ContainerObjects::MoveQuadrocopter(int n,double t_sec)
+{
+	int min = 0;
+	if(quad[n].eng[0].F.length2() > quad[n].eng[1].F.length2())
+	{
+		min = 1;
+	}
+	if(quad[n].eng[min].F.length2() > quad[n].eng[2].F.length2())
+	{
+		min = 2;
+	}
+	if(quad[n].eng[min].F.length2() > quad[n].eng[3].F.length2())
+	{
+		min = 3;
+	}
+	Vector Ft = Vector(0,-quad[n].centre.m * quad[n].centre._g,0); 
+	Vector Ftr = - (quad[n].centre.velo > quad[n].centre.velo * 0.47 / 2) * pow(quad[n].centre.GetRad(),2)  * PI;
+	Vector F = quad[n].centre.F + Ftr + quad[n].eng[min].F * 4;	// + F1 + F2 + ...;
+	Vector a = quad[n].centre.F / quad[n].centre.m;
+	Vector v = quad[n].centre.velo + a*t_sec; 
+	Vector x = quad[n].centre.Position + quad[n].centre.velo*t_sec + (a*t_sec*t_sec)/2; 
 
-	double l = obj[n].GetRad() * 2 * PI;
-	obj[n].Angl  = ( (obj[n].w * t_sec) / l) * 360 + obj[n].Angl;
-	if(obj[n].Angl.GetX() > 360 || obj[n].Angl.GetX() < -360)
-		obj[n].Angl.SetX(0);
-	if(obj[n].Angl.GetY() > 360 || obj[n].Angl.GetY() < -360)
-		obj[n].Angl.SetY(0);
-	if(obj[n].Angl.GetZ() > 360 || obj[n].Angl.GetZ() < -360)
-		obj[n].Angl.SetZ(0);
+	quad[n].centre.accel = a;
+	quad[n].centre.velo = v;
+	quad[n].centre.Position = x;
+	quad[n].centre.F = Ft + quad[n].eng[min].F * 4;
+
+	quad[n].Rotated(t_sec);
 }
 
 ContainerObjects::ContainerObjects()
@@ -426,9 +473,10 @@ ContainerObjects::ContainerObjects()
 vector<CollisionInfoOfSphere> ContainerObjects::inspection()
 {
 	vector<CollisionInfoOfSphere> col;
-	for(int i = 0;i<Count();i++)
+	int num_sp = Count_sp();
+	for(int i = 0;i<num_sp;i++)
 	{
-		for(int e = i+1; e<Count();e++)
+		for(int e = i+1; e<num_sp;e++)
 		{
 			if(obj[i].Test(&obj[e]))
 			{	

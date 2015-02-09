@@ -48,6 +48,7 @@ public:
 	Sphere eng[4];
 	Vector I;
 	Vector a_tang;
+	Matrix rotated;
 	Vector X;
 	Vector Y;
 	Vector Z;
@@ -101,15 +102,20 @@ public:
 	ContainerObjects();
 	
 	void MoveSphere(int n, double t_sec);
-	void MoveQuadrocopter(int n,double t_sec); ////////////////
+	void MoveQuadrocopter(int n,double t_sec);
 	
 	void Add(Sphere item) { obj.push_back(item); }
-	void Add(Quadrocopter item)  { quad.push_back(item); }//////////////////
-	Sphere* Get(int i){return &obj[i];}
+	void Add(Quadrocopter item)  { quad.push_back(item); }
+	Sphere* Get_sp(int i){return &obj[i];}
+	Quadrocopter* Get_quad(int i){return &quad[i];}
 	vector<CollisionInfoOfSphere> inspection();
 	void calculation(vector<CollisionInfoOfSphere> col,int n,double time);
 	void all_calculation(vector<CollisionInfoOfSphere> col,double time);
-	int Count()
+	int Count_sp()
+	{
+		return obj.size();
+	}
+	int Count_quad()
 	{
 		return obj.size();
 	}
