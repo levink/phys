@@ -117,11 +117,12 @@ public:
 	}
 	int Count_quad()
 	{
-		return obj.size();
+		return quad.size();
 	}
 	void Clear()
 	{
 		obj.clear();
+		quad.clear();
 	}
 };
 

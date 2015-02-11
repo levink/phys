@@ -61,10 +61,11 @@ void Demo2();
 void Demo3();
 void Demo4();
 void Demo5();
+void Demo6();
 
 void keyboard(unsigned char key, int x, int y)
 {
-	if (key >= '1' && key <= '5')
+	if (key >= '1' && key <= '6')
 	{
 		int num = key - '0';
 		_tmp = num;
@@ -350,24 +351,45 @@ void display(void)
 	for(int i = 0;i<num_quad;i++)
 	{
 		Quadrocopter* tmp = phy->balls->Get_quad(i);
+		double r = tmp->centre.GetRad();
 		glPushMatrix();
 		glTranslated(tmp->centre.Position.GetX(),tmp->centre.Position.GetY(), tmp->centre.Position.GetZ());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
 		Draw(tmp->centre.velo);
-		/*glRotated(tmp->Angl.GetX(),0,0,1);
-		glRotated(tmp->Angl.GetZ(),1,0,0);*/
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+		Draw(tmp->centre.F/10);
+		glPopMatrix();
+
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 		glPushMatrix();
-		glTranslated(tmp->centre.GetRad(),0,tmp->centre.GetRad());
+		glTranslated(tmp->eng[0].Position.GetX(),tmp->eng[0].Position.GetY(),tmp->eng[0].Position.GetZ());
 		glutSolidSphere(tmp->centre.GetRad(),25,25);
-		glTranslated(-2*tmp->centre.GetRad(),0,0);
-		glutSolidSphere(tmp->centre.GetRad(),25,25);
-		glTranslated(0,0,-2 * tmp->centre.GetRad());
-		glutSolidSphere(tmp->centre.GetRad(),25,25);
-		glTranslated(2 * tmp->centre.GetRad(),0,0);
-		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+		Draw(tmp->eng[0].F/10);
 		glPopMatrix();
+		glPushMatrix();
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+		glTranslated(tmp->eng[1].Position.GetX(),tmp->eng[1].Position.GetY(),tmp->eng[1].Position.GetZ());
+		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+		Draw(tmp->eng[1].F/10);
 		glPopMatrix();
+		glPushMatrix();
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+		glTranslated(tmp->eng[2].Position.GetX(),tmp->eng[2].Position.GetY(),tmp->eng[2].Position.GetZ());
+		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+		Draw(tmp->eng[2].F/10);
+		glPopMatrix();
+		glPushMatrix();
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+		glTranslated(tmp->eng[3].Position.GetX(),tmp->eng[3].Position.GetY(),tmp->eng[3].Position.GetZ());
+		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+		Draw(tmp->eng[3].F/10);
+		glPopMatrix();
+		/*glRotated(tmp->Angl.GetX(),0,0,1);
+		glRotated(tmp->Angl.GetZ(),1,0,0);*/
 	}
 	
 	//t1 += dt;
@@ -411,13 +433,14 @@ int main(int argc, char **argv)
 }
 void StartDemo(int num)
 {
-	if (num >= 1 && num <= 5) Clear();
+	if (num >= 1 && num <= 6) Clear();
 
 	if (num == 1) Demo1();
 	else if (num == 2) Demo2();
 	else if (num == 3) Demo3();
 	else if (num == 4) Demo4();
 	else if (num == 5) Demo5();
+	else if (num == 6) Demo6();
 }
 void Demo1()
 {
@@ -429,7 +452,7 @@ void Demo1()
 		Vector(10,0,10),
 		Vector(0,0,10),
 	};
-	Plane floor = Plane(v0[0],v0[1],v0[2]);
+	Plane floor = Plane();
 	floor.SetPoints(v0, 4);
 
 	//стенка1
@@ -439,7 +462,7 @@ void Demo1()
 		Vector(15,5,10),
 		Vector(10,0,10),
 	};
-	Plane wall = Plane(v1[0],v1[1],v1[2]);
+	Plane wall = Plane();
 	wall.SetPoints(v1,4);
 
 	//стенка2
@@ -449,7 +472,7 @@ void Demo1()
 		Vector(-5,5,10),
 		Vector(0,0,10),
 	};
-	Plane wall2 = Plane(v2[0],v2[1],v2[2]);
+	Plane wall2 = Plane();
 	wall2.SetPoints(v2,4);
 
 	planes->Add(floor);
@@ -596,7 +619,49 @@ void Demo5()
 	planes->Add(wall2);
 	planes->Add(wall3);
 }
+void Demo6()
+{
+	Vector v0[4] = {
+		Vector(0,0,0),
+		Vector(10,0,0),
+		Vector(10,0,10),
+		Vector(0,0,10),
+	};
+	Plane floor = Plane(v0[0],v0[1],v0[2]);
+	floor.SetPoints(v0, 4);
 
+	//стенка1
+	Vector v1[4] = {
+		Vector(10,0,0),
+		Vector(15,5,0),
+		Vector(15,5,10),
+		Vector(10,0,10),
+	};
+	Plane wall = Plane(v1[0],v1[1],v1[2]);
+	wall.SetPoints(v1,4);
+
+	//стенка2
+	Vector v2[4] = {
+		Vector(0,0,0),
+		Vector(-5,5,0),
+		Vector(-5,5,10),
+		Vector(0,0,10),
+	};
+	Plane wall2 = Plane(v2[0],v2[1],v2[2]);
+	wall2.SetPoints(v2,4);
+
+	planes->Add(floor);
+	planes->Add(wall);
+	planes->Add(wall2);
+
+	//Quadrocopter
+	Quadrocopter qu  = Quadrocopter(Vector(5,5,5));
+	qu.SetForse(24.5,24,24,24.5); // + 0.5 for static
+	for(int i =0;i<100;i++)
+	{
+		bal->Add(qu);
+	}
+}
 void Clear()
 {
 	planes->Clear();

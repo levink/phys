@@ -135,131 +135,146 @@
 			value.GetY() / longg,
 			value.GetZ() / longg );
 	}
+//Qaternion
+	Qaternion::Qaternion()
+	{
+		u = Vector();
+		a = 0;
+	}
+	Qaternion::Qaternion(Vector count,double co)
+	{
+		u = count;
+		a = co;
+	}
+	Qaternion Qaternion::operator*(Qaternion  & right)
+	{
+		return Qaternion(u * right.Getu() + right.Getu() *a + u* right.Geta(),a * right.Geta() - (u&right.Getu()));
+	}
 //Matrix::
-		Matrix::Matrix()
-		{
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					mat[i][e] = 0;
-		}
+	Matrix::Matrix()
+	{
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				mat[i][e] = 0;
+	}
 
-		Matrix::Matrix(double count[3][3])
-		{
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					mat[i][e] = count[i][e];
-		}
+	Matrix::Matrix(double count[3][3])
+	{
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				mat[i][e] = count[i][e];
+	}
 
-		double Matrix::GetM(int a,int b)
-		{
-			return mat[a][b];
-		}
+	double Matrix::GetM(int a,int b)
+	{
+		return mat[a][b];
+	}
+	
+	void Matrix::SetM(double value,int i,int j)
+	{
+		mat[i][j] = value;
+	}
+	
+	const double* Matrix::Values()
+	{
+		return &(mat[0][0]);
+	}
+
+	Matrix Matrix::Transpose()
+	{
+		double tr[3][3];
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				tr[e][i] = mat[i][e];
+		return Matrix(tr);
+	}
+
+	Matrix Matrix::operator* (double t)
+	{
+		double _mat[3][3];
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				_mat[i][e] = mat[i][e] * t;
+		return Matrix(_mat);
+	}
+
+	Vector Matrix::operator* (Vector vector)
+	{
+		double vx = vector.GetX();
+		double vy = vector.GetY();
+		double vz = vector.GetZ();
+		return Vector(
+			(mat[0][0] * vx +  mat[0][1] * vy + mat[0][2] * vz),
+			(mat[1][0] * vx +  mat[1][1] * vy + mat[1][2] * vz),
+			(mat[2][0] * vx +  mat[2][1] * vy + mat[2][2] * vz));
+	}
+
+	Matrix Matrix::operator* (Matrix& const right)
+	{
+		double _mat[3][3];
+		const double* m = right.Values();
+
+		/*for(int i=0;i<3;i++)
+			for(int j=0;j<3;j++)
+				_mat[i][j] = m1[i*3+0] * m2[0*3 + j] + m1[i*3+1] * m2[1*3 + j] + m1[i*3+2] * m2[2*3 + j];*/
 		
-		void Matrix::SetM(double value,int i,int j)
-		{
-			mat[i][j] = value;
-		}
+		// more quickly
+		_mat[0][0] = mat[0][0] * m[0*3 + 0] + mat[0][1] * m[1*3 + 0] + mat[0][2] * m[2*3 + 0];
+		_mat[0][1] = mat[0][0] * m[0*3 + 1] + mat[0][1] * m[1*3 + 1] + mat[0][2] * m[2*3 + 1];
+		_mat[0][2] = mat[0][0] * m[0*3 + 2] + mat[0][1] * m[1*3 + 2] + mat[0][2] * m[2*3 + 2];
+		_mat[1][0] = mat[1][0] * m[0*3 + 0] + mat[1][1] * m[1*3 + 0] + mat[1][2] * m[2*3 + 0];
+		_mat[1][1] = mat[1][0] * m[0*3 + 1] + mat[1][1] * m[1*3 + 1] + mat[1][2] * m[2*3 + 1];
+		_mat[1][2] = mat[1][0] * m[0*3 + 2] + mat[1][1] * m[1*3 + 2] + mat[1][2] * m[2*3 + 2];
+		_mat[2][0] = mat[2][0] * m[0*3 + 0] + mat[2][1] * m[1*3 + 0] + mat[2][2] * m[2*3 + 0];
+		_mat[2][1] = mat[2][0] * m[0*3 + 1] + mat[2][1] * m[1*3 + 1] + mat[2][2] * m[2*3 + 1];
+		_mat[2][2] = mat[2][0] * m[0*3 + 2] + mat[2][1] * m[1*3 + 2] + mat[2][2] * m[2*3 + 2];
 		
-		const double* Matrix::Values()
-		{
-			return &(mat[0][0]);
-		}
+		return Matrix(_mat);
+	}
 
-		Matrix Matrix::Transpose()
-		{
-			double tr[3][3];
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					tr[e][i] = mat[i][e];
-			return Matrix(tr);
-		}
+	Matrix Matrix::operator/ (double t)
+	{
+		double _mat[3][3];
+		for(int i=0;i<3;i++)
+			for(int e=0;e<3;e++)
+				_mat[i][e] = mat[i][e] / t;
+		return Matrix(mat);
+	}
 
-		Matrix Matrix::operator* (double t)
-		{
-			double _mat[3][3];
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					_mat[i][e] = mat[i][e] * t;
-			return Matrix(_mat);
-		}
+	Matrix Matrix::operator= (Matrix& const right)
+	{
+		//TODO: test this method
+		const double *items = right.Values();
+		for(int i=0;i<3;i++)
+			for(int j=0;j<3;j++)
+				mat[i][j] = items[i*3 + j];
+		return *this;
+	}
 
-		Vector Matrix::operator* (Vector vector)
-		{
-			double vx = vector.GetX();
-			double vy = vector.GetY();
-			double vz = vector.GetZ();
-			return Vector(
-				(mat[0][0] * vx +  mat[0][1] * vy + mat[0][2] * vz),
-				(mat[1][0] * vx +  mat[1][1] * vy + mat[1][2] * vz),
-				(mat[2][0] * vx +  mat[2][1] * vy + mat[2][2] * vz));
-		}
-
-		Matrix Matrix::operator* (Matrix& const right)
-		{
-			double _mat[3][3];
-			const double* m = right.Values();
-
-			/*for(int i=0;i<3;i++)
-				for(int j=0;j<3;j++)
-					_mat[i][j] = m1[i*3+0] * m2[0*3 + j] + m1[i*3+1] * m2[1*3 + j] + m1[i*3+2] * m2[2*3 + j];*/
-			
-			// more quickly
-			_mat[0][0] = mat[0][0] * m[0*3 + 0] + mat[0][1] * m[1*3 + 0] + mat[0][2] * m[2*3 + 0];
-			_mat[0][1] = mat[0][0] * m[0*3 + 1] + mat[0][1] * m[1*3 + 1] + mat[0][2] * m[2*3 + 1];
-			_mat[0][2] = mat[0][0] * m[0*3 + 2] + mat[0][1] * m[1*3 + 2] + mat[0][2] * m[2*3 + 2];
-			_mat[1][0] = mat[1][0] * m[0*3 + 0] + mat[1][1] * m[1*3 + 0] + mat[1][2] * m[2*3 + 0];
-			_mat[1][1] = mat[1][0] * m[0*3 + 1] + mat[1][1] * m[1*3 + 1] + mat[1][2] * m[2*3 + 1];
-			_mat[1][2] = mat[1][0] * m[0*3 + 2] + mat[1][1] * m[1*3 + 2] + mat[1][2] * m[2*3 + 2];
-			_mat[2][0] = mat[2][0] * m[0*3 + 0] + mat[2][1] * m[1*3 + 0] + mat[2][2] * m[2*3 + 0];
-			_mat[2][1] = mat[2][0] * m[0*3 + 1] + mat[2][1] * m[1*3 + 1] + mat[2][2] * m[2*3 + 1];
-			_mat[2][2] = mat[2][0] * m[0*3 + 2] + mat[2][1] * m[1*3 + 2] + mat[2][2] * m[2*3 + 2];
-			
-			return Matrix(_mat);
-		}
-
-		Matrix Matrix::operator/ (double t)
-		{
-			double _mat[3][3];
-			for(int i=0;i<3;i++)
-				for(int e=0;e<3;e++)
-					_mat[i][e] = mat[i][e] / t;
-			return Matrix(mat);
-		}
-
-		Matrix Matrix::operator= (Matrix& const right)
-		{
-			//TODO: test this method
-			const double *items = right.Values();
-			for(int i=0;i<3;i++)
-				for(int j=0;j<3;j++)
-					mat[i][j] = items[i*3 + j];
-			return *this;
-		}
-
-		Matrix Matrix::Invert()
-		{
-			//Determinant calculating
-			double d1 = mat[0][0] * ( mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]);
-			double d2 = mat[0][1] * ( mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]);
-			double d3 = mat[0][2] * ( mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]);
-			double det = d1 - d2 + d3;
-			if(det == 0) det = 1;
-			else det = 1 / det; //(!)
-			
-			//Mat_alg_aff + Transposition + " scale on (1/det)" in one step
-			double matA [3][3];
-			matA[0][0] =  (mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]) * det;
-			matA[1][0] = -(mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]) * det;
-			matA[2][0] =  (mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]) * det;
-			matA[0][1] = -(mat[0][1] * mat[2][2] - mat[2][1] * mat[0][2]) * det; 
-			matA[1][1] =  (mat[0][0] * mat[2][2] - mat[2][0] * mat[0][2]) * det; 
-			matA[2][1] = -(mat[0][0] * mat[2][1] - mat[2][0] * mat[0][1]) * det;
-			matA[0][2] =  (mat[0][1] * mat[1][2] - mat[1][1] * mat[0][2]) * det;
-			matA[1][2] = -(mat[0][0] * mat[1][2] - mat[1][0] * mat[0][2]) * det;
-			matA[2][2] =  (mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1]) * det;
-			
-			return Matrix(matA);
-		}
+	Matrix Matrix::Invert()
+	{
+		//Determinant calculating
+		double d1 = mat[0][0] * ( mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]);
+		double d2 = mat[0][1] * ( mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]);
+		double d3 = mat[0][2] * ( mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]);
+		double det = d1 - d2 + d3;
+		if(det == 0) det = 1;
+		else det = 1 / det; //(!)
+		
+		//Mat_alg_aff + Transposition + " scale on (1/det)" in one step
+		double matA [3][3];
+		matA[0][0] =  (mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2]) * det;
+		matA[1][0] = -(mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2]) * det;
+		matA[2][0] =  (mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1]) * det;
+		matA[0][1] = -(mat[0][1] * mat[2][2] - mat[2][1] * mat[0][2]) * det; 
+		matA[1][1] =  (mat[0][0] * mat[2][2] - mat[2][0] * mat[0][2]) * det; 
+		matA[2][1] = -(mat[0][0] * mat[2][1] - mat[2][0] * mat[0][1]) * det;
+		matA[0][2] =  (mat[0][1] * mat[1][2] - mat[1][1] * mat[0][2]) * det;
+		matA[1][2] = -(mat[0][0] * mat[1][2] - mat[1][0] * mat[0][2]) * det;
+		matA[2][2] =  (mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1]) * det;
+		
+		return Matrix(matA);
+	}
 //Plane
 	Plane::Plane()
 	{
@@ -336,7 +351,6 @@
 		equa[2] = equa[2] / longg;
 		equa[3] = equa[3] / longg;
 	}
-
 	Plane::Plane(double eq [4])
 	{
 		tr[0] = NULL;
@@ -360,7 +374,21 @@
 		equa[2] = equa[2] / length;
 		equa[3] = equa[3] / length;
 	}
+	double* Plane::Calculeqa(Vector O,Vector A, Vector B)
+	{
+		double equ[4];
+		equ[0] = ((A.GetY() - O.GetY()) * (B.GetZ() - O.GetZ())) - ((A.GetZ() - O.GetZ()) * (B.GetY() - O.GetY()));
+		equ[1] = -((A.GetX() - O.GetX()) * (B.GetZ() - O.GetZ())) - ((A.GetZ() - O.GetZ()) * (B.GetX() - O.GetX()));
+		equ[2] = ((A.GetX() - O.GetX()) * (B.GetY() - O.GetY())) - ((A.GetY() - O.GetY()) * (B.GetX() - O.GetX()));
+		equ[3] = -(equ[0] * O.GetX() + equ[1] * O.GetY() + equ[2] * O.GetZ());
 
+		double longg  = sqrt(equ[0] * equ[0] + equ[1] * equ[1] + equ[2] * equ[2]); 
+		equ[0] = equ[0] / longg;
+		equ[1] = equ[1] / longg;
+		equ[2] = equ[2] / longg;
+		equ[3] = equ[3] / longg;
+		return equ;
+	}
 	
 
 	Vector Plane::GetN()
@@ -415,6 +443,11 @@
 	void Plane::SetPoints(Vector* point, int l)
 	{
 		num = l;
+		double * e  = Calculeqa(point[0],point[1],point[2]);
+		equa[0] = e[0];
+		equa[1] = e[1];
+		equa[2] = e[2];
+		equa[3] = e[3];
 		for(int i= 0; i < l; i++)
 		{
 			Vector t = point[i];

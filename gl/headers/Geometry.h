@@ -46,7 +46,31 @@ public:
 };
 Vector sqrt_ve(Vector& const value);
 Vector Vector_norm(Vector value);
-
+class Qaternion
+{
+private:
+	Vector u;
+	double a;
+public:
+	Qaternion();
+	Qaternion(Vector count,double co);
+	Vector Getu()
+	{
+		return u;
+	}
+	double Geta()
+	{
+		return a;
+	}
+	Qaternion operator*(Qaternion & right);
+	Vector rotate(Vector count)
+	{
+		Vector fin = Vector(); 
+		double inv = 1/(a * a + pow(u.length(),2));
+		Qaternion _qa = Qaternion(-u*inv,a*inv);
+		return (*this * (Qaternion(count,0)) * (_qa)).Getu(); 
+	}
+};
 class Matrix
 {
 	private:
@@ -112,6 +136,7 @@ public:
 	Plane(double Ctmp[3][3]);
 	Plane(Vector x1,Vector x2, Vector x3);
 
+	double* Calculeqa(Vector O,Vector A, Vector B);
 	void PlaneSetEquation(double eq[4]);
 
 	Vector project(Vector* point);
