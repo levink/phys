@@ -347,11 +347,11 @@ Quadrocopter::Quadrocopter(Vector pos)
 	eng[1] = Sphere();
 	eng[2] = Sphere();
 	eng[3] = Sphere();
-	eng[0].Position = Vector(centre.GetRad() + pos.GetX(),pos.GetY(),centre.GetRad() + pos.GetZ());
-	eng[1].Position = Vector(-centre.GetRad() + pos.GetX(),pos.GetY(),centre.GetRad() + pos.GetZ());
-	eng[2].Position = Vector(-centre.GetRad() + pos.GetX(),pos.GetY(),-centre.GetRad() + pos.GetZ());
-	eng[3].Position = Vector(centre.GetRad() + pos.GetX(),pos.GetY(),-centre.GetRad() + pos.GetZ());
-	I = Vector(5.6 * centre.m * pow(centre.GetRad(),2),9.6 * centre.m * pow(centre.GetRad(),2),5.6 * centre.m * pow(centre.GetRad(),2));
+	eng[0].Position = Vector(eng[0].GetRad() + pos.GetX(),pos.GetY(),eng[0].GetRad() + pos.GetZ());
+	eng[1].Position = Vector(-eng[1].GetRad() + pos.GetX(),pos.GetY(),eng[1].GetRad() + pos.GetZ());
+	eng[2].Position = Vector(-eng[2].GetRad() + pos.GetX(),pos.GetY(),-eng[2].GetRad() + pos.GetZ());
+	eng[3].Position = Vector(eng[3].GetRad() + pos.GetX(),pos.GetY(),-eng[3].GetRad() + pos.GetZ());
+	I = Vector(5.6 * centre.m * pow(eng[0].GetRad(),2),9.6 * centre.m * pow(eng[0].GetRad(),2),5.6 * centre.m * pow(eng[0].GetRad(),2));
 	a_tang = Vector();
 	X = Vector(1,0,0);
 	Y = Vector(0,1,0);
@@ -372,26 +372,29 @@ Quadrocopter::Quadrocopter(Vector pos)
 }
 void Quadrocopter::SetForse(double e1, double e2, double e3, double e4)
 {
-	eng[0].F = Y * e1;
-	eng[1].F = Y * e2;
-	eng[2].F = Y * e3;
-	eng[3].F = Y * e4;
+	eng[0].F = Y * e1/**0.5 + X * e1*0.25 + Z * e1*0.25*/;
+	eng[1].F = Y * e2/**0.5 - X * e2*0.25 + Z * e2*0.25*/;
+	eng[2].F = Y * e3/**0.5 - X * e3*0.25 - Z * e3*0.25*/;
+	eng[3].F = Y * e4/**0.5 + X * e4*0.25 - Z * e4*0.25*/;
+
 }
 void Quadrocopter::Rotated(double t_sec)
 {
-	double r = 1.141421 * eng[0].GetRad();
-	double Jx[4];
-	double Jy[4]; // strange
-	double Jz[4];
+	Vector J[4];	// strange
+
+	double local[3][3] = { {X.GetX(),X.GetY(),X.GetZ()},
+	{Y.GetX(),Y.GetY(),Y.GetZ()},
+	{Z.GetX(),Z.GetY(),Z.GetZ()} };
+	Matrix loc_sys = Matrix(local);
+	Matrix ret_loc = loc_sys.Invert();
+
 	for(int  i = 0;i<4;i++)
 	{
-		Jx[i] = (((eng[i].F-centre.F) * r) & X); // будет работать только если X, Y, Z - нормализованны
-		Jy[i] = (((eng[i].F-centre.F) * r) & Y);
-		Jz[i] = (((eng[i].F-centre.F) * r) & Z);
+		J[i] = loc_sys * ((centre.Position - eng[i].Position) * eng[i].F); 
 	}
-	a_tang.SetX((Jz[0] + Jz[1] + Jz[2] + Jz[3])/I.GetX()); // не уверен, что правильно.
-	a_tang.SetY((Jx[0] + Jx[1] + Jx[2] + Jx[3])/I.GetY()); // проблема с направлением
-	a_tang.SetZ((Jy[0] + Jy[1] + Jy[2] + Jy[3])/I.GetZ());
+	a_tang.SetX((J[0].GetX() + J[1].GetX() + J[2].GetX() + J[3].GetX())/I.GetX()); 
+	a_tang.SetY((J[0].GetY() + J[1].GetY() + J[2].GetY() + J[3].GetY())/I.GetY()); 
+	a_tang.SetZ((J[0].GetZ() + J[1].GetZ() + J[2].GetZ() + J[3].GetZ())/I.GetZ());
 	w.SetX(w.GetX() + a_tang.GetX() * t_sec);
 	w.SetY(w.GetY() + a_tang.GetY() * t_sec);
 	w.SetZ(w.GetZ() + a_tang.GetZ() * t_sec);
@@ -405,11 +408,6 @@ void Quadrocopter::Rotated(double t_sec)
 	if(Angl.GetZ() > 360)
 		Angl.SetZ(Angl.GetZ() - 360);
 	
-	double local[3][3] = { {X.GetX(),X.GetY(),X.GetZ()},
-	{Y.GetX(),Y.GetY(),Y.GetZ()},
-	{Z.GetX(),Z.GetY(),Z.GetZ()} };
-	Matrix loc_sys = Matrix(local);
-	Matrix ret_loc = loc_sys.Invert();
 	double cx = cos(Angl.GetX());
 	double sx = sin(Angl.GetX());
 	double cy = cos(Angl.GetY());
@@ -437,10 +435,11 @@ void Quadrocopter::Rotated(double t_sec)
 	X = Vector_norm(fin * X);
 	Y = Vector_norm(fin * Y);
 	Z = Vector_norm(fin * Z);
-	eng[0].F = Y * eng[0].F.length(); 
-	eng[1].F = Y * eng[1].F.length();
-	eng[2].F = Y * eng[2].F.length();
-	eng[3].F = Y * eng[3].F.length();
+	double l[4] = {eng[0].F.length(),eng[1].F.length(),eng[2].F.length(),eng[3].F.length()};
+	eng[0].F = Y * l[0]/**0.5 + X * l[0]*0.25 + Z * l[0]*0.25*/; 
+	eng[1].F = Y * l[1]/**0.5 - X * l[1]*0.25 + Z * l[1]*0.25*/; 
+	eng[2].F = Y * l[2]/**0.5 - X * l[2]*0.25 - Z * l[2]*0.25*/; 
+	eng[3].F = Y * l[3]/**0.5 + X * l[3]*0.25 - Z * l[3]*0.25*/; 
 	//Qaternion rx = Qaternion(X,Angl.GetX()); // кватернионы ОНО РАБОТАЛО!!
 	//Qaternion ry = Qaternion(Y,Angl.GetY());
 	//Qaternion rz = Qaternion(Z,Angl.GetZ());

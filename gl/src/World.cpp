@@ -33,32 +33,32 @@ vector<CollisionInfo> World::inspections(ContainerObjects* con)
 {
 	vector<CollisionInfo> col;
 	bool test = 1;
-	int co_qa = con->Count_quad();
+	/*int co_qa = con->Count_quad();
 	int co_sp = con->Count_sp();
 	int co = 0;
 	if(co_sp >co_qa)
 		co = co_sp;
 	else
-		co = co_qa;
-	for(int i = 0;i<co;i++)
+		co = co_qa;*/
+	for(int i = 0;i<con->Count_sp();i++)
 	{
-		Sphere * sp;
+		/*Sphere * sp;
 		Quadrocopter * qa;
-		if(i<co_sp)
+		if(i<co_sp)*/
 			Sphere * sp = con->Get_sp(i);
-		if(i<co_qa)
-			Quadrocopter * qa = con->Get_quad(i);
+		/*if(i<co_qa)
+			Quadrocopter * qa = con->Get_quad(i);*/
 		for(int e = 0;e < Count(); e++)
 		{
-			bool sp_tes = false;
-			bool qa_tes = false;
-			if(Plan[e].cubeinspection(sp->Position,sp->GetRad()))
+			/*bool sp_tes = false;
+			bool qa_tes = false;*/
+			/*if(Plan[e].cubeinspection(sp->Position,sp->GetRad()))
 				sp_tes = true;
-			if(Plan[e].cubeinspection(qa->centre.Position,qa->centre.GetRad()))
-				qa_tes = true;
+			if(Plan[e].cubeinspection(qa->centre.Position,qa->centre.GetRad()) && i<co_qa)
+				qa_tes = true;*/
 				for(int c = 0;c<Plan[e].num;c++)
 				{
-					if(sp->inspections(Plan[e].tmp[c]) && sp_tes)
+					if(sp->inspections(Plan[e].tmp[c])/* && sp_tes*/)
 					{
 						CollisionInfo co;
 						co.tmp = Plan[e].tmp[c];
@@ -69,10 +69,9 @@ vector<CollisionInfo> World::inspections(ContainerObjects* con)
 						col.insert(col.end(),co);		
 						test = 0;
 					}
-					if(qa->eng[0].inspections(Plan[e].tmp[c]) && qa_tes)
+					/*if(qa->eng[0].inspections(Plan[e].tmp[c]) && qa_tes)
 					{
-
-					}
+					}*/
 				}
 				for(int c = 0;c<Plan[e].li_num && test;c++)
 				{
