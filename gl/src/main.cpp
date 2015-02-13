@@ -245,7 +245,6 @@ void display(void)
 	Draw(Vector(0,5,0));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	Draw(Vector(0,0,5));
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	
 	glPushMatrix();
 	//glTranslated(-5,0,-5);
@@ -363,28 +362,28 @@ void display(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 		glPushMatrix();
 		glTranslated(tmp->eng[0].Position.GetX(),tmp->eng[0].Position.GetY(),tmp->eng[0].Position.GetZ());
-		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glutSolidSphere(tmp->eng[0].GetRad(),25,25);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
 		Draw(tmp->eng[0].F/10);
 		glPopMatrix();
 		glPushMatrix();
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 		glTranslated(tmp->eng[1].Position.GetX(),tmp->eng[1].Position.GetY(),tmp->eng[1].Position.GetZ());
-		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glutSolidSphere(tmp->eng[1].GetRad(),25,25);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
 		Draw(tmp->eng[1].F/10);
 		glPopMatrix();
 		glPushMatrix();
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 		glTranslated(tmp->eng[2].Position.GetX(),tmp->eng[2].Position.GetY(),tmp->eng[2].Position.GetZ());
-		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glutSolidSphere(tmp->eng[2].GetRad(),25,25);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
 		Draw(tmp->eng[2].F/10);
 		glPopMatrix();
 		glPushMatrix();
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 		glTranslated(tmp->eng[3].Position.GetX(),tmp->eng[3].Position.GetY(),tmp->eng[3].Position.GetZ());
-		glutSolidSphere(tmp->centre.GetRad(),25,25);
+		glutSolidSphere(tmp->eng[3].GetRad(),25,25);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
 		Draw(tmp->eng[3].F/10);
 		glPopMatrix();
@@ -657,10 +656,10 @@ void Demo6()
 	//Quadrocopter
 	Quadrocopter qu  = Quadrocopter(Vector(5,5,5));
 	qu.SetForse(24.5,24,24,24.5); // + 0.5 for static
-	for(int i =0;i<100;i++)
-	{
+	//for(int i =0;i<500;i++)
+	//{
 		bal->Add(qu);
-	}
+	//}
 }
 void Clear()
 {

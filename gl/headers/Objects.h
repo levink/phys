@@ -31,6 +31,7 @@ public:
 	bool Test(Sphere * obj);
 	void HandlerCollision(Sphere * obj, double tim);
 	double GetRad();
+	void SetRad(double r);
 	
 	void operator=(Sphere * count);
 	bool inspections(Plane pl);

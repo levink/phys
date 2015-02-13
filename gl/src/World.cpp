@@ -33,53 +33,74 @@ vector<CollisionInfo> World::inspections(ContainerObjects* con)
 {
 	vector<CollisionInfo> col;
 	bool test = 1;
-	for(int i = 0;i<con->Count_sp();i++)
+	int co_qa = con->Count_quad();
+	int co_sp = con->Count_sp();
+	int co = 0;
+	if(co_sp >co_qa)
+		co = co_sp;
+	else
+		co = co_qa;
+	for(int i = 0;i<co;i++)
 	{
-		Sphere * sp = con->Get_sp(i);
+		Sphere * sp;
+		Quadrocopter * qa;
+		if(i<co_sp)
+			Sphere * sp = con->Get_sp(i);
+		if(i<co_qa)
+			Quadrocopter * qa = con->Get_quad(i);
 		for(int e = 0;e < Count(); e++)
 		{
-			//Plane pl = Plan[e];
-			for(int c = 0;c<Plan[e].num;c++)
-			{
-				if(sp->inspections(Plan[e].tmp[c]))
+			bool sp_tes = false;
+			bool qa_tes = false;
+			if(Plan[e].cubeinspection(sp->Position,sp->GetRad()))
+				sp_tes = true;
+			if(Plan[e].cubeinspection(qa->centre.Position,qa->centre.GetRad()))
+				qa_tes = true;
+				for(int c = 0;c<Plan[e].num;c++)
 				{
-					CollisionInfo co;
-					co.tmp = Plan[e].tmp[c];
-					co.sp = sp;
-					co.tmp_t = true;
-					co.li_t = false;
-					co.pl_t = false;
-					col.insert(col.end(),co);		
-					test = 0;
+					if(sp->inspections(Plan[e].tmp[c]) && sp_tes)
+					{
+						CollisionInfo co;
+						co.tmp = Plan[e].tmp[c];
+						co.sp = sp;
+						co.tmp_t = true;
+						co.li_t = false;
+						co.pl_t = false;
+						col.insert(col.end(),co);		
+						test = 0;
+					}
+					if(qa->eng[0].inspections(Plan[e].tmp[c]) && qa_tes)
+					{
+
+					}
 				}
-			}
-			for(int c = 0;c<Plan[e].li_num && test;c++)
-			{
-				if(sp->inspections(Plan[e].li[c]) && test)
+				for(int c = 0;c<Plan[e].li_num && test;c++)
+				{
+					if(sp->inspections(Plan[e].li[c]) && test)
+					{
+						CollisionInfo co;
+						co.li = Plan[e].li[c];
+						co.sp = sp;
+						co.tmp_t = false;
+						co.li_t = true;
+						co.pl_t = false;
+						col.insert(col.end(),co);
+						test = 0;
+					}
+				}
+				if(sp->inspections(Plan[e]) && test)
 				{
 					CollisionInfo co;
-					co.li = Plan[e].li[c];
+					co.pl = Plan[e];
 					co.sp = sp;
 					co.tmp_t = false;
-					co.li_t = true;
-					co.pl_t = false;
+					co.li_t = false;
+					co.pl_t = true;
 					col.insert(col.end(),co);
-					test = 0;
 				}
 			}
-			if(sp->inspections(Plan[e]) && test)
-			{
-				CollisionInfo co;
-				co.pl = Plan[e];
-				co.sp = sp;
-				co.tmp_t = false;
-				co.li_t = false;
-				co.pl_t = true;
-				col.insert(col.end(),co);
-			}
 		}
-	}
-		return col;
+	return col;
 }
 
 void World::Calculation(vector<CollisionInfo> col, int n, double t_sec)

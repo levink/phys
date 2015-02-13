@@ -142,11 +142,11 @@ public:
 	Vector project(Vector* point);
 	void SetPoints(Vector * t, int l);
 	void triangulation();
-	bool cubeinspection(Vector tmp)
+	bool cubeinspection(Vector tmp, double rad)
 	{
-		bool a = tmp.GetX() < tes[0] && tmp.GetX() > tes[1];
-		bool b = tmp.GetY() < tes[2] && tmp.GetY() > tes[3];
-		bool c = tmp.GetZ() < tes[4] && tmp.GetZ() > tes[5];
+		bool a = tmp.GetX() < tes[0]+rad && tmp.GetX() > tes[1]-rad;
+		bool b = tmp.GetY() < tes[2]+rad && tmp.GetY() > tes[3]-rad;
+		bool c = tmp.GetZ() < tes[4]+rad && tmp.GetZ() > tes[5]-rad;
 		return ( a && b & c);
 	}
 

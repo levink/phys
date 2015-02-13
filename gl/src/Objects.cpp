@@ -7,6 +7,7 @@ BaseObject::BaseObject()
 	velo = Vector(0,0,0);
 	accel = Vector(0,0,0);
 	F = Vector(0,0,0);
+	w = Vector(0,0,0);
 	Angl = Vector(0,0,0);
 	m = 10;
 }
@@ -141,6 +142,10 @@ double Sphere::GetRad()
 {
 	return rad;
 }
+void Sphere::SetRad(double r)
+{
+	rad = r;
+}
 
 void Sphere::operator=(Sphere * count)
 {
@@ -153,38 +158,33 @@ void Sphere::operator=(Sphere * count)
 
 bool Sphere::inspections(Plane pl)
 {
-	if(!pl.cubeinspection(Position))
-		return false;
-	else
-	{
-		double eqa = pow(Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD(),2);
-		double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
+	double eqa = pow(Position.GetX()*pl.GetA() + Position.GetY()*pl.GetB() + Position.GetZ()* pl.GetC() + pl.GetD(),2);
+	double lon = pow(pl.GetA(),2) + pow(pl.GetB(),2) + pow(pl.GetC(),2);
 
-		if(lon == 0 )
-			return false;
-		if((eqa/lon ) <= rad * rad)
+	if(lon == 0 )
+		return false;
+	if((eqa/lon ) <= rad * rad)
+	{
+		Vector progect = pl.project(&Position);
+		
+		bool flag = false;
+		for(int i = 0; i< pl.tr_num; i++)
 		{
-			Vector progect = pl.project(&Position);
-			
-			bool flag = false;
-			for(int i = 0; i< pl.tr_num; i++)
+			if(((Vector(progect.GetX() - pl.tmp[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) >= 0) &&
+				((Vector(progect.GetX() - pl.tmp[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) >= 0) &&
+				((Vector(progect.GetX() - pl.tmp[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) >= 0) )
 			{
-				if(((Vector(progect.GetX() - pl.tmp[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) >= 0) &&
-					((Vector(progect.GetX() - pl.tmp[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) >= 0) &&
-					((Vector(progect.GetX() - pl.tmp[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) >= 0) )
-				{
-					flag = true;
-					return true;
-				}
-			}
-			if(flag)
+				flag = true;
 				return true;
-			else
-				return false;
+			}
 		}
+		if(flag)
+			return true;
 		else
 			return false;
 	}
+	else
+		return false;
 }
 void Sphere::calculation(Plane pl,double resil, double t)
 {
@@ -310,15 +310,16 @@ void Camera::SetAngleXOZ(int ang)
 Quadrocopter::Quadrocopter()
 {
 	centre = Sphere();
+	centre.SetRad(centre.GetRad() * 4.828427);
 	eng[0] = Sphere();
 	eng[1] = Sphere();
 	eng[2] = Sphere();
 	eng[3] = Sphere();
-	eng[0].Position = Vector(centre.GetRad(),0,centre.GetRad());
-	eng[1].Position = Vector(-centre.GetRad(),0,centre.GetRad());
-	eng[2].Position = Vector(-centre.GetRad(),0,-centre.GetRad());
-	eng[3].Position = Vector(centre.GetRad(),0,-centre.GetRad());
-	I = Vector(5.6 * centre.m * pow(centre.GetRad(),2),9.6 * centre.m * pow(centre.GetRad(),2),5.6 * centre.m * pow(centre.GetRad(),2));
+	eng[0].Position = Vector(eng[0].GetRad(),0,eng[0].GetRad());
+	eng[1].Position = Vector(-eng[1].GetRad(),0,eng[1].GetRad());
+	eng[2].Position = Vector(-eng[2].GetRad(),0,-eng[2].GetRad());
+	eng[3].Position = Vector(eng[3].GetRad(),0,-eng[3].GetRad());
+	I = Vector(5.6 * centre.m * pow(eng[0].GetRad(),2),9.6 * centre.m * pow(eng[0].GetRad(),2),5.6 * centre.m * pow(eng[0].GetRad(),2));
 	a_tang = Vector();
 	X = Vector(1,0,0);
 	Y = Vector(0,1,0);
@@ -341,6 +342,7 @@ Quadrocopter::Quadrocopter(Vector pos)
 {
 	centre = Sphere();
 	centre.Position = pos;
+	centre.SetRad(centre.GetRad() * 4.828427);
 	eng[0] = Sphere();
 	eng[1] = Sphere();
 	eng[2] = Sphere();
@@ -377,7 +379,7 @@ void Quadrocopter::SetForse(double e1, double e2, double e3, double e4)
 }
 void Quadrocopter::Rotated(double t_sec)
 {
-	double r = 1.141421 * centre.GetRad();
+	double r = 1.141421 * eng[0].GetRad();
 	double Jx[4];
 	double Jy[4]; // strange
 	double Jz[4];
@@ -387,9 +389,9 @@ void Quadrocopter::Rotated(double t_sec)
 		Jy[i] = (((eng[i].F-centre.F) * r) & Y);
 		Jz[i] = (((eng[i].F-centre.F) * r) & Z);
 	}
-	a_tang.SetX((Jx[0] + Jx[1] + Jx[2] + Jx[3])/I.GetX());
-	a_tang.SetY((Jy[0] + Jy[1] + Jy[2] + Jy[3])/I.GetY());
-	a_tang.SetZ((Jz[0] + Jz[1] + Jz[2] + Jz[3])/I.GetZ());
+	a_tang.SetX((Jz[0] + Jz[1] + Jz[2] + Jz[3])/I.GetX()); // не уверен, что правильно.
+	a_tang.SetY((Jx[0] + Jx[1] + Jx[2] + Jx[3])/I.GetY()); // проблема с направлением
+	a_tang.SetZ((Jy[0] + Jy[1] + Jy[2] + Jy[3])/I.GetZ());
 	w.SetX(w.GetX() + a_tang.GetX() * t_sec);
 	w.SetY(w.GetY() + a_tang.GetY() * t_sec);
 	w.SetZ(w.GetZ() + a_tang.GetZ() * t_sec);
@@ -402,17 +404,54 @@ void Quadrocopter::Rotated(double t_sec)
 		Angl.SetY(Angl.GetY() - 360);
 	if(Angl.GetZ() > 360)
 		Angl.SetZ(Angl.GetZ() - 360);
-	Qaternion rx = Qaternion(X,Angl.GetX());
-	Qaternion ry = Qaternion(Y,Angl.GetY());
-	Qaternion rz = Qaternion(Z,Angl.GetZ());
-	Qaternion fin = rx * ry * rz;
-	eng[0].Position = fin.rotate(eng[0].Position);
-	eng[1].Position = fin.rotate(eng[1].Position);
-	eng[2].Position = fin.rotate(eng[2].Position);
-	eng[3].Position = fin.rotate(eng[3].Position);
-	X = fin.rotate(X);
-	Y = fin.rotate(Y);
-	Z = fin.rotate(Z);
+	
+	double local[3][3] = { {X.GetX(),X.GetY(),X.GetZ()},
+	{Y.GetX(),Y.GetY(),Y.GetZ()},
+	{Z.GetX(),Z.GetY(),Z.GetZ()} };
+	Matrix loc_sys = Matrix(local);
+	Matrix ret_loc = loc_sys.Invert();
+	double cx = cos(Angl.GetX());
+	double sx = sin(Angl.GetX());
+	double cy = cos(Angl.GetY());
+	double sy = sin(Angl.GetY());
+	double cz = cos(Angl.GetZ());
+	double sz = sin(Angl.GetZ());
+	double rox[3][3] = {	{1,0,0},
+						{0,cx,sx},
+						{0,-sx,cx}};
+	double roy[3][3] = {	{cy,0,-sy},
+							{0,1,0},
+							{sy,0,cy} };
+	double roz[3][3] = {{cz,sz,0},
+						{-sz,cz,0},
+						{0,0,1} };
+	Matrix rotx = Matrix(rox);
+	Matrix roty = Matrix(roy);
+	Matrix rotz = Matrix(roz);
+	Matrix fin = ret_loc * rotx * roty * rotz ;
+	eng[0].Position = fin * (loc_sys * (eng[0].Position - centre.Position)) + centre.Position;
+	eng[1].Position = fin * (loc_sys * (eng[1].Position - centre.Position)) + centre.Position;
+	eng[2].Position = fin * (loc_sys * (eng[2].Position - centre.Position)) + centre.Position;
+	eng[3].Position = fin *	(loc_sys * (eng[3].Position - centre.Position)) + centre.Position;
+	fin = fin * loc_sys;
+	X = Vector_norm(fin * X);
+	Y = Vector_norm(fin * Y);
+	Z = Vector_norm(fin * Z);
+	eng[0].F = Y * eng[0].F.length(); 
+	eng[1].F = Y * eng[1].F.length();
+	eng[2].F = Y * eng[2].F.length();
+	eng[3].F = Y * eng[3].F.length();
+	//Qaternion rx = Qaternion(X,Angl.GetX()); // кватернионы ОНО РАБОТАЛО!!
+	//Qaternion ry = Qaternion(Y,Angl.GetY());
+	//Qaternion rz = Qaternion(Z,Angl.GetZ());
+	//Qaternion fin = rx * ry * rz;
+	//eng[0].Position = fin.rotate(eng[0].Position);
+	//eng[1].Position = fin.rotate(eng[1].Position);
+	//eng[2].Position = fin.rotate(eng[2].Position);
+	//eng[3].Position = fin.rotate(eng[3].Position);
+	//X = fin.rotate(X);
+	//Y = fin.rotate(Y);
+	//Z = fin.rotate(Z);
 	//double rx[3][3] = { {1-2 * ( pow(X.GetY(),2) + pow(X.GetZ(),2)) ,2 * (X.GetX() * X.GetY() - X.GetZ() * Angl.GetX()),2 * (X.GetX() * X.GetZ() + X.GetY() * Angl.GetX())},
 	//{2 * (X.GetX() * X.GetY() + X.GetZ() * Angl.GetX()), 1 - 2 * (pow(X.GetX(),2) + pow(X.GetZ(),2)),2 * (X.GetY() * X.GetZ - X.GetX() * Angl.GetX()) },
 	//					{0,sin(Angl.GetX()),cos(Angl.GetX())} }; // матрица вращения через кватернион взята из википедии
@@ -464,7 +503,7 @@ void ContainerObjects::MoveQuadrocopter(int n,double t_sec)
 		min = 3;
 	}
 	Vector Ft = Vector(0,-quad[n].centre.m * quad[n].centre._g,0); 
-	Vector Ftr = - (quad[n].centre.velo > quad[n].centre.velo * 0.47 / 2) * pow(quad[n].centre.GetRad(),2)  * PI;
+	Vector Ftr = - (quad[n].centre.velo > quad[n].centre.velo * 0.47 / 2) * pow(quad[n].eng[0].GetRad(),2)  * PI;
 	Vector tes = quad[n].eng[min].F * 4;
 	Vector F = quad[n].centre.F + Ftr + tes;	// + F1 + F2 + ...; // Очень странно себя ведёт
 	Vector a = quad[n].centre.F / quad[n].centre.m;
