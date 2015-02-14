@@ -13,9 +13,13 @@ struct CollisionInfo
 	Line li;
 	Vector tmp;
 	Sphere *sp;
+	Quadrocopter * qa;
+	int nom_qa;
 	bool pl_t;
 	bool li_t;
 	bool tmp_t;
+	bool sp_t;
+	bool qa_t;
 };
 
 

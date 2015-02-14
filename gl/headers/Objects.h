@@ -42,20 +42,22 @@ public:
 	void calculation(Vector  tmp, double resil, double t); 
 };
 
-class Quadrocopter: public BaseObject
+class Quadrocopter: public Sphere
 {
+private:
+	const double rate;//коэффициент 
 public:
-	Sphere centre;
 	Sphere eng[4];
+	Vector Fors[4];
 	Vector I;
 	Vector a_tang;
-	Matrix rotated;
 	Vector X;
 	Vector Y;
-	Vector Z;
-
+	Vector Z; 
 	Quadrocopter();
 	Quadrocopter(Vector pos);
+
+	void operator=(Quadrocopter& count);
 	void SetForse(double e1, double e2, double e3, double e4);
 	void Rotated(double t_sec);
 };
@@ -107,6 +109,8 @@ public:
 	
 	void Add(Sphere item) { obj.push_back(item); }
 	void Add(Quadrocopter item)  { quad.push_back(item); }
+	void Delete_sp(int n) { obj.erase(obj.begin()+n,obj.begin()+n); }
+	void Delete_qa(int n) { quad.erase(quad.begin()+n,quad.begin()+n+1); }
 	Sphere* Get_sp(int i){return &obj[i];}
 	Quadrocopter* Get_quad(int i){return &quad[i];}
 	vector<CollisionInfoOfSphere> inspection();
