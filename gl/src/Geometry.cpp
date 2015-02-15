@@ -135,6 +135,16 @@
 			value.GetY() / longg,
 			value.GetZ() / longg );
 	}
+	int rotateXZ(Vector a,Vector b, Vector c)
+	{
+		double rot  = (b.GetX()-a.GetX())*(c.GetZ()-a.GetZ()) - (b.GetZ()-a.GetZ())*(c.GetX()-a.GetX());
+		if(rot > 0)
+			return 1;
+		if(rot < 0)
+			return -1;
+		if(rot == 0)
+			return 0;
+	}
 //Qaternion
 	Qaternion::Qaternion()
 	{
@@ -282,12 +292,6 @@
 		equa[1] = 0;
 		equa[2] = 0;
 		equa[3] = 0; 
-		tr[0] = NULL;
-		tr[1] = NULL;
-		tr[2] = NULL;
-		nor[0] = NULL;
-		nor[1] = NULL;
-		nor[2] = NULL;
 		tr_num = 0;
 		tes[0] = 0;
 		tes[1] = 0;
@@ -301,9 +305,6 @@
 
 	void Plane::PlaneSetEquation(double eq[4])
 	{
-		tr[0] = NULL;
-		tr[1] = NULL;
-		tr[2] = NULL;
 		tes[0] = 0;
 		tes[1] = 0;
 		tes[2] = 0;
@@ -353,9 +354,6 @@
 	}
 	Plane::Plane(double eq [4])
 	{
-		tr[0] = NULL;
-		tr[1] = NULL;
-		tr[2] = NULL;
 		tes[0] = 0;
 		tes[1] = 0;
 		tes[2] = 0;
@@ -457,25 +455,17 @@
  	}
 	void Plane::triangulation() // триангуляция !!!!!!!(не работает вообще 06.01.2015)работает только для четырёхугольников! + определение ограничивающего куба + определение нормалей к контуру
 	{
-		int current = 0;
-		int maximum = num;
-		tr_num = 0;
-		tr[0] = new int[num];
-		tr[1] = new int[num];
-		tr[2] = new int[num];
-		nor[0] = new Vector[num];
-		nor[1] = new Vector[num];
-		nor[2] = new Vector[num];
-		int cur_rej = 0;
-		int max_rej = 4;
-		int * rejected = new int[4];
-		int signal = num;
-
 		li_num = num;
 		li = new Line[num];
 		int n = 0;
+
+		vector <int> counter;
+		tr_num = 0;
+		int signal = num;
+
 		for(int i =0;i<num;i++)
 		{
+			counter.push_back(i);
 			n = i + 1;
 			if(n >= num)
 				n  = n - (num);
@@ -512,234 +502,61 @@
 				li[i].limit[5] = tmp[i].GetZ();
 			}
 			
-		}
+		} // выше определяются рёбра контура, считается, что вершины попадают в программу соответственно прохождению по контуру.
 
-		Vector testing = Vector();
 		n = 0;
-		int  i = 0;
 		int e  = 0;
+		int i = 0;
+		bool first = 1;
 		while(signal >= 3) // начало триангуляции код не тестировался ПОСЛЕ ТЕСТА УДАЛИТЬ. Эту запись, а не код
 		{
-			bool et = true;
-			bool nt = true;
-			bool it = true;
-			e = i + 1; 
-			n = i - 1; 
-			while(et || nt || it)
+			bool flag = true;
+			bool test = false;
+			bool fir = true;
+
+			e = i+1; 
+			n = i-1; 
+			int size = counter.size();
+			if(e >= size)
+				e  = e - (size);
+			if(n < 0)
+				n = size + n;
+			if(i >= size)
+				i = 0;
+			e = counter[e];
+			n = counter[n];
+			int rot = rotateXZ(tmp[n],tmp[i],tmp[e]);
+			if(rot >=0)// выпуклая ли вершина, работает только если вершины задавались против часовой стрелки.
 			{
-				if(et)
+				for(int c = 0;c<size;c++)// принадлежит ли хотя бы одна вершина многоугольника нашему треугольнику, есди да, то треугольник выбран не верно
 				{
-					bool erej = true;
-					if(e >= num)
+					if(c!=i && c!=e && c!= n)
 					{
-						e  = e - (num);
-					}
-					for(int i = 0;i<cur_rej;i++)
-					{
-						if(rejected[i] == e)
+						if(rotateXZ(tmp[i],tmp[e],tmp[c])>0 && rotateXZ(tmp[e],tmp[n],tmp[c])>0 && rotateXZ(tmp[n],tmp[i],tmp[c])>0 )
 						{
-							erej = false;
+							flag = false;
 							break;
 						}
 					}
-					if(!erej)
-					{
-						e++;
-						erej = true;
-					}
-					else
-					{
-						et = false;
-					}
-				}
-				if(nt)
-				{
-					bool nrej = true;
-					if(n < 0)
-					{
-						n = num + n;
-					}
-					for(int i = 0;i<cur_rej;i++)
-					{
-						if(rejected[i] == n)
-						{
-							nrej = false;
-							break;
-						}
-					}
-					if(!nrej)
-					{
-						n--;
-						nrej = true;
-					}
-					else
-					{
-						nt = false;
-					}
-				}
-				if(it)
-				{
-					bool irej = true;
-					if(i >= num)
-					{
-						i = 0;
-					}
-					for(int c = 0;c<cur_rej;c++)
-					{
-						if(rejected[c] == i)
-						{
-							irej = false;
-							break;
-						}
-					}
-					if(!irej)
-					{
-						i++;
-						irej = true;
-					}
-					else
-					{
-						it = false;
-					}
 				}
 			}
-			
-			Vector normal[3];
-			Vector edge = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
-			normal[0] = Vector(edge.GetZ(), 0, -edge.GetX()); // Всё правильно, не надо пугаться 
-			testing = Vector(tmp[n].GetX() - tmp[e].GetX(), 0, tmp[n].GetZ() - tmp[e].GetZ());
-			if((normal[0] & testing) <= 0)
+			if((tmp[i].GetX()-tmp[n].GetX())/(tmp[e].GetX() - tmp[i].GetX()) == (tmp[i].GetZ()-tmp[n].GetZ())/(tmp[e].GetZ() - tmp[i].GetZ())) // работает только если плоскость не перпендикулярна OXZ
 			{
-				if((normal[0] & testing) == 0)
-				{
-					Vector tes = Vector(tmp[n].GetX() - tmp[i].GetX(),0, tmp[n].GetZ() - tmp[i].GetZ());
-					if((normal[0] & tes) < 0)
-						normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
-				}
-				else
-					normal[0] = Vector(-edge.GetZ(), 0, edge.GetX());
-			}
-			testing = - edge;
-			edge = Vector(tmp[n].GetX() - tmp[e].GetX(),0, tmp[n].GetZ() - tmp[e].GetZ());
-			normal[1] = Vector(edge.GetZ(), 0, -edge.GetX());
-			if((normal[1] & testing) <= 0)
-			{
-				if((normal[1] & testing) == 0)
-				{
-					Vector tes = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
-					if((normal[i] & tes) < 0)
-						normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
-				}
-				else
-					normal[1] = Vector(-edge.GetZ(), 0, edge.GetX());
-			}
-			testing = - edge;
-			edge = Vector(tmp[i].GetX() - tmp[n].GetX(),0, tmp[i].GetZ() - tmp[n].GetZ());
-			normal[2] = Vector(edge.GetZ(), 0, -edge.GetX());
-			if((normal[2] & testing) <= 0)
-			{
-				if((normal[2] & testing) == 0)
-				{
-					Vector tes = Vector(tmp[e].GetX() - tmp[i].GetX(),0, tmp[e].GetZ() - tmp[i].GetZ());
-					if((normal[2] & tes) < 0)
-						normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
-				}
-				else
-					normal[2] = Vector(-edge.GetZ(), 0, edge.GetX());
-			}
-			bool flag = 1;
-			for(int c = 0;c<num;c++)
-			{
-				if(c!=i)
-				{
-					testing = Vector(tmp[c].GetX() - tmp[i].GetX(),0, tmp[c].GetZ() - tmp[i].GetZ());
-					if((normal[0] & testing) > 0 && (normal[1] & testing) > 0 && (normal[2] & testing) > 0)
-					{
-						flag = 0;
-						break;
-					}
-				}
+				signal-=1;
+				flag = false;
 			}
 			if(flag)
 			{
-				tr[0][current] = i;
-				tr[1][current] = e;
-				tr[2][current] = n;
-				nor[0][current] = normal[0];
-				nor[1][current] = normal[1];
-				nor[2][current] = normal[2];
+				tr[0].push_back(counter[i]);
+				tr[1].push_back(e);
+				tr[2].push_back(n);
 				tr_num += 1;
-				current += 1;
 				signal -= 1;
-				rejected[cur_rej] = i;
-				cur_rej += 1;
-				if(cur_rej >=max_rej)
-				{
-					int * copy = new int[cur_rej];
-					for(int i = 0;i<cur_rej;i++)
-					{
-						copy[i] = rejected[i];
-					}
-					delete rejected;
-					rejected = new int [cur_rej + 4];
-					for(int i = 0 ;i<cur_rej;i++)
-					{
-						rejected[i] = copy[i];
-					}
-					delete copy;
-					max_rej +=4;
-				}
-				if(current >= maximum)
-				{
-					int * cop1 = new int[current];
-					int * cop2 = new int[current];
-					int * cop3 = new int[current];
-					Vector * co_n1 = new Vector[current];
-					Vector * co_n2 = new Vector[current];
-					Vector * co_n3 = new Vector[current];
-					for(int i = 0;i<num;i++)
-					{
-						cop1[i] = tr[0][i];
-						cop2[i] = tr[1][i];
-						cop3[i] = tr[2][i];
-						co_n1[i] = nor[0][i];
-						co_n2[i] = nor[1][i];
-						co_n3[i] = nor[2][i];
-					}
-					delete tr[0];
-					delete tr[1];
-					delete tr[2];
-					delete nor[0];
-					delete nor[1];
-					delete nor[2];
-					tr[0] = new int[current + 10];
-					tr[1] = new int[current + 10];
-					tr[2] = new int[current + 10];
-					nor[0] = new Vector[current + 10];
-					nor[1] = new Vector[current + 10];
-					nor[2] = new Vector[current + 10];
-					for(int i = 0; i < num;i++)
-					{
-						tr[0][i] = cop1[i];
-						tr[1][i] = cop2[i];
-						tr[2][i] = cop3[i];
-						nor[0][i] = co_n1[i];
-						nor[1][i] = co_n2[i];
-						nor[2][i] = co_n3[i];
-					}
-					delete cop1;
-					delete cop2;
-					delete cop3;
-					delete co_n1;
-					delete co_n2;
-					delete co_n3;
-					maximum += 10;
-				}
-			
+				counter.erase(counter.begin()+i,counter.begin()+i+1);
 			}// конец триангуляции, конец света, конец добра и зла, чёрная дыра без массы и тому подобные прелести ( Конец шуту и королю, и глупости, и уму. Исполняли Никитины, Автора стихов не помню)
-			i++;
+			else
+				i++;
 		}
-		delete rejected;
 		// Конец поиска.
 		//Определение ограничивающего куба.
 		double maxX = tmp[num-1].GetX();

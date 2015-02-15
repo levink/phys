@@ -170,9 +170,9 @@ bool Sphere::inspections(Plane pl)
 		bool flag = false;
 		for(int i = 0; i< pl.tr_num; i++)
 		{
-			if(((Vector(progect.GetX() - pl.tmp[pl.tr[0][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[0][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[0][i]].GetZ()) & pl.nor[0][i]) >= 0) &&
-				((Vector(progect.GetX() - pl.tmp[pl.tr[1][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[1][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[1][i]].GetZ()) & pl.nor[1][i]) >= 0) &&
-				((Vector(progect.GetX() - pl.tmp[pl.tr[2][i]].GetX(),progect.GetY() - pl.tmp[pl.tr[2][i]].GetY(),progect.GetZ() - pl.tmp[pl.tr[2][i]].GetZ()) & pl.nor[2][i]) >= 0) )
+			if(rotateXZ(pl.tmp[pl.tr[0][i]],pl.tmp[pl.tr[1][i]],progect)>= 0 && 
+				rotateXZ(pl.tmp[pl.tr[1][i]],pl.tmp[pl.tr[2][i]],progect)>=0 && 
+				rotateXZ(pl.tmp[pl.tr[2][i]],pl.tmp[pl.tr[0][i]],progect)>=0)
 			{
 				flag = true;
 				return true;
