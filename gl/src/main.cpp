@@ -68,10 +68,11 @@ void Demo3();
 void Demo4();
 void Demo5();
 void Demo6();
+void Demo7();
 
 void keyboard(unsigned char key, int x, int y)
 {
-	if (key >= '1' && key <= '6')
+	if (key >= '1' && key <= '7')
 	{
 		int num = key - '0';
 		_tmp = num;
@@ -312,10 +313,10 @@ void display(void)
 	{
 		glBegin(GL_TRIANGLES);
 		Plane * pl = planes->GetPl(i);
-		GLfloat col[3] = {0,0.9 - 0.05 * i,0};
+		GLfloat col[3] = {0,1 - 0.05 * i,0};
 		for(int e = 0;e<pl->tr_num;e++)
 		{
-			col[1] -=e * 0.1;
+			col[1] -=e * 0.05;
 			glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,col);
 			Vector t1 = pl->tmp[pl->tr[0][e]];
 			Vector t2 = pl->tmp[pl->tr[1][e]];
@@ -549,7 +550,7 @@ int main(int argc, char **argv)
 }
 void StartDemo(int num)
 {
-	if (num >= 1 && num <= 6) 
+	if (num >= 1 && num <= 7) 
 	{
 		Clear();
 		f1=24.5;
@@ -563,61 +564,48 @@ void StartDemo(int num)
 	else if (num == 4) Demo4();
 	else if (num == 5) Demo5();
 	else if (num == 6) Demo6();
+	else if (num == 7) Demo7();
 }
 void Demo1()
 {
 	//отскок от трёх плоскостей
 	//пол
-	//Vector v0[4] = {
-	//	Vector(0,0,0),
-	//	Vector(10,0,0),
-	//	Vector(10,0,10),
-	//	Vector(0,0,10),
-	//};
-	//Plane floor = Plane();
-	//floor.SetPoints(v0, 4);
-
-	////стенка1
-	//Vector v1[4] = {
-	//	Vector(10,0,0),
-	//	Vector(15,5,0),
-	//	Vector(15,5,10),
-	//	Vector(10,0,10),
-	//};
-	//Plane wall = Plane();
-	//wall.SetPoints(v1,4);
-
-	////стенка2
-	//Vector v2[4] = {
-	//	Vector(0,0,0),
-	//	Vector(-5,5,0),
-	//	Vector(-5,5,10),
-	//	Vector(0,0,10),
-	//};
-	//Plane wall2 = Plane();
-	//wall2.SetPoints(v2,4);
-
-	//planes->Add(floor);
-	//planes->Add(wall);
-	//planes->Add(wall2);
-	Vector floor[5] = {
+	Vector v0[4] = {
+		Vector(0,0,0),
 		Vector(10,0,0),
 		Vector(10,0,10),
-		Vector(5,0,5),
 		Vector(0,0,10),
-		Vector(0,0,0)};
-	Plane f1 = Plane();
-	f1.SetPoints(floor,5);
-	planes->Add(f1);
+	};
+	Plane floor = Plane();
+	floor.SetPoints(v0, 4);
+
+	//стенка1
+	Vector v1[4] = {
+		Vector(10,0,0),
+		Vector(15,5,0),
+		Vector(15,5,10),
+		Vector(10,0,10),
+	};
+	Plane wall = Plane();
+	wall.SetPoints(v1,4);
+
+	//стенка2
+	Vector v2[4] = {
+		Vector(0,0,10),
+		Vector(-5,5,10),
+		Vector(-5,5,0),
+		Vector(0,0,0),
+	};
+	Plane wall2 = Plane();
+	wall2.SetPoints(v2,4);
+
+	planes->Add(floor);
+	planes->Add(wall);
+	planes->Add(wall2);
 
 	//Ball
 	Sphere tmp = Sphere();
-	tmp.Position = Vector(2,5,2);
-	//tmp.Position = Vector(13,5,5);
-	bal->Add(tmp);
-	tmp.Position = Vector(5,5,7);
-	bal->Add(tmp);
-	tmp.Position = Vector(7,5,2);
+	tmp.Position = Vector(13,5,5);
 	bal->Add(tmp);
 }
 void Demo2()
@@ -690,10 +678,10 @@ void Demo4()
 	bal->Add(tmp);
 	tmp.Position = Vector(10,14,-0.5);
 	bal->Add(tmp);
-	tmp.Position = Vector(13,14,0.5);
+	/*tmp.Position = Vector(13,13.8,0.5);
 	bal->Add(tmp);
-	tmp.Position = Vector(16,13.8,-0.5);
-	bal->Add(tmp);
+	tmp.Position = Vector(16,13.7,-0.5);
+	bal->Add(tmp);*/
 }
 void Demo5()
 {
@@ -753,46 +741,152 @@ void Demo5()
 }
 void Demo6()
 {
-	Vector v0[4] = {
+	//Vector v0[4] = {
+	//	Vector(0,0,0),
+	//	Vector(10,0,0),
+	//	Vector(10,0,10),
+	//	Vector(0,0,10),
+	//};
+	//Plane floor = Plane();
+	//floor.SetPoints(v0, 4);
+
+	////стенка1
+	//Vector v1[4] = {
+	//	Vector(10,0,0),
+	//	Vector(15,5,0),
+	//	Vector(15,5,10),
+	//	Vector(10,0,10),
+	//};
+	//Plane wall = Plane();
+	//wall.SetPoints(v1,4);
+
+	////стенка2
+	//Vector v2[4] = {
+	//	Vector(0,0,10),
+	//	Vector(-5,5,10),
+	//	Vector(-5,5,0),
+	//	Vector(0,0,0),
+	//};
+	//Plane wall2 = Plane();
+	//wall2.SetPoints(v2,4);
+
+	//planes->Add(floor);
+	//planes->Add(wall);
+	//planes->Add(wall2);
+	Vector f[4] = {
 		Vector(0,0,0),
-		Vector(10,0,0),
-		Vector(10,0,10),
-		Vector(0,0,10),
-	};
+		Vector(50,0,0),
+		Vector(50,0,50),
+		Vector(0,0,50)};
 	Plane floor = Plane();
-	floor.SetPoints(v0, 4);
+	floor.SetPoints(f,4);
 
-	//стенка1
-	Vector v1[4] = {
-		Vector(10,0,0),
-		Vector(15,5,0),
-		Vector(15,5,10),
-		Vector(10,0,10),
-	};
-	Plane wall = Plane();
-	wall.SetPoints(v1,4);
+	/*Vector w1[4] = {
+		Vector(0,0,20),
+		Vector(-10,10,20),
+		Vector(-10,10,0),
+		Vector(0,0,0)};
+	Plane wall1 = Plane();
+	wall1.SetPoints(w1,4);
 
-	//стенка2
-	Vector v2[4] = {
-		Vector(0,0,10),
-		Vector(-5,5,10),
-		Vector(-5,5,0),
-		Vector(0,0,0),
-	};
+	Vector w2[4] = {
+		Vector(20,0,0),
+		Vector(30,10,0),
+		Vector(30,10,20),
+		Vector(20,0,20)};
 	Plane wall2 = Plane();
-	wall2.SetPoints(v2,4);
+	wall2.SetPoints(w2,4);
+
+	Vector w3[4] = {
+		Vector(0,0,20),
+		Vector(20,0,20),
+		Vector(20,10,30),
+		Vector(0,10,30)};
+	Plane wall3 = Plane();
+	wall3.SetPoints(w3,4);
+
+	Vector w4[4] = {
+		Vector(20,0,0),
+		Vector(0,0,0),
+		Vector(0,10,-10),
+		Vector(20,10,-10)};
+	Plane wall4 = Plane();
+	wall4.SetPoints(w4,4);*/
+
+	//Vector w5[3] = {
+	//	Vector(0.001,0.001,0.001),//-10,10,0
+	//	Vector(-10,10,0), // 0,10,-10
+	//	Vector(0,10,-10),}; // 0,0,0
+	//Plane wall5 = Plane();
+	//wall5.SetPoints(w5,3);
+
+	//Vector w6[3] = {
+	//	Vector(30,10,0), // 30,10,0
+	//	Vector(20,0,0),//20,10,-10
+	//	Vector(20,10,-10),}; // 20,0,0
+	//Plane wall6 = Plane();
+	//wall6.SetPoints(w6,3);
+
+	//Vector w7[3] = {
+	//	Vector(20,0.001,20),//30,10,20
+	//	Vector(30,10,20),//20,10,30
+	//	Vector(30,10,20),};//20,0,20
+	//Plane wall7 = Plane();
+	//wall7.SetPoints(w7,3);
+
+	//Vector w8[3] = {
+	//	Vector(-10,10,20),//-10,10,20
+	//	Vector(0,0,20),//0,10,30
+	//	Vector(0,10,30),};//0,0,20
+	//Plane wall8 = Plane();
+	//wall8.SetPoints(w8,3);
 
 	planes->Add(floor);
-	planes->Add(wall);
+	/*planes->Add(wall1);
 	planes->Add(wall2);
+	planes->Add(wall3);
+	planes->Add(wall4);*/
+	/*planes->Add(wall5);
+	planes->Add(wall6);
+	planes->Add(wall7);
+	planes->Add(wall8);*/
 
 	//Quadrocopter
-	Quadrocopter qu  = Quadrocopter(Vector(5,15,5));
+	Quadrocopter qu  = Quadrocopter(Vector(25,15,25));
 	qu.SetForse(24.5,24.5,24.5,24.5); // 24.5 for static
 	//for(int i =0;i<500;i++)
 	//{
 		bal->Add(qu);
 	//}
+}
+void Demo7()
+{
+	/*Vector f[8] = {
+		Vector(18,2,3),
+		Vector(20,2,11),
+		Vector(15,2,20),
+		Vector(12,2,15),
+		Vector(9,2,5),
+		Vector(1,2,13),
+		Vector(7,2,1),
+		Vector(13,2,8)};*/
+	Vector floor[5] = {
+		Vector(10,0,0),
+		Vector(10,0,10),
+		Vector(5,0,5),
+		Vector(0,0,10),
+		Vector(0,0,0)};
+	Plane f1 = Plane();
+	f1.SetPoints(floor,5);
+	planes->Add(f1);
+
+	Sphere tmp = Sphere();
+	tmp.Position = Vector(2,5,2);
+	bal->Add(tmp);
+	tmp.Position = Vector(5,5,7);
+	bal->Add(tmp);
+	tmp.Position = Vector(7,5,2);
+	bal->Add(tmp);
 }
 void Clear()
 {
