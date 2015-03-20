@@ -411,9 +411,13 @@ void Quadrocopter::Rotated(double t_sec)
 	w.SetX(w.GetX() + a_tang.GetX() * t_sec);
 	w.SetY(w.GetY() + a_tang.GetY() * t_sec);
 	w.SetZ(w.GetZ() + a_tang.GetZ() * t_sec);
-	Angl.SetX(w.GetX() * t_sec);
-	Angl.SetY(w.GetY() * t_sec);
-	Angl.SetZ(w.GetZ() * t_sec);
+	double t2 = t_sec * t_sec;
+	double AX = w.GetX() * t_sec + a_tang.GetX() * t2;
+	double AY = w.GetY() * t_sec + a_tang.GetY() * t2;
+	double AZ = w.GetZ() * t_sec + a_tang.GetZ() * t2;
+	Angl.SetX(Angl.GetX() + AX);
+	Angl.SetY(Angl.GetY() + AY);
+	Angl.SetZ(Angl.GetZ() + AZ);
 	if(Angl.GetX() > 360)
 		Angl.SetX(Angl.GetX() - 360);
 	if(Angl.GetY() > 360)
@@ -421,12 +425,12 @@ void Quadrocopter::Rotated(double t_sec)
 	if(Angl.GetZ() > 360)
 		Angl.SetZ(Angl.GetZ() - 360);
 	
-	double cx = cos(Angl.GetX());
-	double sx = sin(Angl.GetX());
-	double cy = cos(Angl.GetY());
-	double sy = sin(Angl.GetY());
-	double cz = cos(Angl.GetZ());
-	double sz = sin(Angl.GetZ());
+	double cx = cos(AX);
+	double sx = sin(AX);
+	double cy = cos(AY);
+	double sy = sin(AY);
+	double cz = cos(AZ);
+	double sz = sin(AZ);
 	double rox[3][3] = {	{1,0,0},
 						{0,cx,sx},
 						{0,-sx,cx}};
@@ -482,7 +486,7 @@ void ContainerObjects::MoveSphere(int n,double t_sec)
 	Vector F = obj[n].F /*+ Ftr*/;	// + F1 + F2 + ...;
 	Vector a = obj[n].F / obj[n].m;
 	Vector v = obj[n].velo + a*t_sec; 
-	Vector x = obj[n].Position + obj[n].velo*t_sec + (a*t_sec*t_sec)/2; 
+	Vector x = obj[n].Position + obj[n].velo*t_sec + (a*t_sec*t_sec)*0.5; 
 
 	obj[n].accel = a;
 	obj[n].velo = v;
@@ -505,17 +509,17 @@ void ContainerObjects::MoveQuadrocopter(int n,double t_sec)
 		min = 3;
 	}
 	Vector Ft = Vector(0,-quad[n].m * quad[n]._g,0); 
-	Vector Ftr = - (quad[n].velo > quad[n].velo * 0.47 / 2) * pow(quad[n].eng[0].GetRad(),2)  * PI;
+	Vector Ftr = - (quad[n].velo > quad[n].velo * 0.47 *0.5) * pow(quad[n].eng[0].GetRad(),2)  * PI;
 	Vector tes = quad[n].eng[min].F * 4;
 	Vector F = quad[n].F + Ftr + tes;	// + F1 + F2 + ...; // Очень странно себя ведёт
 	Vector a = quad[n].F / quad[n].m;
 	Vector v = quad[n].velo + a*t_sec; 
 
-	Vector x1 = quad[n].eng[0].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)/2; 
-	Vector x2 = quad[n].eng[1].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)/2;
-	Vector x3 = quad[n].eng[2].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)/2;
-	Vector x4 = quad[n].eng[3].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)/2;
-	Vector x = quad[n].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)/2; 
+	Vector x1 = quad[n].eng[0].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)*0.5; 
+	Vector x2 = quad[n].eng[1].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)*0.5;
+	Vector x3 = quad[n].eng[2].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)*0.5;
+	Vector x4 = quad[n].eng[3].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)*0.5;
+	Vector x = quad[n].Position + quad[n].velo*t_sec + (a*t_sec*t_sec)*0.5; 
 
 	quad[n].accel = a;
 	quad[n].velo = v;

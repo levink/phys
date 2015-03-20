@@ -16,8 +16,8 @@ const int E = 20;
 // Физика
 // Хе-Хе
 
-const int SCENE_W = 800;//1024;
-const int SCENE_H = 600;//768;
+int SCENE_W = 1905;//1024;
+int SCENE_H = 990;//768;
 
 double lightAngle = 0;
 double lightHeight = 8;
@@ -68,10 +68,11 @@ void Demo3();
 void Demo4();
 void Demo5();
 void Demo6();
+void Demo7();
 
 void keyboard(unsigned char key, int x, int y)
 {
-	if (key >= '1' && key <= '6')
+	if (key >= '1' && key <= '7')
 	{
 		int num = key - '0';
 		_tmp = num;
@@ -162,7 +163,6 @@ void mouseClick(int button, int state, int x, int y)
 	{
 		double x1;
 		double y1;
-		
 		x1 = x * 0.05;
 		y1 = 30 - y * 0.05;
 
@@ -188,6 +188,8 @@ void mouseClick(int button, int state, int x, int y)
 
 void mouseMotion(int x, int y)
 {
+	cout <<"x- "<< x << "\t";
+	cout << "y- "<< y<< endl;
 	if (dragFlag)
 	{
 		double dx = x - oldX;
@@ -229,6 +231,8 @@ void reshape(int width, int height)
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	SCENE_W = width;
+	SCENE_H = height;
 
 }
 
@@ -250,27 +254,58 @@ void DrawD(Vector & v)
 	glVertex3d(0,0,0);
 	glEnd();
 }
-void display(void)
+void collaps(bool test,int n)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_NORMALIZE);
-	//Camera
-	glPushMatrix();
-	glTranslated(0,-5,-30 + camHeight); 
-	glRotated(camAng2, 1,0,0);
-	glRotated(camAng1, 0,1,0);
-	//glTranslated(-10,0,10);
-	//glTranslated(-0,0,-10);
-
+	if(test)
+	{
+		Quadrocopter * qad = phy->balls->Get_quad(n);
+		qad->eng[0].F = (qad->eng[0].Position - qad->Position)*3000;
+		qad->eng[1].F = (qad->eng[1].Position - qad->Position)*3000;
+		qad->eng[2].F = (qad->eng[2].Position - qad->Position)*3000;
+		qad->eng[3].F = (qad->eng[3].Position - qad->Position)*3000;
+		qad->eng[0].SetRad(0.5);
+		qad->eng[1].SetRad(0.5);
+		qad->eng[2].SetRad(0.5);
+		qad->eng[3].SetRad(0.5);
+		phy->balls->Add(qad->eng[0]);
+		phy->balls->Add(qad->eng[1]);
+		phy->balls->Add(qad->eng[2]);
+		phy->balls->Add(qad->eng[3]);
+		qad->eng[0].Position = qad->eng[0].Position + (qad->eng[0].Position - qad->Position)*0.3;
+		qad->eng[1].Position = qad->eng[1].Position + (qad->eng[1].Position - qad->Position)*0.3;
+		qad->eng[2].Position = qad->eng[2].Position + (qad->eng[2].Position - qad->Position)*0.3;
+		qad->eng[3].Position = qad->eng[3].Position + (qad->eng[3].Position - qad->Position)*0.3;
+		qad->eng[0].F = (qad->eng[0].Position - qad->Position)*2000;
+		qad->eng[1].F = (qad->eng[1].Position - qad->Position)*2000;
+		qad->eng[2].F = (qad->eng[2].Position - qad->Position)*2000;
+		qad->eng[3].F = (qad->eng[3].Position - qad->Position)*2000;
+		phy->balls->Add(qad->eng[0]);
+		phy->balls->Add(qad->eng[1]);
+		phy->balls->Add(qad->eng[2]);
+		phy->balls->Add(qad->eng[3]);
+		qad->eng[0].Position = qad->eng[0].Position + (qad->eng[0].Position - qad->Position)*0.6;
+		qad->eng[1].Position = qad->eng[1].Position + (qad->eng[1].Position - qad->Position)*0.6;
+		qad->eng[2].Position = qad->eng[2].Position + (qad->eng[2].Position - qad->Position)*0.6;
+		qad->eng[3].Position = qad->eng[3].Position + (qad->eng[3].Position - qad->Position)*0.6;
+		qad->eng[0].F = (qad->eng[0].Position - qad->Position)*2000;
+		qad->eng[1].F = (qad->eng[1].Position - qad->Position)*2000;
+		qad->eng[2].F = (qad->eng[2].Position - qad->Position)*2000;
+		qad->eng[3].F = (qad->eng[3].Position - qad->Position)*2000;
+		phy->balls->Add(qad->eng[0]);
+		phy->balls->Add(qad->eng[1]);
+		phy->balls->Add(qad->eng[2]);
+		phy->balls->Add(qad->eng[3]);
+		phy->balls->Delete_qa(n);
+	}
+}
+void RenderScene(bool movement)
+{	
 	//Scene light
 	GLfloat ambient[] = {0.2, 0.2, 0.2, 1.0}; 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 	glEnable(GL_LIGHTING);
 	
-
 	//light 0
 	glPushMatrix();
 	GLfloat pos[] = {7, 5+lightHeight, 0, 1.0};
@@ -280,7 +315,6 @@ void display(void)
 	glTranslated(10,0,-10);
 	glRotated(lightAngle,0,1,0);
 	glTranslated(pos[0], pos[1], pos[2]);
-	//glutSolidSphere(1,10,10);
 	glEnable(GL_LIGHTING);
 	glPopMatrix();	
 	glTranslated(10,0,-10);
@@ -289,9 +323,7 @@ void display(void)
 	glEnable(GL_LIGHT0);
 	glPopMatrix();
 
-	/*glBegin(GL_LINES);
-		glVertex
-	glEnd();*/
+	glPushMatrix();
 	glLineWidth(1.5);
 	////floor
 	glNormal3d(0,1,0);
@@ -304,18 +336,15 @@ void display(void)
 	Draw(Vector(0,5,0));
 	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, blue);
 	Draw(Vector(0,0,5));
-	
-	glPushMatrix();
-	//glTranslated(-5,0,-5);
 
 	for(int i = 0;i<planes->Count();i++)
 	{
 		glBegin(GL_TRIANGLES);
 		Plane * pl = planes->GetPl(i);
-		GLfloat col[3] = {0,0.9 - 0.05 * i,0};
+		GLfloat col[3] = {0,1 - 0.05 * i,0};
 		for(int e = 0;e<pl->tr_num;e++)
 		{
-			col[1] -=e * 0.1;
+			col[1] -=e * 0.05;
 			glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,col);
 			Vector t1 = pl->tmp[pl->tr[0][e]];
 			Vector t2 = pl->tmp[pl->tr[1][e]];
@@ -326,50 +355,12 @@ void display(void)
 		}													   
 		glEnd();
 	}
-	/*glBegin(GL_QUADS);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
-	for(int t=0;t<tmp->GetK();t++)
-	{
-		for(int i=0;i < x; i++)
-			for(int j=50;j > z; j--)
-			{
-				glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,t),j);
-				glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,t),j-1);
-				glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,t),j);
-			}
-	}
-
-	for(int i=0;i < x; i++)
-		for(int j=0;j > z; j--)
-		{
-			glVertex3d(i, GetWorld(phy)->GetYatXZ(i,j,1)+10,j);
-			glVertex3d(i,GetWorld(phy)->GetYatXZ(i,j-1,1)+10,j-1);
-			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j-1,1)+10,j-1);
-			glVertex3d(i+1,GetWorld(phy)->GetYatXZ(i+1,j,1)+10,j);
-		}
-
-	glEnd();*/
-
-	//plane
-	//glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE, green);
-	/*glBegin(GL_POLYGON);
-	glNormal3d(-10,10,1);*/
-	/*glVertex3d(10, GetY(10,-0)-5,-0);
-	glVertex3d(10, GetY(10,-40)-5,-40);
-	glVertex3d(30, GetY(30,-40)-5,-40);
-	glVertex3d(30, GetY(30,-0)-5,-0);*/
-	/*glVertex3d(10, GetWorld(*phy)->GetYatXZ(10,-0,0),-0);
-	glVertex3d(10, GetWorld(*phy)->GetYatXZ(10,-30,0),-30);
-	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-30,0),-30);
-	glVertex3d(60, GetWorld(*phy)->GetYatXZ(60,-0,0),-0);*/
-	/*glEnd();*/
-	//glTranslated(0,0,-40);
+	
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	//DWORD dt = GetTickCount()-t1;
 	//needStep = 1; // удалить
-	if(pause && needStep || !pause) 
+	if((pause && needStep || !pause) && movement) 
 	{
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
 		glutSolidSphere(0.4,15,15);
@@ -377,7 +368,7 @@ void display(void)
 		DWORD t2 = GetTickCount();
 		DWORD dt = t2-t1;
 		t1 = t2;
-		double tim = 25/1000.0;//dt/1000.0;
+		double tim = 25/1000.0;
 		
 		vector<CollisionInfoOfSphere>  col_of_sp = phy->balls->inspection();
 		phy->balls->all_calculation(col_of_sp, dt);
@@ -401,47 +392,7 @@ void display(void)
 		phy->wor->Calculation(col,tim);
 		for(int i = 0;i<col.size();i++)
 		{
-			if(col[i].qa_t)
-			{
-				Quadrocopter * qad = col[i].qa;
-				qad->eng[0].F = (qad->eng[0].Position - qad->Position)*3000;
-				qad->eng[1].F = (qad->eng[1].Position - qad->Position)*3000;
-				qad->eng[2].F = (qad->eng[2].Position - qad->Position)*3000;
-				qad->eng[3].F = (qad->eng[3].Position - qad->Position)*3000;
-				qad->eng[0].SetRad(0.5);
-				qad->eng[1].SetRad(0.5);
-				qad->eng[2].SetRad(0.5);
-				qad->eng[3].SetRad(0.5);
-				phy->balls->Add(col[i].qa->eng[0]);
-				phy->balls->Add(col[i].qa->eng[1]);
-				phy->balls->Add(col[i].qa->eng[2]);
-				phy->balls->Add(col[i].qa->eng[3]);
-				qad->eng[0].Position = qad->eng[0].Position + (qad->eng[0].Position - qad->Position)*0.3;
-				qad->eng[1].Position = qad->eng[1].Position + (qad->eng[1].Position - qad->Position)*0.3;
-				qad->eng[2].Position = qad->eng[2].Position + (qad->eng[2].Position - qad->Position)*0.3;
-				qad->eng[3].Position = qad->eng[3].Position + (qad->eng[3].Position - qad->Position)*0.3;
-				qad->eng[0].F = (qad->eng[0].Position - qad->Position)*2000;
-				qad->eng[1].F = (qad->eng[1].Position - qad->Position)*2000;
-				qad->eng[2].F = (qad->eng[2].Position - qad->Position)*2000;
-				qad->eng[3].F = (qad->eng[3].Position - qad->Position)*2000;
-				phy->balls->Add(col[i].qa->eng[0]);
-				phy->balls->Add(col[i].qa->eng[1]);
-				phy->balls->Add(col[i].qa->eng[2]);
-				phy->balls->Add(col[i].qa->eng[3]);
-				qad->eng[0].Position = qad->eng[0].Position + (qad->eng[0].Position - qad->Position)*0.6;
-				qad->eng[1].Position = qad->eng[1].Position + (qad->eng[1].Position - qad->Position)*0.6;
-				qad->eng[2].Position = qad->eng[2].Position + (qad->eng[2].Position - qad->Position)*0.6;
-				qad->eng[3].Position = qad->eng[3].Position + (qad->eng[3].Position - qad->Position)*0.6;
-				qad->eng[0].F = (qad->eng[0].Position - qad->Position)*2000;
-				qad->eng[1].F = (qad->eng[1].Position - qad->Position)*2000;
-				qad->eng[2].F = (qad->eng[2].Position - qad->Position)*2000;
-				qad->eng[3].F = (qad->eng[3].Position - qad->Position)*2000;
-				phy->balls->Add(col[i].qa->eng[0]);
-				phy->balls->Add(col[i].qa->eng[1]);
-				phy->balls->Add(col[i].qa->eng[2]);
-				phy->balls->Add(col[i].qa->eng[3]);
-				phy->balls->Delete_qa(col[i].nom_qa);
-			}
+			collaps(col[i].qa_t,col[i].nom_qa);
 		}
 	}
 	else
@@ -457,8 +408,6 @@ void display(void)
 		glTranslated(tmp->Position.GetX(),tmp->Position.GetY(), tmp->Position.GetZ());
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
 		Draw(tmp->velo);
-		/*glRotated(tmp->Angl.GetX(),0,0,1);
-		glRotated(tmp->Angl.GetZ(),1,0,0);*/
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 		glutSolidSphere(tmp->GetRad(),25,25);
 		glPopMatrix();
@@ -476,7 +425,7 @@ void display(void)
 		Draw(tmp->F/5);
 		glPopMatrix();
 
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
 		glPushMatrix();
 		glTranslated(tmp->eng[0].Position.GetX(),tmp->eng[0].Position.GetY(),tmp->eng[0].Position.GetZ());
 		glutSolidSphere(tmp->eng[0].GetRad(),25,25);
@@ -484,7 +433,7 @@ void display(void)
 		Draw(tmp->eng[0].F/5);
 		glPopMatrix();
 		glPushMatrix();
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
 		glTranslated(tmp->eng[1].Position.GetX(),tmp->eng[1].Position.GetY(),tmp->eng[1].Position.GetZ());
 		glutSolidSphere(tmp->eng[1].GetRad(),25,25);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
@@ -504,16 +453,45 @@ void display(void)
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
 		Draw(tmp->eng[3].F/5);
 		glPopMatrix();
-		/*glRotated(tmp->Angl.GetX(),0,0,1);
-		glRotated(tmp->Angl.GetZ(),1,0,0);*/
 	}
 	
 	//t1 += dt;
 	glPopMatrix();
+}
+void display(void)
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_NORMALIZE);
+	
+	glViewport(0,0,SCENE_W, SCENE_H);
+
+	//Camera
+	glPushMatrix();
+	glTranslated(0,-5,-30 + camHeight); 
+	glRotated(camAng2, 1,0,0);
+	glRotated(camAng1, 0,1,0);
+	RenderScene(true);
 	glPopMatrix();
-	IFPS = IFPS + 1;
+
+	if(phy->balls->Count_quad() != 0)
+	{
+		glViewport(0,0,SCENE_W/2, SCENE_H/2);
+
+		glPushMatrix();
+		Quadrocopter * quad = phy->balls->Get_quad(0);
+		Vector tran = quad->X * quad->GetRad();
+		glTranslated(quad->Position.GetX() + tran.GetX(),quad->Position.GetY() + tran.GetY(),quad->Position.GetZ() + tran.GetZ()); 
+		glRotated(quad->Angl.GetX(), 1,0,0);
+		glRotated(quad->Angl.GetY(), 0,1,0);
+		
+		RenderScene(false);
+		glPopMatrix();
+	}
 	glFlush();
 	glutSwapBuffers();
+	IFPS = IFPS + 1;
 }
 
 int main(int argc, char **argv)
@@ -549,7 +527,7 @@ int main(int argc, char **argv)
 }
 void StartDemo(int num)
 {
-	if (num >= 1 && num <= 6) 
+	if (num >= 1 && num <= 7) 
 	{
 		Clear();
 		f1=24.5;
@@ -563,61 +541,48 @@ void StartDemo(int num)
 	else if (num == 4) Demo4();
 	else if (num == 5) Demo5();
 	else if (num == 6) Demo6();
+	else if (num == 7) Demo7();
 }
 void Demo1()
 {
 	//отскок от трёх плоскостей
 	//пол
-	//Vector v0[4] = {
-	//	Vector(0,0,0),
-	//	Vector(10,0,0),
-	//	Vector(10,0,10),
-	//	Vector(0,0,10),
-	//};
-	//Plane floor = Plane();
-	//floor.SetPoints(v0, 4);
-
-	////стенка1
-	//Vector v1[4] = {
-	//	Vector(10,0,0),
-	//	Vector(15,5,0),
-	//	Vector(15,5,10),
-	//	Vector(10,0,10),
-	//};
-	//Plane wall = Plane();
-	//wall.SetPoints(v1,4);
-
-	////стенка2
-	//Vector v2[4] = {
-	//	Vector(0,0,0),
-	//	Vector(-5,5,0),
-	//	Vector(-5,5,10),
-	//	Vector(0,0,10),
-	//};
-	//Plane wall2 = Plane();
-	//wall2.SetPoints(v2,4);
-
-	//planes->Add(floor);
-	//planes->Add(wall);
-	//planes->Add(wall2);
-	Vector floor[5] = {
+	Vector v0[4] = {
+		Vector(0,0,0),
 		Vector(10,0,0),
 		Vector(10,0,10),
-		Vector(5,0,5),
 		Vector(0,0,10),
-		Vector(0,0,0)};
-	Plane f1 = Plane();
-	f1.SetPoints(floor,5);
-	planes->Add(f1);
+	};
+	Plane floor = Plane();
+	floor.SetPoints(v0, 4);
+
+	//стенка1
+	Vector v1[4] = {
+		Vector(10,0,0),
+		Vector(15,5,0),
+		Vector(15,5,10),
+		Vector(10,0,10),
+	};
+	Plane wall = Plane();
+	wall.SetPoints(v1,4);
+
+	//стенка2
+	Vector v2[4] = {
+		Vector(0,0,10),
+		Vector(-5,5,10),
+		Vector(-5,5,0),
+		Vector(0,0,0),
+	};
+	Plane wall2 = Plane();
+	wall2.SetPoints(v2,4);
+
+	planes->Add(floor);
+	planes->Add(wall);
+	planes->Add(wall2);
 
 	//Ball
 	Sphere tmp = Sphere();
-	tmp.Position = Vector(2,5,2);
-	//tmp.Position = Vector(13,5,5);
-	bal->Add(tmp);
-	tmp.Position = Vector(5,5,7);
-	bal->Add(tmp);
-	tmp.Position = Vector(7,5,2);
+	tmp.Position = Vector(13,5,5);
 	bal->Add(tmp);
 }
 void Demo2()
@@ -690,10 +655,10 @@ void Demo4()
 	bal->Add(tmp);
 	tmp.Position = Vector(10,14,-0.5);
 	bal->Add(tmp);
-	tmp.Position = Vector(13,14,0.5);
+	/*tmp.Position = Vector(13,13.8,0.5);
 	bal->Add(tmp);
-	tmp.Position = Vector(16,13.8,-0.5);
-	bal->Add(tmp);
+	tmp.Position = Vector(16,13.7,-0.5);
+	bal->Add(tmp);*/
 }
 void Demo5()
 {
@@ -753,46 +718,152 @@ void Demo5()
 }
 void Demo6()
 {
-	Vector v0[4] = {
+	//Vector v0[4] = {
+	//	Vector(0,0,0),
+	//	Vector(10,0,0),
+	//	Vector(10,0,10),
+	//	Vector(0,0,10),
+	//};
+	//Plane floor = Plane();
+	//floor.SetPoints(v0, 4);
+
+	////стенка1
+	//Vector v1[4] = {
+	//	Vector(10,0,0),
+	//	Vector(15,5,0),
+	//	Vector(15,5,10),
+	//	Vector(10,0,10),
+	//};
+	//Plane wall = Plane();
+	//wall.SetPoints(v1,4);
+
+	////стенка2
+	//Vector v2[4] = {
+	//	Vector(0,0,10),
+	//	Vector(-5,5,10),
+	//	Vector(-5,5,0),
+	//	Vector(0,0,0),
+	//};
+	//Plane wall2 = Plane();
+	//wall2.SetPoints(v2,4);
+
+	//planes->Add(floor);
+	//planes->Add(wall);
+	//planes->Add(wall2);
+	Vector f[4] = {
 		Vector(0,0,0),
-		Vector(10,0,0),
-		Vector(10,0,10),
-		Vector(0,0,10),
-	};
+		Vector(30,0,0),
+		Vector(30,0,30),
+		Vector(0,0,30)};
 	Plane floor = Plane();
-	floor.SetPoints(v0, 4);
+	floor.SetPoints(f,4);
 
-	//стенка1
-	Vector v1[4] = {
-		Vector(10,0,0),
-		Vector(15,5,0),
-		Vector(15,5,10),
-		Vector(10,0,10),
-	};
-	Plane wall = Plane();
-	wall.SetPoints(v1,4);
+	/*Vector w1[4] = {
+		Vector(0,0,20),
+		Vector(-10,10,20),
+		Vector(-10,10,0),
+		Vector(0,0,0)};
+	Plane wall1 = Plane();
+	wall1.SetPoints(w1,4);
 
-	//стенка2
-	Vector v2[4] = {
-		Vector(0,0,10),
-		Vector(-5,5,10),
-		Vector(-5,5,0),
-		Vector(0,0,0),
-	};
+	Vector w2[4] = {
+		Vector(20,0,0),
+		Vector(30,10,0),
+		Vector(30,10,20),
+		Vector(20,0,20)};
 	Plane wall2 = Plane();
-	wall2.SetPoints(v2,4);
+	wall2.SetPoints(w2,4);
+
+	Vector w3[4] = {
+		Vector(0,0,20),
+		Vector(20,0,20),
+		Vector(20,10,30),
+		Vector(0,10,30)};
+	Plane wall3 = Plane();
+	wall3.SetPoints(w3,4);
+
+	Vector w4[4] = {
+		Vector(20,0,0),
+		Vector(0,0,0),
+		Vector(0,10,-10),
+		Vector(20,10,-10)};
+	Plane wall4 = Plane();
+	wall4.SetPoints(w4,4);*/
+
+	//Vector w5[3] = {
+	//	Vector(0.001,0.001,0.001),//-10,10,0
+	//	Vector(-10,10,0), // 0,10,-10
+	//	Vector(0,10,-10),}; // 0,0,0
+	//Plane wall5 = Plane();
+	//wall5.SetPoints(w5,3);
+
+	//Vector w6[3] = {
+	//	Vector(30,10,0), // 30,10,0
+	//	Vector(20,0,0),//20,10,-10
+	//	Vector(20,10,-10),}; // 20,0,0
+	//Plane wall6 = Plane();
+	//wall6.SetPoints(w6,3);
+
+	//Vector w7[3] = {
+	//	Vector(20,0.001,20),//30,10,20
+	//	Vector(30,10,20),//20,10,30
+	//	Vector(30,10,20),};//20,0,20
+	//Plane wall7 = Plane();
+	//wall7.SetPoints(w7,3);
+
+	//Vector w8[3] = {
+	//	Vector(-10,10,20),//-10,10,20
+	//	Vector(0,0,20),//0,10,30
+	//	Vector(0,10,30),};//0,0,20
+	//Plane wall8 = Plane();
+	//wall8.SetPoints(w8,3);
 
 	planes->Add(floor);
-	planes->Add(wall);
+	/*planes->Add(wall1);
 	planes->Add(wall2);
+	planes->Add(wall3);
+	planes->Add(wall4);*/
+	/*planes->Add(wall5);
+	planes->Add(wall6);
+	planes->Add(wall7);
+	planes->Add(wall8);*/
 
 	//Quadrocopter
-	Quadrocopter qu  = Quadrocopter(Vector(5,15,5));
+	Quadrocopter qu  = Quadrocopter(Vector(15,15,15));
 	qu.SetForse(24.5,24.5,24.5,24.5); // 24.5 for static
 	//for(int i =0;i<500;i++)
 	//{
 		bal->Add(qu);
 	//}
+}
+void Demo7()
+{
+	/*Vector f[8] = {
+		Vector(18,2,3),
+		Vector(20,2,11),
+		Vector(15,2,20),
+		Vector(12,2,15),
+		Vector(9,2,5),
+		Vector(1,2,13),
+		Vector(7,2,1),
+		Vector(13,2,8)};*/
+	Vector floor[5] = {
+		Vector(10,0,0),
+		Vector(10,0,10),
+		Vector(5,0,5),
+		Vector(0,0,10),
+		Vector(0,0,0)};
+	Plane f1 = Plane();
+	f1.SetPoints(floor,5);
+	planes->Add(f1);
+
+	Sphere tmp = Sphere();
+	tmp.Position = Vector(2,5,2);
+	bal->Add(tmp);
+	tmp.Position = Vector(5,5,7);
+	bal->Add(tmp);
+	tmp.Position = Vector(7,5,2);
+	bal->Add(tmp);
 }
 void Clear()
 {
