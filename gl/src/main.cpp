@@ -355,44 +355,54 @@ void RenderScene(bool movement)
 		}													   
 		glEnd();
 	}
-	
+
+	glBegin(GL_POLYGON);
+	glVertex3d(25,10,6.5);
+	glVertex3d(25,13.5,10);
+	glVertex3d(25,10,13.5);
+	glVertex3d(25,6.5,10);
+	glEnd();
+
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
 
 	//DWORD dt = GetTickCount()-t1;
 	//needStep = 1; // удалить
-	if((pause && needStep || !pause) && movement) 
+	if((pause && needStep || !pause)) 
 	{
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
 		glutSolidSphere(0.4,15,15);
-		needStep = false;
-		DWORD t2 = GetTickCount();
-		DWORD dt = t2-t1;
-		t1 = t2;
-		double tim = 25/1000.0;
-		
-		vector<CollisionInfoOfSphere>  col_of_sp = phy->balls->inspection();
-		phy->balls->all_calculation(col_of_sp, dt);
+		if(movement)
+		{
+			needStep = false;
+			DWORD t2 = GetTickCount();
+			DWORD dt = t2-t1;
+			t1 = t2;
+			double tim = 25/1000.0;
+			
+			vector<CollisionInfoOfSphere>  col_of_sp = phy->balls->inspection();
+			phy->balls->all_calculation(col_of_sp, dt);
 
-		int num_con = phy->balls->Count_sp();
-		for(int i=0;i<num_con;i++)
-		{
-			phy->balls->MoveSphere(i, tim);
-		}
-		int num_qu = phy->balls->Count_quad();
-		for(int i = 0;i<num_qu;i++)
-		{
-			//Quadrocopter control
-			if(_tmp==6)
+			int num_con = phy->balls->Count_sp();
+			for(int i=0;i<num_con;i++)
 			{
-				phy->balls->Get_quad(i)->SetForse(f1,f2,f3,f4);
+				phy->balls->MoveSphere(i, tim);
 			}
-			phy->balls->MoveQuadrocopter(i, tim);
-		}
-		vector<CollisionInfo> col = phy->wor->inspections(phy->balls);
-		phy->wor->Calculation(col,tim);
-		for(int i = 0;i<col.size();i++)
-		{
-			collaps(col[i].qa_t,col[i].nom_qa);
+			int num_qu = phy->balls->Count_quad();
+			for(int i = 0;i<num_qu;i++)
+			{
+				//Quadrocopter control
+				if(_tmp==6)
+				{
+					phy->balls->Get_quad(i)->SetForse(f1,f2,f3,f4);
+				}
+				phy->balls->MoveQuadrocopter(i, tim);
+			}
+			vector<CollisionInfo> col = phy->wor->inspections(phy->balls);
+			phy->wor->Calculation(col,tim);
+			for(int i = 0;i<col.size();i++)
+			{
+				collaps(col[i].qa_t,col[i].nom_qa);
+			}
 		}
 	}
 	else
@@ -412,47 +422,50 @@ void RenderScene(bool movement)
 		glutSolidSphere(tmp->GetRad(),25,25);
 		glPopMatrix();
 	}
-	int num_quad = phy->balls->Count_quad();
-	for(int i = 0;i<num_quad;i++)
+	if(movement)
 	{
-		Quadrocopter* tmp = phy->balls->Get_quad(i);
-		double r = tmp->GetRad();
-		glPushMatrix();
-		glTranslated(tmp->Position.GetX(),tmp->Position.GetY(), tmp->Position.GetZ());
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
-		Draw(tmp->velo);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
-		Draw(tmp->F/5);
-		glPopMatrix();
+		int num_quad = phy->balls->Count_quad();
+		for(int i = 0;i<num_quad;i++)
+		{
+			Quadrocopter* tmp = phy->balls->Get_quad(i);
+			double r = tmp->GetRad();
+			glPushMatrix();
+			glTranslated(tmp->Position.GetX(),tmp->Position.GetY(), tmp->Position.GetZ());
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
+			Draw(tmp->velo);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+			Draw(tmp->F/5);
+			glPopMatrix();
 
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
-		glPushMatrix();
-		glTranslated(tmp->eng[0].Position.GetX(),tmp->eng[0].Position.GetY(),tmp->eng[0].Position.GetZ());
-		glutSolidSphere(tmp->eng[0].GetRad(),25,25);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
-		Draw(tmp->eng[0].F/5);
-		glPopMatrix();
-		glPushMatrix();
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
-		glTranslated(tmp->eng[1].Position.GetX(),tmp->eng[1].Position.GetY(),tmp->eng[1].Position.GetZ());
-		glutSolidSphere(tmp->eng[1].GetRad(),25,25);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
-		Draw(tmp->eng[1].F/5);
-		glPopMatrix();
-		glPushMatrix();
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
-		glTranslated(tmp->eng[2].Position.GetX(),tmp->eng[2].Position.GetY(),tmp->eng[2].Position.GetZ());
-		glutSolidSphere(tmp->eng[2].GetRad(),25,25);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
-		Draw(tmp->eng[2].F/5);
-		glPopMatrix();
-		glPushMatrix();
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
-		glTranslated(tmp->eng[3].Position.GetX(),tmp->eng[3].Position.GetY(),tmp->eng[3].Position.GetZ());
-		glutSolidSphere(tmp->eng[3].GetRad(),25,25);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
-		Draw(tmp->eng[3].F/5);
-		glPopMatrix();
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+			glPushMatrix();
+			glTranslated(tmp->eng[0].Position.GetX(),tmp->eng[0].Position.GetY(),tmp->eng[0].Position.GetZ());
+			glutSolidSphere(tmp->eng[0].GetRad(),25,25);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+			Draw(tmp->eng[0].F/5);
+			glPopMatrix();
+			glPushMatrix();
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+			glTranslated(tmp->eng[1].Position.GetX(),tmp->eng[1].Position.GetY(),tmp->eng[1].Position.GetZ());
+			glutSolidSphere(tmp->eng[1].GetRad(),25,25);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+			Draw(tmp->eng[1].F/5);
+			glPopMatrix();
+			glPushMatrix();
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, red);
+			glTranslated(tmp->eng[2].Position.GetX(),tmp->eng[2].Position.GetY(),tmp->eng[2].Position.GetZ());
+			glutSolidSphere(tmp->eng[2].GetRad(),25,25);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+			Draw(tmp->eng[2].F/5);
+			glPopMatrix();
+			glPushMatrix();
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, green);
+			glTranslated(tmp->eng[3].Position.GetX(),tmp->eng[3].Position.GetY(),tmp->eng[3].Position.GetZ());
+			glutSolidSphere(tmp->eng[3].GetRad(),25,25);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blue);
+			Draw(tmp->eng[3].F/5);
+			glPopMatrix();
+		}
 	}
 	
 	//t1 += dt;
@@ -481,11 +494,11 @@ void display(void)
 
 		glPushMatrix();
 		Quadrocopter * quad = phy->balls->Get_quad(0);
-		Vector tran = quad->X * quad->GetRad();
-		glTranslated(quad->Position.GetX() + tran.GetX(),quad->Position.GetY() + tran.GetY(),quad->Position.GetZ() + tran.GetZ()); 
-		glRotated(quad->Angl.GetX(), 1,0,0);
-		glRotated(quad->Angl.GetY(), 0,1,0);
-		
+		glTranslated(-quad->Position.GetX(),-quad->Position.GetY(),-quad->Position.GetZ()); 
+		glRotated(-quad->Angl.GetX(), 1,0,0);
+		glRotated(-quad->Angl.GetY(), 0,1,0);
+		glRotated(-quad->Angl.GetZ(), 0,0,1);
+
 		RenderScene(false);
 		glPopMatrix();
 	}
