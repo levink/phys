@@ -10,10 +10,13 @@ class BaseObject
 public:
 	Vector Position;
 	double m;
+	double k; // коэффициент упругости объекта
+	double u; // коэффициент трения
 	Vector velo;
 	Vector accel;
 	Vector F;
 	Vector w;
+	Vector e;
 	Vector Angl;
 	BaseObject();
 };
@@ -26,7 +29,7 @@ public:
 	double _g;
 	Sphere();
 
-	void Rotated(Vector ve1, Vector nor);
+	double Rotated(Vector point, Vector fors,double m,double k2);
 
 	bool Test(Sphere * obj);
 	void HandlerCollision(Sphere * obj, double tim);

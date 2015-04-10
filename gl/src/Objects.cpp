@@ -8,8 +8,11 @@ BaseObject::BaseObject()
 	accel = Vector(0,0,0);
 	F = Vector(0,0,0);
 	w = Vector(0,0,0);
+	e = Vector(0,0,0);
 	Angl = Vector(0,0,0);
 	m = 10;
+	k = 1000;
+	u = 0.3; 
 }
 
 //Sphere::
@@ -22,37 +25,13 @@ Sphere::Sphere()
 }
 
 
-void Sphere::Rotated(Vector ve1, Vector nor)//начальны йвектор скорости и вектор, к которому строится перпендикуляр
+double Sphere::Rotated(Vector point, Vector fors,double m2,double dt)//Точка соударения и сила, действующая со стороны второго объекта, возвращает отношение силы, ушедшей в лиейное движение, к силе, ушедшей во вращательное.
 {
-	double A = ve1.GetY() * velo.GetZ() - velo.GetY() * ve1.GetZ();
-	double B = -(ve1.GetX() * velo.GetZ() - ve1.GetZ() * velo.GetX());
-	double C = ve1.GetX() * velo.GetY() - ve1.GetY() * velo.GetX();
-	double D = - Position.GetX() * A + Position.GetY() * B - Position.GetZ() * C;
-	/*if(C == 0)
-		C = 1;
-	if(ve1.GetY() == 0)
-		ve1.SetY(1);
-	if(ve1.GetZ() == 0)
-		ve1.SetZ(1);
-	if(B == (C * ve1.GetY()) / ve1.GetZ() )
-		B +=1;
-	double _y = -D / ( B - ( ( C * ve1.GetY() ) / ve1.GetZ() ) );
-	double _z = - ( ve1.GetY() * _y ) / ve1.GetZ();
-
-	Vector normal = Vector(0,_y,_z);*/
-
-	if(B==0)
-		B = 0.0001;
-	if(nor.GetY() * C + nor.GetZ() * B == 0)
-		C+=1;
-	double _z = - (nor.GetX() + nor.GetY() * (A + D)) / (nor.GetY() * C + nor.GetZ() * B);
-	double _y = (A + _z * C + D) / B; 
-	double _x = 1;
-	Vector normal = Vector_norm(Vector(_x,_y,_z));
-	
-	if(normal.length() != 0)
-		w = normal * ( velo & normal ) / normal.length() ;
-		//w = ( normal * ( velo & normal ) / velo.length() ) * 0.2 ;
+	Vector line = Vector_norm(Position - point);
+	double k_line = fors & line; 
+	double f_rot = (fors - line * k_line).length();
+	double koef =  k_line/f_rot; // возвращаемое значение
+	//double dt = PI * sqrt(((m + m2) * (k + k2)) / (k * k2)); // время столкновения
 }
 
 
