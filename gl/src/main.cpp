@@ -765,9 +765,9 @@ void Demo6()
 	//planes->Add(wall2);
 	Vector f[4] = {
 		Vector(0,0,0),
-		Vector(30,0,0),
-		Vector(30,0,30),
-		Vector(0,0,30)};
+		Vector(50,0,0),
+		Vector(50,0,50),
+		Vector(0,0,50)};
 	Plane floor = Plane();
 	floor.SetPoints(f,4);
 
@@ -842,7 +842,9 @@ void Demo6()
 	planes->Add(wall8);*/
 
 	//Quadrocopter
+
 	Quadrocopter qu  = Quadrocopter(Vector(15,15,15));
+
 	qu.SetForse(24.5,24.5,24.5,24.5); // 24.5 for static
 	//for(int i =0;i<500;i++)
 	//{
