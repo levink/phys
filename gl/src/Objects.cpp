@@ -8,9 +8,14 @@ BaseObject::BaseObject()
 	accel = Vector(0,0,0);
 	F = Vector(0,0,0);
 	w = Vector(0,0,0);
+	J = Vector(0,0,0);
 	e = Vector(0,0,0);
 	Angl = Vector(0,0,0);
 	m = 10;
+	I = Vector(0,0,0);
+	X = Vector(0,0,0);
+	Y = Vector(0,0,0);
+	Z = Vector(0,0,0);
 	k = 1000;
 	u = 0.3; 
 }
@@ -22,18 +27,94 @@ Sphere::Sphere()
 	rad = 1;
 	_g = 9.8;
 	m = 10;
+	double I_sp = 0.4 * m * rad * rad;
+	I = Vector(I_sp,I_sp,I_sp);
 }
 
-
-double Sphere::Rotated(Vector point, Vector fors,double m2,double dt)//Точка соударения и сила, действующая со стороны второго объекта, возвращает отношение силы, ушедшей в лиейное движение, к силе, ушедшей во вращательное.
+void Sphere::Rotated(double t_sec)
 {
-	Vector line = Vector_norm(Position - point);
-	double k_line = fors & line; 
-	double f_rot = (fors - line * k_line).length();
-	double koef =  k_line/f_rot; // возвращаемое значение
-	//double dt = PI * sqrt(((m + m2) * (k + k2)) / (k * k2)); // время столкновения
-}
+	double local[3][3] = { {X.GetX(),X.GetY(),X.GetZ()},
+	{Y.GetX(),Y.GetY(),Y.GetZ()},
+	{Z.GetX(),Z.GetY(),Z.GetZ()} };
+	Matrix loc_sys = Matrix(local);
+	Matrix ret_loc = loc_sys.Invert(); // переходы к локальной СК и обратно
 
+	e = J/I;
+	w = w + e * t_sec;
+	double t2 = t_sec * t_sec;
+	double AX = w.GetX() * t_sec + e.GetX() * t2;
+	double AY = w.GetY() * t_sec + e.GetY() * t2;
+	double AZ = w.GetZ() * t_sec + e.GetZ() * t2;
+	Angl.SetX(Angl.GetX() + AX);
+	Angl.SetY(Angl.GetY() + AY);
+	Angl.SetZ(Angl.GetZ() + AZ);
+	if(Angl.GetX() > 360)
+		Angl.SetX(Angl.GetX() - 360);
+	if(Angl.GetY() > 360)
+		Angl.SetY(Angl.GetY() - 360);
+	if(Angl.GetZ() > 360)
+		Angl.SetZ(Angl.GetZ() - 360);
+	
+	double cx = cos(AX);
+	double sx = sin(AX);
+	double cy = cos(AY);
+	double sy = sin(AY);
+	double cz = cos(AZ);
+	double sz = sin(AZ);
+	double rox[3][3] = {	{1,0,0},
+						{0,cx,sx},
+						{0,-sx,cx}};
+	double roy[3][3] = {	{cy,0,-sy},
+							{0,1,0},
+							{sy,0,cy} };
+	double roz[3][3] = {{cz,sz,0},
+						{-sz,cz,0},
+						{0,0,1} };
+	Matrix rotx = Matrix(rox);
+	Matrix roty = Matrix(roy);
+	Matrix rotz = Matrix(roz);
+	Matrix fin = ret_loc * rotx * roty * rotz ;
+
+	fin = fin * loc_sys;
+	X = Vector_norm(fin * X);
+	Y = Vector_norm(fin * Y);
+	Z = Vector_norm(fin * Z);
+}
+void Sphere::Rotated_Crash(Sphere * obj,Vector v1,Vector v2)//Точка соударения и сила, действующая со стороны второго объекта, возвращает отношение силы, ушедшей в лиейное движение, к силе, ушедшей во вращательное.
+{
+	double rad2 = obj->GetRad();
+	Vector line = (obj->Position - Position) - Vector_norm(obj->Position - Position) * rad;
+	Vector point = Position + line;
+	line = Vector_norm(line);
+	double dt = PI * sqrt(((m + obj->m) * (k + obj->k)) / (k * obj->k)); // время столкновения
+
+	Vector fors = (velo - v1)/ dt; // сила равна изменение импульса/изменение времени 
+	Vector f_tr = -Vector_norm(w) * (fors * (u + obj->u)*0.5).length(); 
+	
+	Vector V1_w = velo - v1 + w * rad; // линейная скорость первого шара, которая может перейти во вращательную второго
+	Vector V2_w = obj->velo - v2 + obj->w * rad2;
+
+	J = (point-Position) * f_tr; 
+	obj->J = (point - obj->Position) * f_tr;
+
+	Vector vel1 = w * rad;
+	Vector vel2 = obj->w * rad2;
+	Vector w1_ve = vel1 * (vel1 * (rad - 1) + f_tr)/(vel1*(2*rad - 1) + f_tr);
+	Vector w2_ve = vel2 * (vel2 * (rad2 - 1) + f_tr)/(vel2*(2*rad2 - 1) + f_tr);
+
+	w = w + (f_tr * dt/m + V2_w)/rad - w1_ve;
+	obj->w = obj->w + (f_tr * dt/obj->m + V1_w)/rad2 - w2_ve;
+
+	velo = velo - f_tr * dt/m + w1_ve;
+	obj->velo = obj->velo - f_tr * dt/obj->m + w2_ve; // Переход вращательного в линейное, если я нигде не ошибся.
+	Rotated(dt);
+	obj->Rotated(dt);
+}
+void Sphere::Rotated_Crash_pl(Plane pl, Vector fors)
+{
+	Line li = Line(velo,Position);
+	li.projection
+}
 
 bool Sphere::Test(Sphere * obj)
 {
@@ -78,23 +159,10 @@ void Sphere::HandlerCollision(Sphere * obj, double tim)
 		ve1 = e;
 	if(ve2 < 0.01)
 		ve2 = e;
-	
+
 	velo = -norm * ve2.length();
 	obj->velo = norm * ve1.length();
-	/*velo = ve1;
-	obj->velo = ve2;*/
 	
-	/*velo = plan->GetInvertMat() * velo;
-	obj->velo = plan->GetInvertMat() * obj->velo;*/
-
-	//if((velo ^ norm) > 0)
-	//	velo = plan->GetMat() * /*velo*/ve1 * res;
-	//else
-	//		velo = -/*velo*/norm * (ve1 * res).length();
-	//if( (obj->velo ^ norm) < 0)
-	//	obj->velo = plan->GetMat() * /*obj->velo*/ve2 * res;
-	//else
-	//	obj->velo = /*obj->velo*/norm * (ve2 * res).length();
 	double len = (obj->Position - Position).length2();
 	len = sqrt(len);
 	len = ((rad + obj->GetRad()) - len)/2; 
@@ -102,10 +170,9 @@ void Sphere::HandlerCollision(Sphere * obj, double tim)
 	 Position = Position - norm * len;
 	 obj->Position = obj->Position + norm * len;
 
-	Rotated(obj->velo,eq);
-	obj->Rotated(velo,eq);
+	Rotated_Crash(obj,norm * (ve1 & norm), norm * (ve2 & norm));
 
-	if((norm & F) > 0)
+	/*if((norm & F) > 0)
 	{
 		F = - (norm * (obj->F & norm)) + F;
 		obj->F = (norm * (F & norm) + obj->F);
@@ -114,7 +181,7 @@ void Sphere::HandlerCollision(Sphere * obj, double tim)
 	{
 		F = (norm * (obj->F & norm)) + F;
 		obj->F = -(norm * (F & norm) + obj->F);
-	}
+	}*/ // Возможно, лишнее
 }
 
 double Sphere::GetRad()
@@ -168,7 +235,7 @@ bool Sphere::inspections(Plane pl)
 void Sphere::calculation(Plane pl,double resil, double t)
 {
 	Vector normal = pl.GetN();
-	Rotated(velo,normal);
+	//!!!!!!!!!!!!!!!!!!!!!!!Rotated(velo,normal);
 	Vector ve = velo;
 	//double velo = obj->velo.length();
 	//obj->velo = Vector_norm(Plan[i].GetMat() * obj->velo);
@@ -471,6 +538,7 @@ void ContainerObjects::MoveSphere(int n,double t_sec)
 	obj[n].velo = v;
 	obj[n].Position = x;
 	obj[n].F = Ft;
+	obj[n].Rotated(t_sec);
 }
 void ContainerObjects::MoveQuadrocopter(int n,double t_sec)
 {

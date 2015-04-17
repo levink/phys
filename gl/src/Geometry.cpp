@@ -75,6 +75,12 @@
 	{
 		return Vector(x,y,z)*(1/u);
 	}
+	Vector Vector::operator/(Vector& const right)
+	{
+		return Vector(this->GetX()/right.GetX(),
+					this->GetY()/right.GetY(),
+					this->GetZ()/right.GetZ());
+	}
 	
 	double Vector::operator&(Vector& const right)
 	{

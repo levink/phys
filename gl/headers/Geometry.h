@@ -32,6 +32,7 @@ public:
 	Vector operator-();
 	Vector operator*(double scale);
 	Vector operator/(double u);
+	Vector operator/(Vector& const right);
 	
 	double operator&(Vector& const right);
 	double operator^(Vector& const right);
